@@ -1,10 +1,13 @@
+// src/app/(main)/about/page.tsx
+import React from 'react';
 
-export default function Academic() {
+const Academic = () => {
   return (
-  <main>
-    <h1>
-    academic  
-    </h1>
-  </main>
+    <div>
+      <h1>About Us</h1>
+      <p>This is the Academic page.</p>
+    </div>
   );
-}
+};
+
+export default Academic;
