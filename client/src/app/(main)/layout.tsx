@@ -1,3 +1,4 @@
+import GoogleProviders from "@/utils/AuthProviders/GoogleProviders";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
@@ -15,7 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <GoogleProviders>
       <body className={inter.className}>{children}</body>
+      </GoogleProviders>
     </html>
   );
 }
