@@ -1,6 +1,8 @@
-import Image from "next/image";
-
+"use client"
+import SignInButton from "@/components/signInButton";
+import Link from "next/link";
 export default function Home() {
+
   return (
   <main>
     <h1 className=" bg-red-500">
@@ -8,5 +10,8 @@ export default function Home() {
       
     </h1>
   </main>
+      <main>
+        MeetAI
+      </main>
   );
 }
