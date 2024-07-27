@@ -9,6 +9,7 @@ const options = {
   secure: true,
 };
 
+/* Generates both access and refresh tokens */
 const generateAccessandRefreshToken = async (userId: any) => {
   try {
     const user = await User.findById(userId);
@@ -31,6 +32,7 @@ const generateAccessandRefreshToken = async (userId: any) => {
   }
 };
 
+/* Register the user and add the user details in the database. */
 const registerUser = asyncHandler(async (req: Request, res: Response) => {
   const { userName, fullName, email, password } = req.body;
 
@@ -68,6 +70,7 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
     .json(new ApiResponse(200, displayUser, "user created successfully!"));
 });
 
+/* login the user by verifying its credentials */
 const loginUser = asyncHandler(async (req: Request, res: Response) => {
   const { userName, password } = req.body;
 
@@ -104,6 +107,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     );
 });
 
+/* To logout the user */
 const logoutUser = asyncHandler(async (req: any, res: Response) => {
   const user = req.user;
 
@@ -123,6 +127,7 @@ const logoutUser = asyncHandler(async (req: any, res: Response) => {
     .json(new ApiResponse(200, {}, "user loggedout successfully"));
 });
 
+/* Get the user details */
 const getUser = asyncHandler(async (req: any, res: Response) => {
   const user = req.user;
 
@@ -133,4 +138,26 @@ const getUser = asyncHandler(async (req: any, res: Response) => {
     );
 });
 
-export { registerUser, loginUser, logoutUser,getUser };
+/* Update the user details */
+const updateUserDetails = asyncHandler(async (req:any,res:Response) => {
+  const {userName,fullName,email} = req.body
+  const user = req.user
+
+  if(!(userName||fullName||email)){
+    throw new ApiError(401,'Add something to update!')
+  }
+  
+  // if(userName||fullName||email){
+  //   const ifUserExists = await User.findOne({userName:userName})
+  // }
+
+  // const updatedUser = await User.findByIdAndUpdate(user?._id,{
+  //   userName:userName? userName :user.userName,
+  //   fullName:fullName? fullName : user.fullName,
+  //   email: email? email :user.email
+  // })
+
+})
+
+
+export { registerUser, loginUser, logoutUser, getUser, updateUserDetails };
