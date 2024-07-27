@@ -205,8 +205,25 @@ const resetPassword = asyncHandler(async (req: Request, res: Response)=>{
   await user.save({ validateBeforeSave: false })
 
   res.status(200).json(new ApiResponse(201, {}, "Password reset Successfully"))
-})
+});
+
+const updateAccountDetails = asyncHandler(async(req: any, res:Response)=>{
+  const {userName, email} = req.body
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        userName,
+        email: email,
+      },
+    },
+    { new: true }
+  ).select("-password");
+
+  return res.status(200).json(new ApiResponse(200, user, "Account details updated successfully"));
+});
 
 
 
-export { registerUser, loginUser, logoutUser, getUser, updatePassword, sendEmail, resetPassword };
+export { registerUser, loginUser, logoutUser, getUser, updatePassword, sendEmail, resetPassword, updateAccountDetails };
