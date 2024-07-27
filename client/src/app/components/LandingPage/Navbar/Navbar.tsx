@@ -8,7 +8,7 @@ import {navigation} from '@/constants/index' // Adjusted relative path
 import Button from '../Button';
 import ButtonGradient from '@/assests/svg/ButtonGradient';
 import MenuSvg from '@/assests/svg/MenuSvg'
-import {HamburgerMenu} from '@/app/components/Design/Header'
+import {HamburgerMenu} from '@/app/components/LandingPage/Design/Header'
 import { Hind } from 'next/font/google';
 
 function Navbar() {

@@ -4,7 +4,7 @@ import { ApiResponse } from "../utils/apiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken"
-import nodemailer from "nodemailer"
+import nodemailer from 'nodemailer'
 
 const options = {
   httpOnly: true,
