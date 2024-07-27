@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
- const BentoGrid = ({
+ export const BentoGrid = ({
   className,
   children,
 }: {
@@ -52,4 +52,3 @@ export const BentoGridItem = ({
     </div>
   );
 };
-export default BentoGrid;
