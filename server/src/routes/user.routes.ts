@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { loginUser, registerUser } from "../controllers/user.controller";
+import { getUser, loginUser, logoutUser, registerUser } from "../controllers/user.controller";
+import { verifyJWT } from "../middlewares/auth.middleware";
 
 const userRouter = Router();
 
@@ -10,6 +11,10 @@ userRouter.route("/register").post(registerUser);
 userRouter.route("/login").post(loginUser);
 
 /* Auth Middleware to check if person is authenticated or not */
-userRouter.use();
+userRouter.use(verifyJWT)
 
 /* Protected routes */
+userRouter.route('/get-user').get(getUser)
+userRouter.route('/logout').get(logoutUser)
+
+export default userRouter
