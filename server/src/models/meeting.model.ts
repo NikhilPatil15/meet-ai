@@ -1,13 +1,57 @@
-import mongoose ,{Schema,Document, ObjectId} from "mongoose";
+import mongoose ,{Schema,Document, ObjectId, model} from "mongoose";
 
-export interface IMeeting extends Document{
+interface IMeeting extends Document{
     _id : ObjectId ;
     title : string ;
+    participants:Schema.Types.ObjectId[];
     description ?: string ;
-    startTime : Date ;
-    endTime : Date ;
-    participants:ObjectId[];
-    meetingLink : string ;
-    createdBy : ObjectId;
+    scheduledTime : Date ;
+    duration: number;
+    createdBy : Schema.Types.ObjectId;
+    status: 'scheduled'|'not scheduled' | 'completed' | 'canceled';
+    endTime ?: Date ;
+    host: Schema.Types.ObjectId;
+    roomId: string; // Unique room ID
 }
 
+
+const MeetingSchema = new Schema<IMeeting>({
+    title: {
+        type: String,
+        required: true,
+    },
+    description: {
+        type: String
+    },
+    participants: [{
+        type: Schema.Types.ObjectId,
+        ref: "User"
+    }],
+    scheduledTime: {
+        type: Date,
+        required: true,
+    },
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
+    status: {
+        type: String,
+        enum: ['scheduled', 'not scheduled', 'completed', 'canceled'],
+        default: "scheduled",
+    },
+    host: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+    },
+    roomId: {
+        type: String,
+        required: true,
+        unique: true
+    }
+},{timestamps: true})
+
+const Meeting = model<IMeeting>("Meeting", MeetingSchema);
+
+export default Meeting
