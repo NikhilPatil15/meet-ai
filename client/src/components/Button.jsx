@@ -1,3 +1,4 @@
+"use client"
 import ButtonSvg from "@/assests/svg/ButtonSvg";
 
 const Button = ({ className, href, onClick, children, px, white }) => {
