@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getUser, loginUser, logoutUser, registerUser } from "../controllers/user.controller";
+import { getUser, loginUser, logoutUser, registerUser, updatePassword } from "../controllers/user.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";
 
 const userRouter = Router();
@@ -16,5 +16,6 @@ userRouter.use(verifyJWT)
 /* Protected routes */
 userRouter.route('/get-user').get(getUser)
 userRouter.route('/logout').get(logoutUser)
+userRouter.route('/update-password').post(updatePassword)
 
 export default userRouter
