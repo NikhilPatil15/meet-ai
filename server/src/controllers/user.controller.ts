@@ -3,14 +3,15 @@ import { ApiError } from "../utils/apiError";
 import { ApiResponse } from "../utils/apiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken"
+import nodemailer from "nodemailer"
 
 const options = {
   httpOnly: true,
   secure: true,
 };
 
-/* Generates both access and refresh tokens */
-const generateAccessandRefreshToken = async (userId: any) => {
+const generateAccessAndRefreshToken = async (userId: any) => {
   try {
     const user = await User.findById(userId);
 
@@ -32,7 +33,6 @@ const generateAccessandRefreshToken = async (userId: any) => {
   }
 };
 
-/* Register the user and add the user details in the database. */
 const registerUser = asyncHandler(async (req: Request, res: Response) => {
   const { userName, fullName, email, password } = req.body;
 
@@ -70,7 +70,6 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
     .json(new ApiResponse(200, displayUser, "user created successfully!"));
 });
 
-/* login the user by verifying its credentials */
 const loginUser = asyncHandler(async (req: Request, res: Response) => {
   const { userName, password } = req.body;
 
@@ -90,7 +89,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(400, "Incorrect Password!");
   }
 
-  const { accessToken, refreshToken } = await generateAccessandRefreshToken(
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
     user?._id
   );
 
@@ -101,13 +100,12 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
-    .cookie("refrehToken", refreshToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
       new ApiResponse(200, { user: loggedUser }, "user logged in successfully!")
     );
 });
 
-/* To logout the user */
 const logoutUser = asyncHandler(async (req: any, res: Response) => {
   const user = req.user;
 
@@ -127,7 +125,6 @@ const logoutUser = asyncHandler(async (req: any, res: Response) => {
     .json(new ApiResponse(200, {}, "user loggedout successfully"));
 });
 
-/* Get the user details */
 const getUser = asyncHandler(async (req: any, res: Response) => {
   const user = req.user;
 
@@ -138,26 +135,95 @@ const getUser = asyncHandler(async (req: any, res: Response) => {
     );
 });
 
-/* Update the user details */
-const updateUserDetails = asyncHandler(async (req:any,res:Response) => {
-  const {userName,fullName,email} = req.body
-  const user = req.user
+const updatePassword = asyncHandler(async (req: any, res: Response)=>{
+  const { oldPassword, newPassword } = req.body
 
-  if(!(userName||fullName||email)){
-    throw new ApiError(401,'Add something to update!')
+  const user : any = await User.findById(req?.user._id)
+  const isPasswordCorrect : Boolean = await user.isPasswordCorrect(oldPassword)
+
+  if(!isPasswordCorrect){
+    throw new ApiError(400, "Invalid Password")
   }
-  
-  // if(userName||fullName||email){
-  //   const ifUserExists = await User.findOne({userName:userName})
-  // }
 
-  // const updatedUser = await User.findByIdAndUpdate(user?._id,{
-  //   userName:userName? userName :user.userName,
-  //   fullName:fullName? fullName : user.fullName,
-  //   email: email? email :user.email
-  // })
+  user.password = newPassword
 
-})
+  await user.save({validateBeforeSave: false})
+
+  return res.status(200).json(new ApiResponse(201, {}, "Password Updated successfully"))
+});
+
+const sendEmail = asyncHandler(async (req: Request, res: Response)=>{
+  const {email} = req.body
+
+  if(!email){
+    throw new ApiError(402,"Email Required")
+  }
+
+  const user = await User.find({email})
+
+  if(!user){
+    throw new ApiError(404,"User with given email doesn\'t exist")
+  }
+
+  const token = jwt.sign({ _id: user[0]._id }, process.env.JWT_SECRET as string, { expiresIn: "1h" })
+
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST as string,
+    port: Number(process.env.SMTP_PORT),
+    auth: {
+      user: process.env.SMTP_USER as string,
+      pass: process.env.SMTP_PASS as string,
+    },
+  });
+
+  const mailOptions = {
+    from: "project9960@gmail.com",
+    to: email,
+    subject: "Password Reset Link",
+    html: `<h4>You requested for password reset</h4>
+                  <p>Click <a href="http://localhost:5173/reset-password/${token}">here</a> to reset your password</p>`
+  }
+
+  await transporter.sendMail(mailOptions)
+
+  return res.status(200).json(new ApiResponse(201, { token }, "Email sended successfully"))
+});
+
+const resetPassword = asyncHandler(async (req: Request, res: Response)=>{
+  const { token, newPassword } = req.body
+
+  console.log(token);
+  const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string)
+  const user = await User.findById(decoded?._id)
+
+  if (!user) {
+    throw new ApiError(401, "User not found")
+  }
+
+  user.password = newPassword
+
+  await user.save({ validateBeforeSave: false })
+
+  res.status(200).json(new ApiResponse(201, {}, "Password reset Successfully"))
+});
+
+const updateAccountDetails = asyncHandler(async(req: any, res:Response)=>{
+  const {userName, email} = req.body
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        userName,
+        email: email,
+      },
+    },
+    { new: true }
+  ).select("-password");
+
+  return res.status(200).json(new ApiResponse(200, user, "Account details updated successfully"));
+});
 
 
-export { registerUser, loginUser, logoutUser, getUser, updateUserDetails };
+
+export { registerUser, loginUser, logoutUser, getUser, updatePassword, sendEmail, resetPassword, updateAccountDetails };
