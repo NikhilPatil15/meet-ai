@@ -3,11 +3,10 @@ import React, { useRef } from 'react';
 import { TypewriterEffect } from '../ui/typewriter-effect';
 import { Button } from '../ui/moving-border';
 import Link from 'next/link';
-
 import Image from 'next/image'; // Import Image from next/image
 import image from '@/assests/image (2).jpg';
 import bgcimage from '@/assests/hero-background.jpg'; // Corrected path to image
-import { BackgroundCircles, BottomLine, Gradient } from '@/app/components/LandingPage/Design/Hero';
+import { BackgroundCircles, BottomLine, Gradient } from '../Design/Hero';
 import { ScrollParallax } from 'react-just-parallax';
 
 function HeroSection() {
