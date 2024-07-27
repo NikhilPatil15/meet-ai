@@ -3,6 +3,8 @@ import { ApiError } from "../utils/apiError";
 import { ApiResponse } from "../utils/apiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken"
+import nodemailer from "nodemailer"
 
 const options = {
   httpOnly: true,
@@ -148,6 +150,45 @@ const updatePassword = asyncHandler(async (req: any, res: Response)=>{
   await user.save({validateBeforeSave: false})
 
   return res.status(200).json(new ApiResponse(201, {}, "Password Updated successfully"))
-})
+});
 
-export { registerUser, loginUser, logoutUser, getUser, updatePassword };
+const sendEmail = asyncHandler(async (req: Request, res: Response)=>{
+  const {email} = req.body
+
+  if(!email){
+    throw new ApiError(402,"Email Required")
+  }
+
+  const user = await User.find({email})
+
+  if(!user){
+    throw new ApiError(404,"User with given email doesn\'t exist")
+  }
+
+  const token = jwt.sign({ _id: user[0]._id }, process.env.JWT_SECRET as string, { expiresIn: "1h" })
+
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST as string,
+    port: Number(process.env.SMTP_PORT),
+    auth: {
+      user: process.env.SMTP_USER as string,
+      pass: process.env.SMTP_PASS as string,
+    },
+  });
+
+  const mailOptions = {
+    from: "project9960@gmail.com",
+    to: email,
+    subject: "Password Reset Link",
+    html: `<h4>You requested for password reset</h4>
+                  <p>Click <a href="http://localhost:5173/reset-password/${token}">here</a> to reset your password</p>`
+  }
+
+  await transporter.sendMail(mailOptions)
+
+  return res.status(200).json(new ApiResponse(201, { token }, "Email sended successfully"))
+});
+
+
+
+export { registerUser, loginUser, logoutUser, getUser, updatePassword, sendEmail };
