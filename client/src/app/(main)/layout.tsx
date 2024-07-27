@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./styles/globals.css";
-import Navbar from "./components/Navbar/Navbar";
-import Button from "@/app/components/Button";
-import ButtonGradient from "@/assests/svg/ButtonGradient"; // Corrected import
-import HeroSection from "./components/HeroSection";
-import FeaturedTitle from "./components/FeaturedTitle";
-import FeaturedSection from "./components/FeaturedSection";
-import Heading from "./components/Heading";
-import Review from "./components/Review";
-import Footer from "./components/Footer";
-import Copyright from "./components/CopyRight";
-import { HoverEffect } from "./components/CardHoverEffect";
-import { hoverItems } from "./data/hoverItems";
+import "../styles/globals.css";
+import Navbar from "@/components/Navbar/Navbar";
+import HeroSection from "@/components/HeroSection";
+import FeaturedTitle from "@/components/FeaturedTitle";
+import FeaturedSection from "@/components/FeaturedSection";
+import Heading from "@/components/Heading";
+import Review from "@/components/Review";
+import { HoverEffect } from "@/components/CardHoverEffect";
+import Copyright from "@/components/CopyRight";
+import Footer from "@/components/Footer";
+import { hoverItems } from "../data/hoverItems";
+
 
 
 const inter = Inter({ subsets: ["latin"] });
