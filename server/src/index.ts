@@ -34,3 +34,8 @@ app.listen(port, () => {
 app.get("/", (req, res) => {
   res.send("Meet AI backend!");
 });
+
+import userRouter from "./routes/user.routes";
+
+/* user Routes */
+app.use('/api/v1/user',userRouter)
