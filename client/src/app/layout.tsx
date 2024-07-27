@@ -1,19 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter } from 'next/font/google';
 import "./styles/globals.css";
-import Navbar from "./components/Navbar/Navbar";
-import Button from "@/app/components/Button";
-import ButtonGradient from "@/assests/svg/ButtonGradient"; // Corrected import
-import HeroSection from "./components/HeroSection";
-import FeaturedTitle from "./components/FeaturedTitle";
-import FeaturedSection from "./components/FeaturedSection";
-import Heading from "./components/Heading";
-import Review from "./components/Review";
-import Footer from "./components/Footer";
-import Copyright from "./components/CopyRight";
-import { HoverEffect } from "./components/CardHoverEffect";
-import { hoverItems } from "./data/hoverItems";
-
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,23 +21,6 @@ export default function RootLayout({
         <title>MeetAi</title>
       </head>
       <body className={inter.className}>
-      <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
-        <Navbar />
-        <HeroSection />
-        <FeaturedTitle />
-        <FeaturedSection />
-        <Heading></Heading>
-       <FeaturedSection></FeaturedSection>
-        <Review></Review>
-        <HoverEffect items={hoverItems} />
-        <Footer></Footer>
-        <Copyright></Copyright>
-      </div>
-        {/* <Navbar /> */}
-        {/* <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
-         <Button className={undefined} href={undefined} onClick={undefined} px={undefined}  white={undefined} >Something</Button>
-        </div>
-        <ButtonGradient /> */}
         {children}
       </body>
     </html>
