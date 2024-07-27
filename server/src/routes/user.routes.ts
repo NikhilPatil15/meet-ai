@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getUser, loginUser, logoutUser, registerUser, sendEmail, updatePassword } from "../controllers/user.controller";
+import { getUser, loginUser, logoutUser, registerUser, resetPassword, sendEmail, updatePassword } from "../controllers/user.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";
 
 const userRouter = Router();
@@ -11,6 +11,8 @@ userRouter.route("/register").post(registerUser);
 userRouter.route("/login").post(loginUser);
 
 userRouter.route("/forgot-password").post(sendEmail)
+
+userRouter.route("/reset-password").post(resetPassword)
 
 /* Auth Middleware to check if person is authenticated or not */
 userRouter.use(verifyJWT)
