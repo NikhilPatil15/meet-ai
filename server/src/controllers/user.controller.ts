@@ -9,7 +9,7 @@ const options = {
   secure: true,
 };
 
-const generateAccessandRefreshToken = async (userId: any) => {
+const generateAccessAndRefreshToken = async (userId: any) => {
   try {
     const user = await User.findById(userId);
 
@@ -87,7 +87,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(400, "Incorrect Password!");
   }
 
-  const { accessToken, refreshToken } = await generateAccessandRefreshToken(
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
     user?._id
   );
 
@@ -98,7 +98,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
-    .cookie("refrehToken", refreshToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
       new ApiResponse(200, { user: loggedUser }, "user logged in successfully!")
     );
@@ -133,4 +133,21 @@ const getUser = asyncHandler(async (req: any, res: Response) => {
     );
 });
 
-export { registerUser, loginUser, logoutUser,getUser };
+const updatePassword = asyncHandler(async (req: any, res: Response)=>{
+  const { oldPassword, newPassword } = req.body
+
+  const user : any = await User.findById(req?.user._id)
+  const isPasswordCorrect : Boolean = await user.isPasswordCorrect(oldPassword)
+
+  if(!isPasswordCorrect){
+    throw new ApiError(400, "Invalid Password")
+  }
+
+  user.password = newPassword
+
+  await user.save({validateBeforeSave: false})
+
+  return res.status(200).json(new ApiResponse(201, {}, "Password Updated successfully"))
+})
+
+export { registerUser, loginUser, logoutUser, getUser, updatePassword };
