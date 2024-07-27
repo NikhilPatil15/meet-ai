@@ -189,6 +189,24 @@ const sendEmail = asyncHandler(async (req: Request, res: Response)=>{
   return res.status(200).json(new ApiResponse(201, { token }, "Email sended successfully"))
 });
 
+const resetPassword = asyncHandler(async (req: Request, res: Response)=>{
+  const { token, newPassword } = req.body
+
+  console.log(token);
+  const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string)
+  const user = await User.findById(decoded?._id)
+
+  if (!user) {
+    throw new ApiError(401, "User not found")
+  }
+
+  user.password = newPassword
+
+  await user.save({ validateBeforeSave: false })
+
+  res.status(200).json(new ApiResponse(201, {}, "Password reset Successfully"))
+})
 
 
-export { registerUser, loginUser, logoutUser, getUser, updatePassword, sendEmail };
+
+export { registerUser, loginUser, logoutUser, getUser, updatePassword, sendEmail, resetPassword };
