@@ -4,8 +4,8 @@ import { TypewriterEffect } from '../ui/typewriter-effect';
 import { Button } from '../ui/moving-border';
 import Link from 'next/link';
 import Image from 'next/image'; // Import Image from next/image
-import image from '@/assests/image (2).jpg';
-import bgcimage from '@/assests/hero-background.jpg'; // Corrected path to image
+import image from '@/assets/bentohero.jpg';
+import bgcimage from '@/assets/hero-background.jpg'; // Corrected path to image
 import { BackgroundCircles, BottomLine, Gradient } from '../Design/Hero';
 import { ScrollParallax } from 'react-just-parallax';
 
@@ -16,7 +16,7 @@ function HeroSection() {
     { text: "Boundless" },
     { text: "Connections" },
     { text: "with" },
-    { text: "Meet-Ai", className: "bg-slateblue-200 text-blue-500 dark:text-blue-500" },
+    { text: "Meet Ai", className: "bg-slateblue-200 text-blue-500 dark:text-blue-500" },
   ];
 
   return (
