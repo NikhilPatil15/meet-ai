@@ -1,5 +1,5 @@
 "use client"
-import PlusSvg from '@/assests/svg/PlusSvg'
+import PlusSvg from '@/assets/svg/PlusSvg'
 import { MouseParallax } from 'react-just-parallax';
 
 export const Gradient = () => {

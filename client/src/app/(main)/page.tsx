@@ -14,7 +14,6 @@ import {
   HoverEffect,
   Copyright,
 } from '@/components/index';
-import ButtonGradient from "@/assests/svg/ButtonGradient"; // Corrected import
 import { hoverItems } from "../../constants/hoverItems";
 
 function Home() {
