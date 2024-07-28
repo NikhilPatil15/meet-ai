@@ -1,35 +1,36 @@
 import React from 'react';
 
- function Footer() {
+function Footer() {
   return (
-    <div className="flex flex-col md:flex-row ml-10 mr-10 text-white justify-evenly bg-gray-900 p-6 md:p-10 w-vw ">
-      
-      <div className="flex flex-col text-gray-300 mb-6 md:mb-0">
-        <h3 className="font-bold my-5">MeetAi</h3>
+    <footer className="flex flex-col md:flex-row justify-between items-start bg-black text-white p-10 space-y-8 md:space-y-0 animate-fade-in">
+      <div className="flex flex-col text-gray-400">
+        <h3 className="font-bold text-2xl mb-5">MeetAI</h3>
+        <p className="text-sm">Empowering your meetings with AI.</p>
       </div>
 
-      <div className="flex flex-col text-gray-300 mb-6 md:mb-0">
-        <h3 className="font-bold my-5">Company</h3>
-        <a href="#" className="mb-2">Home</a>
-        <a href="#" className="mb-2">About Us</a>
-        <a href="#" className="mb-2">FAQ</a>
-        <a href="#" className="mb-2">Pricing</a>
+      <div className="flex flex-col text-gray-400">
+        <h3 className="font-bold text-2xl mb-5">Company</h3>
+        <a href="#" className="mb-2 hover:underline transition duration-200">Home</a>
+        <a href="#" className="mb-2 hover:underline transition duration-200">About Us</a>
+        <a href="#" className="mb-2 hover:underline transition duration-200">FAQ</a>
+        <a href="#" className="mb-2 hover:underline transition duration-200">Pricing</a>
       </div>
 
-      <div className="flex flex-col text-gray-300 mb-6 md:mb-0">
-        <h3 className="font-bold my-5">Product</h3>
-        <a href="#" className="mb-2">Meetings</a>
-        <a href="#" className="mb-2">Meeting Notes <br /> Booking Page</a>
+      <div className="flex flex-col text-gray-400">
+        <h3 className="font-bold text-2xl mb-5">Product</h3>
+        <a href="#" className="mb-2 hover:underline transition duration-200">Meetings</a>
+        <a href="#" className="mb-2 hover:underline transition duration-200">Meeting Notes</a>
+        <a href="#" className="mb-2 hover:underline transition duration-200">Booking Page</a>
       </div>
 
-      <div className="flex flex-col text-gray-300">
-        <h3 className="font-bold my-5">Contact</h3>
-        <a href="#" className="mb-2">Help Center</a>
-        <a href="#" className="mb-2">Feedback</a>
-        <a href="#" className="mb-2">Sales</a>
+      <div className="flex flex-col text-gray-400">
+        <h3 className="font-bold text-2xl mb-5">Contact</h3>
+        <a href="#" className="mb-2 hover:underline transition duration-200">Help Center</a>
+        <a href="#" className="mb-2 hover:underline transition duration-200">Feedback</a>
+        <a href="#" className="mb-2 hover:underline transition duration-200">Sales</a>
       </div>
-      
-    </div>
+    </footer>
   );
 }
+
 export default Footer;
