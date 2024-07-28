@@ -1,7 +1,7 @@
 "use client";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "../styles/globals.css";
+
 import {
   Navbar,
   Button,
@@ -14,8 +14,7 @@ import {
   HoverEffect,
   Copyright,
 } from '@/components/index';
-import { hoverItems } from "../../constants/hoverItems";
-
+import { hoverItems } from '../../constants/hoverItems'
 function Home() {
   return (
     <>
