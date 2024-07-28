@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+
 export default function Home() {
-  return <div>Login page</div>;
+  return <div className='bg-blue-900'>Login page</div>;
 }
