@@ -25,7 +25,7 @@ function HeroSection() {
         <div className="relative z-1 max-w-[62rem] mx-auto text-center mb-[4rem] md:mb-20 lg:mb-[6rem]">
           <TypewriterEffect words={words} className="h1 text-white text-2xl md:text-3xl lg:text-3xl" />
           <p className="body-1 max-w-3xl mx-auto mb-6 text-n-2 lg:mb-8 text-base md:text-lg lg:text-xl">
-            Room Video Calls make it easy to connect with people, no matter how far apart you are. Whether it's chatting with friends, working with colleagues, or sharing special moments with family.
+            Room Video Calls make it easy to connect with people, no matter how far apart you are. Whether its chatting with friends, working with colleagues, or sharing special moments with family.
           </p>
           <div className="mt-6">
             <Link href={'/courses'}>
