@@ -16,6 +16,9 @@ app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
 /* Parse incoming requests with JSON payloads*/
 app.use(express.json());
 
+/* To store the files on server */
+app.use(express.static("public"));
+
 /* Connected the database */
 connectDatabase().then(() => {
   console.log("Database connected successfully!");
