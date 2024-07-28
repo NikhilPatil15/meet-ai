@@ -1,10 +1,6 @@
 "use client";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-<<<<<<< HEAD
-
-=======
->>>>>>> 4887084009be8d7f4ad43f38ae5fba8dc690a530
 import {
   Navbar,
   Button,
