@@ -1,5 +1,5 @@
 "use client"
-import PlusSvg from '@/assests/svg/PlusSvg'
+import PlusSvg from '@/assets/svg/PlusSvg'
 import { MouseParallax } from 'react-just-parallax';
 
 export const Gradient = () => {
@@ -34,7 +34,7 @@ const Rings = () => {
   );
 };
 
-export const BackgroundCircles = ({ parallaxRef }) => {
+export const BackgroundCircles = ({ parallaxRef }:any) => {
   return (
     <div className="absolute -top-[42.375rem] left-1/2 w-[78rem] aspect-square border border-n-2/5 rounded-full -translate-x-1/2 md:-top-[38.5rem] xl:-top-[32rem]">
       <Rings />
