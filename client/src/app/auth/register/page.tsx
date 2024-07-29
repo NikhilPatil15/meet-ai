@@ -56,7 +56,7 @@ export default function SignupFormDemo() {
     setValidEmail(EMAIL_REGEX.test(email));
   }, [EMAIL_REGEX, email]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = {
       userName,
@@ -64,17 +64,22 @@ export default function SignupFormDemo() {
       password,
       email,
     };
+    console.log(base_url);
+    
 
-    axios
-      .post(`${base_url}`, data)
+     await axios
+      .post(`${base_url}/user/register`, data)
       .then((res) => {
         console.log(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        console.log("error while requesting register route: ",err);
       });
     console.log("Form submitted");
   };
+
+
+
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
