@@ -8,7 +8,7 @@ import {navigation} from '@/constants/navigationItems' // Adjusted relative path
 import Button from '../../Button';
 import ButtonGradient from '@/assets/svg/ButtonGradient';
 import MenuSvg from '@/assets/svg/MenuSvg'
-import { Hind } from 'next/font/google';
+
 
 function Navbar() {
   const [openNavigation, setOpenNavigation] = useState(false);
