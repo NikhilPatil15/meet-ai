@@ -64,9 +64,11 @@ export default function SignupFormDemo() {
       password,
       email,
     };
+    console.log(base_url);
+    
 
     axios
-      .post(`${base_url}`, data)
+      .post(`${base_url}/user/register`, data)
       .then((res) => {
         console.log(res.data);
       })
