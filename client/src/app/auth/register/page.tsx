@@ -93,7 +93,7 @@ export default function SignupFormDemo() {
               id="firstname"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              placeholder="Tyler"
+              placeholder="First Name"
               type="text"
             />
           </LabelInputContainer>
@@ -103,8 +103,9 @@ export default function SignupFormDemo() {
               id="lastname"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              placeholder="Durden"
+              placeholder="Last Name"
               type="text"
+              autoComplete="off"
             />
           </LabelInputContainer>
         </div>
@@ -124,6 +125,7 @@ export default function SignupFormDemo() {
             id="username"
             placeholder="Username"
             required
+            autoComplete="off"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
             type="text"
@@ -141,6 +143,7 @@ export default function SignupFormDemo() {
           <Label htmlFor="email">Email Address</Label>
           <Input
             id="email"
+            autoComplete="off"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="projectmayhem@fc.com"
@@ -152,6 +155,7 @@ export default function SignupFormDemo() {
           <Input
             id="password"
             required
+            autoComplete="off"
             aria-invalid={validPassword ? "false" : "true"}
             aria-describedby="pwdnote"
             onFocus={() => setPasswordFocus(true)}
