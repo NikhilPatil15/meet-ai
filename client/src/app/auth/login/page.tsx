@@ -45,14 +45,14 @@ export default function SignupFormDemo() {
   }, [USER_REGEX, userName]);
 
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = {
       userName,
       password,
     };
 
-    axios
+    await axios
       .post(`${base_url}/user/login`, data)
       .then((res) => {
         console.log(res.data);
