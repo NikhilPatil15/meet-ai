@@ -13,6 +13,7 @@ import {
   Copyright,
 } from '../index';
 import { hoverItems } from '../../constants/hoverItems'
+import Grid from './Featured/Grid';
 export default function LandingPage() {
   return (
     <>
@@ -20,7 +21,7 @@ export default function LandingPage() {
         <Navbar />
         <HeroSection />
         <FeaturedTitle />
-        <FeaturedSection />
+        <Grid></Grid>
         <Heading></Heading>
         <FeaturedSection></FeaturedSection>
         <Review></Review>
