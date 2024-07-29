@@ -67,13 +67,13 @@ export default function SignupFormDemo() {
     console.log(base_url);
     
 
-    axios
+     await axios
       .post(`${base_url}/user/register`, data)
       .then((res) => {
         console.log(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        console.log("error while requesting register route: ",err);
       });
     console.log("Form submitted");
   };
