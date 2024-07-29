@@ -16,6 +16,8 @@ import {
 } from '@/components/index';
 import ButtonGradient from "@/assests/svg/ButtonGradient"; // Corrected import
 import { hoverItems } from "../../constants/hoverItems";
+import Grid from "@/components/LandingPage/Featured/Grid";
+import Aboutdemo from "@/components/LandingPage/Featured/Grid";
 
 function Home() {
   return (
@@ -25,7 +27,7 @@ function Home() {
         <Navbar />
         <HeroSection />
         <FeaturedTitle />
-        <FeaturedSection />
+        <Aboutdemo></Aboutdemo>
         <Heading></Heading>
         <FeaturedSection></FeaturedSection>
         <Review></Review>
