@@ -4,7 +4,7 @@ import {disablePageScroll, enablePageScroll} from 'scroll-lock'
 import Image from 'next/image';
 import Link from 'next/link';
 import meetai from '@/assets/meetai.jpg'
-import {navigation} from '@/constants/index' // Adjusted relative path
+import {navigation} from '@/constants/navigationItems' // Adjusted relative path
 import Button from '../../Button';
 import ButtonGradient from '@/assets/svg/ButtonGradient';
 import MenuSvg from '@/assets/svg/MenuSvg'

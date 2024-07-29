@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState }, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -8,38 +8,71 @@ import {
   IconBrandGoogle,
   IconBrandOnlyfans,
 } from "@tabler/icons-react";
-import axios from 'axios'
-import { BASE_URL } from "@/constants/BackendURL";
+import {
+  faInfoCircle,
+  faEye,
+  faEyeSlash,
+  faCheck,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { base_url } from "@/config/config.js";
+import axios from "axios";
 
+export default function SignupFormDemo() {
+  const USER_REGEX = useMemo(() => /^[A-z][A-z0-9-_]{3,23}$/, []);
+  const PWD_REGEX = useMemo(
+    () => /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/,
+    []
+  );
+  const EMAIL_REGEX = useMemo(
+    () => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+    []
+  );
 
-export default function Home() {
+  const [userName, setUserName] = useState<string>("");
+  const [validUserName, setValidUserName] = useState<Boolean>(false);
+  const [userNameFocus, setUserNameFocus] = useState<boolean>(false)
 
-  const[userName,setUserName] = useState('')
-  const [firstName,setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [fullName,setFullName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [password, setPassword] = useState<string>("");
+  const [validPassword, setValidPassword] = useState<boolean>(false);
+  const [passwordFocus, setPasswordFocus] = useState(false);
 
+  const [email, setEmail] = useState<string>("");
+  const [validEmail, setValidEmail] = useState<boolean>(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+
+  useEffect(() => {
+    setValidPassword(PWD_REGEX.test(password));
+  }, [PWD_REGEX, password]);
+
+  useEffect(() => {
+    setValidUserName(USER_REGEX.test(userName));
+  }, [USER_REGEX, userName]);
+
+  useEffect(() => {
+    setValidEmail(EMAIL_REGEX.test(email));
+  }, [EMAIL_REGEX, email]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    concateFullName(firstName,lastName)
-
     const data = {
-      userName:userName,
-      fullName:fullName,
-      email:email,
-      password:password
-    }
+      userName,
+      fullName: firstName + " " + lastName,
+      password,
+      email,
+    };
 
-    console.log("data: ",data);
-
-    await axios.post(`${BASE_URL}/user/register`,data)
-    .then(response => console.log("Response: ",response))
-    .catch(error => console.log("Error while requesting register route: ",error))
-
+    axios
+      .post(`${base_url}`, data)
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     console.log("Form submitted");
   };
 
@@ -62,28 +95,101 @@ export default function Home() {
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
           <LabelInputContainer>
             <Label htmlFor="firstname">First name</Label>
-            <Input id="firstname" placeholder="Tyler" type="text" />
+            <Input
+              id="firstname"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="First Name"
+              type="text"
+            />
           </LabelInputContainer>
           <LabelInputContainer>
             <Label htmlFor="lastname">Last name</Label>
-            <Input id="lastname" placeholder="Durden" type="text" />
+            <Input
+              id="lastname"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Last Name"
+              type="text"
+              autoComplete="off"
+            />
           </LabelInputContainer>
         </div>
         <LabelInputContainer className="mb-4">
+          <Label htmlFor="username">
+            Username {"    "}
+            <FontAwesomeIcon
+              icon={faCheck}
+              className={validUserName ? "valid" : "hide"}
+            />
+            <FontAwesomeIcon
+              icon={faTimes}
+              className={validUserName || !userName ? "hide" : "invalid"}
+            />
+          </Label>
+          <Input
+            id="username"
+            placeholder="Username"
+            required
+            autoComplete="off"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            type="text"
+            onFocus={() => setUserNameFocus(true)}
+            onBlur={() => setUserNameFocus(false)}
+          />
+          <p id="usernamenote"
+          className={userNameFocus && !validUserName ? "instructions" : "offscreen"}>
+            <FontAwesomeIcon icon={faInfoCircle} />
+            Username must be greater than 4 characters.
+            <br/>
+          </p>
+        </LabelInputContainer>
+        <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
-          <Input id="email" placeholder="projectmayhem@fc.com" type="email" />
+          <Input
+            id="email"
+            autoComplete="off"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="projectmayhem@fc.com"
+            type="email"
+          />
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" placeholder="••••••••" type="password" />
-        </LabelInputContainer>
-        <LabelInputContainer className="mb-8">
-          <Label htmlFor="twitterpassword">Your twitter password</Label>
           <Input
-            id="twitterpassword"
+            id="password"
+            required
+            autoComplete="off"
+            aria-invalid={validPassword ? "false" : "true"}
+            aria-describedby="pwdnote"
+            onFocus={() => setPasswordFocus(true)}
+            onBlur={() => setPasswordFocus(false)}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            type="twitterpassword"
+            type="password"
           />
+          <p
+            id="pwdnote"
+            className={
+              passwordFocus && !validPassword ? "instructions" : "offscreen"
+            }
+          >
+            <FontAwesomeIcon icon={faInfoCircle} />
+            8 to 24 characters.
+            <br />
+            Must include uppercase and lowercase letters, a number and a special
+            character.
+            <br />
+            Allowed special characters:{" "}
+            <span aria-label="exclamation mark">!</span>{" "}
+            <span aria-label="at symbol">@</span>{" "}
+            <span aria-label="hashtag">#</span>{" "}
+            <span aria-label="dollar sign">$</span>{" "}
+            <span aria-label="percent">%</span>
+          </p>
         </LabelInputContainer>
 
         <button
