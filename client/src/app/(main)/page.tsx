@@ -1,5 +1,5 @@
 "use client";
-import LandingPage from "@/components/LandingPage/LandingPage";
+import LandingPage from "@/components/LandingPage/landingPage";
 function Home() {
   return (
     <>
