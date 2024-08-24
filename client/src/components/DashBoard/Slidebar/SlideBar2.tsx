@@ -1,46 +1,61 @@
 'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
 import { sidebarLinks } from '@/constants/index';
 import { cn } from '@/lib/utils';
 
 const Sidebar = () => {
+  // Get the current pathname to determine active link
   const pathname = usePathname();
 
   return (
-    <section className="fixed top-0 flex h-screen w-fit flex-col justify-between bg-black p-6 pt-28 text-white max-sm:hidden lg:w-[264px]">
-      <div className="flex flex-1 flex-col gap-6">
-        {sidebarLinks.map((item) => {
-          const isActive = pathname === item.route || pathname.startsWith(`${item.route}/`);
+    <aside className="fixed top-0 left-0 h-screen w-[264px] bg-black p-6 pt-28 text-white hidden lg:flex flex-col justify-between z-40">
+      {/* Sidebar Navigation */}
+      <nav className="flex flex-1 flex-col gap-6">
+        {sidebarLinks.map(({ route, imgURL, label }) => {
+          const isActive = pathname === route || pathname.startsWith(`${route}/`);
 
           return (
             <Link
-              href={item.route}
-              key={item.label}
+              key={label}
+              href={route}
               className={cn(
-                'flex gap-4 items-center p-4 rounded-lg justify-start transition-colors duration-200',
-                {
-                  'bg-blue-1': isActive,
-                  'hover:bg-blue-1': !isActive, // Adds hover effect for non-active links
-                }
+                'flex items-center gap-4 p-4 rounded-lg transition-colors duration-200',
+                isActive ? 'bg-blue-1' : 'hover:bg-blue-1'
               )}
             >
+              {/* Sidebar Link Icon */}
               <Image
-                src={item.imgURL}
-                alt={item.label}
+                src={imgURL}
+                alt={label}
                 width={24}
                 height={24}
+                className="min-w-[24px]"
               />
-              <p className="text-lg font-semibold max-lg:hidden">
-                {item.label}
-              </p>
+              {/* Sidebar Link Label */}
+              <span className="text-lg font-semibold hidden lg:block">
+                {label}
+              </span>
             </Link>
           );
         })}
-      </div>
-    </section>
+      </nav>
+
+      {/* Sidebar Footer */}
+      <footer className="mt-auto pt-6 border-t border-gray-700">
+        <p className="text-sm text-gray-400">
+          © 2024 MeetAi. All rights reserved.
+        </p>
+        <Link href="/terms" className="text-sm text-blue-500 hover:underline mt-2 block">
+          Terms & Conditions
+        </Link>
+        <Link href="/privacy" className="text-sm text-blue-500 hover:underline mt-1 block">
+          Privacy Policy
+        </Link>
+      </footer>
+    </aside>
   );
 };
 

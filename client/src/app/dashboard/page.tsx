@@ -11,7 +11,7 @@ function Home() {
    
     <section className="flex size-full flex-col gap-5 text-white h-full">
        <div className="h-[303px] w-full rounded-[20px] bg-hero bg-cover">
-      <HomePage></HomePage>
+     <HomePage/>
       </div>
     </section>
     
