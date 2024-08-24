@@ -10,6 +10,8 @@ import {
 } from "@tabler/icons-react";
 import {
   faInfoCircle,
+  faEye,
+  faEyeSlash,
   faCheck,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
@@ -36,6 +38,12 @@ export default function SignupFormDemo() {
   const [validPassword, setValidPassword] = useState<boolean>(false);
   const [passwordFocus, setPasswordFocus] = useState(false);
 
+  const [email, setEmail] = useState<string>("");
+  const [validEmail, setValidEmail] = useState<boolean>(false);
+
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+
   useEffect(() => {
     setValidPassword(PWD_REGEX.test(password));
   }, [PWD_REGEX, password]);
@@ -44,16 +52,21 @@ export default function SignupFormDemo() {
     setValidUserName(USER_REGEX.test(userName));
   }, [USER_REGEX, userName]);
 
+  useEffect(() => {
+    setValidEmail(EMAIL_REGEX.test(email));
+  }, [EMAIL_REGEX, email]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = {
       userName,
+      fullName: firstName + " " + lastName,
       password,
+      email,
     };
 
-    await axios
-      .post(`${base_url}/user/login`, data)
+    axios
+      .post(`${base_url}`, data)
       .then((res) => {
         console.log(res.data);
       })

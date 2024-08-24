@@ -6,8 +6,17 @@
 @tailwind components;
 @tailwind utilities;
 
-/* shree */
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
 
+.glassmorphism2 {
+  background: rgba(18, 17, 17, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
 
 .instructions > svg {
   margin-right: 0.25rem;
@@ -16,6 +25,7 @@
 .offscreen {
   display: none;
 }
+
 .instructions {
   color: red;
   font-size: 0.875rem;
@@ -62,130 +72,95 @@
   align-items: flex-end;
 }
 
-/*  */
 :root {
   --font-sora: "Sora", sans-serif;
   --font-code: "Source Code Pro", monospace;
   --font-grotesk: "Space Grotesk", sans-serif;
   --foreground-rgb: 0, 0, 0;
-    color-scheme: dark;
-  
+  color-scheme: dark;
 }
+
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
-
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-
     --primary: 240 5.9% 10%;
     --primary-foreground: 0 0% 98%;
-
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
-
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
-
     --accent: 240 4.8% 95.9%;
     --accent-foreground: 240 5.9% 10%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 240 10% 3.9%;
-
     --radius: 0.5rem;
-  } .dark {
+  }
+
+  .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
-
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
-
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-
     --primary: 0 0% 98%;
     --primary-foreground: 240 5.9% 10%;
-
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
-
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
-
     --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
   }
 }
+
+@layer utilities {
+  .flex-center {
+    @apply flex justify-center items-center;
+  }
+  .flex-between {
+    @apply flex justify-between items-center;
+  }
+  .h-full {
+    height: 100%;
+  }
+}
+
 * {
   scroll-behavior: smooth;
 }
-.bg-primary-gradient {
-  background-image: linear-gradient(92.59deg, #1d4ed8 -2.98%, #5a2fd3 25.29%, #86198f 101.4%);
-}
-/* @layer base {
-  .bg-header {
-    @apply bg-primary-0;
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    -webkit-mask-image: linear-gradient(180deg, #000 3rem, transparent);
-    mask-image: linear-gradient(180deg, #000 3rem, transparent);
-  }
-} */
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-} */
-
- body {
-  /* color: rgb(var(--foreground-rgb)); */
-   /* background-color: #000;  */
- }
-
-/* .bg-primary-0 {
-  --tw-bg-opacity: 1;
-  background-color: rgba(var(--theme-primary-0), var(--tw-bg-opacity));
-}
 
 .bg-primary-gradient {
   background-image: linear-gradient(92.59deg, #1d4ed8 -2.98%, #5a2fd3 25.29%, #86198f 101.4%);
-} */
-/* @layer base {
-  body {
-    @apply font-sans bg-n-8 text-n-1 text-base;
-  }
-} */
+}
+
+body {
+  @apply font-sans bg-n-8 text-white text-base;
+}
+
 @layer base {
   * {
     @apply border-border !scroll-smooth;
   }
-  body {
-    @apply font-sans bg-n-8 text-white text-base;
-  }
 }
+
 @layer utilities {
   .heading {
     @apply font-bold text-4xl md:text-5xl text-center;
   }
-
   .black-gradient {
     background: linear-gradient(90deg, #161a31 0%, #06091f 100%);
   }

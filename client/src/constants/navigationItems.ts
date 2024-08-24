@@ -62,18 +62,18 @@
         title: "Pricing",
         url: "#pricing",
       },
-    {
-      id: "5",
-      title: "Sign up",
-      url: "#register",
-      onlyMobile: true,
-    },
-    {
-      id: "6",
-      title: "Sign in",
-      url: "#login",
-      onlyMobile: true,
-    },
+    // {
+    //   id: "5",
+    //   title: "Sign up",
+    //   url: "#register",
+    //   onlyMobile: false,
+    // },
+    // {
+    //   id: "6",
+    //   title: "Sign in",
+    //   url: "#login",
+    //   onlyMobile: false,
+    // },
   ];
   
 //  export const heroIcons = [homeSmile, file02, searchMd, plusSquare];
