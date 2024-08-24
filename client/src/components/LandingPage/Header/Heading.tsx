@@ -2,7 +2,7 @@ import React from 'react';
 
  function Heading() {
   return (
-    <div className="flex flex-col items-center justify-center ml-1 md:ml-10">
+    <div className="pt-[4rem] lg:pt-[2rem] xl:pt-[8rem] flex flex-col items-center justify-center ml-1 md:ml-10">
       <div className="flex justify-center items-center mt-10 md:mt-20 font-bold text-center ">
         <h1 className="text-white text-3xl md:text-5xl">
           Professionals of all types get more done with Room
