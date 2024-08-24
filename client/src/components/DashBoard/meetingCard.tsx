@@ -27,55 +27,51 @@ const MeetingCard = ({
 
   return (
     <section
-      className={`relative flex min-h-[300px] w-full flex-col justify-between rounded-[17px] px-4 py-6 xl:max-w-[568px] transition-colors ${
-        isHovered ? "bg-blue-2" : "bg-dark-1"
+      className={`relative flex min-h-[300px] w-full flex-col justify-between rounded-xl px-6 py-8 xl:max-w-[568px] transition-all duration-300 ${
+        isHovered ? "bg-blue-500 shadow-lg" : "bg-gray-800"
       }`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <Image
         src={icon}
-        alt="icon"
+        alt="Meeting icon"
         width={28}
         height={28}
         className="absolute top-4 left-4"
       />
-      <article className="flex flex-col items-center justify-center gap-2 mt-4">
-        <h1 className="text-2xl font-bold text-center">{title}</h1>
-        <p className="text-base font-normal text-center">{date}</p>
+
+      <article className="flex flex-col items-center justify-center text-center gap-2 mt-4">
+        <h1 className="text-2xl font-bold">{title}</h1>
+        <p className="text-base font-normal">{date}</p>
       </article>
-      <article className="flex flex-col items-center justify-center mt-4 relative">
+
+      <article className="flex flex-col items-center justify-center mt-6">
         <div className="relative flex justify-center w-full">
           <div className="flex space-x-4">
             {avatarImages.slice(0, avatarCount).map((img, index) => (
               <Image
                 key={index}
                 src={img}
-                alt="attendee"
-                width={110}
-                height={110}
+                alt={`Attendee ${index + 1}`}
+                width={50}
+                height={50}
                 className="rounded-full"
               />
             ))}
           </div>
         </div>
-        <div className="flex gap-2 mt-4">
-          <button
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onClick={handleClick}
-            className={`rounded-lg px-20 py-2 xl:px-25 sm:px-25 transition-colors 
-            }`}
-            style={{ backgroundColor: isHovered ? 'rgba(255, 255, 255, 0.9)' : 'rgba(11, 66, 195, 1)', color: isHovered ? 'rgba(11, 66, 195, 1)' : 'rgba(255, 255, 255, 1)',
-              height: '3rem',
-              paddingLeft: '1.5rem',
-              paddingRight: '1.5rem',
-              borderRadius: '0.75rem',
-              fontSize: '1.125rem',
-              lineHeight: '1',
-              transitionDuration: '0.3s'}}
-          >
-            {isHovered ? "Start meet" : buttonText}
-          </button>
-        </div>
+
+        <button
+          onClick={handleClick}
+          className={`mt-6 rounded-lg px-8 py-3 text-lg font-semibold transition-all duration-300 ${
+            isHovered
+              ? "bg-white text-blue-500 shadow-lg"
+              : "bg-blue-500 text-white"
+          }`}
+        >
+          {isHovered ? "Start meet" : buttonText}
+        </button>
       </article>
     </section>
   );
