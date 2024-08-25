@@ -66,13 +66,13 @@
       id: "5",
       title: "Sign up",
       url: "#register",
-      onlyMobile: true,
+      onlyMobile: false,
     },
     {
       id: "6",
       title: "Sign in",
       url: "#login",
-      onlyMobile: true,
+      onlyMobile: false,
     },
   ];
   
