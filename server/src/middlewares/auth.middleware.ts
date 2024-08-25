@@ -1,3 +1,4 @@
+import { accessTokenSecret } from "../config/envConfig";
 import { User } from "../models/user.model";
 import { ApiError } from "../utils/apiError";
 import { asyncHandler } from "../utils/asyncHandler";
@@ -20,7 +21,7 @@ export const verifyJWT = asyncHandler(
 
       const decodedToken = jwt.verify(
         token,
-        process.env.ACCESS_TOKEN_SECRET!
+        accessTokenSecret!
       ) as customJWTPayload;
 
     //   console.log("decodedToken: ",decodedToken);
