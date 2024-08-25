@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-
 import { Inter } from 'next/font/google';
 import "@/styles/globals.css";
+import Sidebar from "@/components/DashBoard/Slidebar/SlideBar2";
+import Navbar from "@/components/DashBoard/Slidebar/TopBar";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: "MeetAi",
@@ -15,14 +16,19 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <head>
-        <meta charSet="UTF-8" />
-        <link rel="icon" type="image/jpg" href="/assets/logo_meet.jpg" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>MeetAi</title>
-      </head>
       <body className={inter.className}>
-        {children}
+        {/* Header containing the Navbar */}
+        <header>
+          <Navbar />
+        </header>
+        <div className="flex h-screen ">
+          <aside className="h-full">
+            <Sidebar />
+          </aside>
+          <section className="flex min-h-screen flex-1 flex-col px-6 pb-6 pt-20 lg:pt-6 md:pt-15 max-md:pb-14 sm:px-14">
+            <div className="w-full">{children}</div>
+          </section>
+        </div>
       </body>
     </html>
   );

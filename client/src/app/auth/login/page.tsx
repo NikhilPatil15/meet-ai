@@ -10,6 +10,8 @@ import {
 } from "@tabler/icons-react";
 import {
   faInfoCircle,
+  faEye,
+  faEyeSlash,
   faCheck,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
@@ -60,10 +62,11 @@ export default function SignupFormDemo() {
     const data = {
       userName,
       password,
+      email,
     };
 
-    await axios
-      .post(`${base_url}/user/login`, data)
+    axios
+      .post(`${base_url}`, data)
       .then((res) => {
         console.log(res.data);
       })
