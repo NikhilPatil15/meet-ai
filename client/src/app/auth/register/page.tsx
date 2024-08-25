@@ -198,7 +198,7 @@ export default function SignupFormDemo() {
           Sign up &rarr;
           <BottomGradient />
         </button>
-
+        </form>
         <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
 
         <div className="flex flex-col space-y-4">
@@ -233,7 +233,7 @@ export default function SignupFormDemo() {
             <BottomGradient />
           </button>
         </div>
-      </form>
+      
     </div>
   );
 }

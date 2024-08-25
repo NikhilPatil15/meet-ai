@@ -46,8 +46,8 @@ function Navbar() {
             ))}
           </div>
         </nav>
-        <a className='button hidden mr-8 text-n-1/50 transition-colors hover:text-n-1 lg:block' href='#signup'>Sign up</a>
-        <Button className={`hidden lg:flex`} href={`#login`} onClick={undefined} px={undefined}  white={undefined} >Sign in</Button>
+        <Link href="/auth/register" className='button hidden mr-8 text-n-1/50 transition-colors hover:text-n-1 lg:block'>Sign up</Link>
+        <Button className={`hidden lg:flex`} href="/auth/login" px={undefined}  white={undefined} >Sign in</Button>
       
         <ButtonGradient />
         <button className='ml-auto lg:hidden px-3' onClick={toggleNavigation}>
