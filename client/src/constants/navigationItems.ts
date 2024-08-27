@@ -41,6 +41,7 @@
       id: "0",
       title: "Why Room?",
       url: "#whyroom",
+      
     },
     {
       id: "1",
@@ -66,13 +67,13 @@
       id: "5",
       title: "Sign up",
       url: "#register",
-      onlyMobile: false,
+      onlyMobile: true,
     },
     {
       id: "6",
       title: "Sign in",
       url: "#login",
-      onlyMobile: false,
+      onlyMobile: true,
     },
   ];
   
