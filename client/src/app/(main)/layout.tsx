@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { Inter } from 'next/font/google';
 import "../../styles/globals.css";
+import { UserContextProvider } from "@/Context/userContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,9 +22,11 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>MeetAi</title>
       </head>
+     
       <body className={inter.className}>
         {children}
       </body>
+     
     </html>
   );
 }

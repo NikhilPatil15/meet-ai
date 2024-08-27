@@ -24,8 +24,8 @@ export default function LandingPage() {
         <Grid></Grid>
         <Heading></Heading>
         <FeaturedSection></FeaturedSection>
-        <Review></Review>
-        <HoverEffect items={hoverItems} />
+        {/* <Review></Review> */}
+        {/* <HoverEffect items={hoverItems} /> */}
         <Footer></Footer>
         <Copyright></Copyright>
       </div>

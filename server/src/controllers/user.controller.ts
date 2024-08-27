@@ -1,3 +1,4 @@
+import path from "path";
 import {
   jwtSecret,
   smtpHost,
@@ -104,12 +105,15 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     "-password -refreshToken"
   );
 
+  console.log("Credential login: ", loggedUser);
+  
+
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
     .json(
-      new ApiResponse(200, { user: loggedUser }, "user logged in successfully!")
+      new ApiResponse(200, { user: loggedUser,accessToken,refreshToken }, "user logged in successfully!")
     );
 });
 
@@ -124,6 +128,7 @@ const logoutUser = asyncHandler(async (req: any, res: Response) => {
     { $unset: { refreshToken: 1 } },
     { new: true }
   );
+
 
   res
     .status(200)
@@ -253,6 +258,14 @@ const setOauthCookies = asyncHandler(async (req: any, res: Response) => {
     .redirect("http://localhost:3000/auth/setaccesstoken");
 });
 
+const setAccessToken = asyncHandler(async (req:any, res:Response) => {
+  let token =  req.cookies.accessToken
+
+  console.log("Token: ", token);
+
+  res.status(201).json(new ApiResponse(201,token,"AccessToken fetched successfully!"))
+})
+
 export {
   registerUser,
   loginUser,
@@ -264,4 +277,5 @@ export {
   updateAccountDetails,
   generateAccessAndRefreshToken,
   setOauthCookies,
+  setAccessToken
 };

@@ -6,6 +6,7 @@ import {
   registerUser,
   resetPassword,
   sendEmail,
+  setAccessToken,
   setOauthCookies,
   updateAccountDetails,
   updatePassword,
@@ -40,10 +41,7 @@ userRouter.route("/oauth/github").get(
   setOauthCookies
 );
 
-userRouter.route("/set-access-token").get((req, res) => {
-  const token = req?.cookies?.accessToken;
-  res.json(new ApiResponse(200, token, "Token sent successfully!"));
-});
+userRouter.route("/set-access-token").get(setAccessToken);
 
 /* Auth Middleware to check if person is authenticated or not */
 userRouter.use(verifyJWT);

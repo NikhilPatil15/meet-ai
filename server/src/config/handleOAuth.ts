@@ -83,6 +83,9 @@ export const handleOAuth = async ( req: any, profile: any, callback: (err:any, u
         OauthId: profile?.id,
       });
 
+      console.log("user in handleauth: ", user);
+      
+
       if (!user) {
         throw new ApiError(400, "Error while creating user!");
       }
