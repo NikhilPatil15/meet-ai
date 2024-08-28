@@ -15,7 +15,7 @@ function Review() {
       </div>
 
       <div className="flex flex-col md:flex-row justify-center items-center mt-4 space-y-4 md:space-y-0 md:space-x-4 animate-fade-in">
-        <a
+        {/* <a
           href="#"
           className="border border-solid border-blue-500 py-2 px-4 rounded-md bg-blue-600 text-white font-semibold shadow-md hover:bg-blue-700 transition duration-200"
         >
@@ -24,7 +24,7 @@ function Review() {
         <input
           className="w-64 md:w-96 h-10 bg-gray-700 text-white placeholder-gray-400 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
           placeholder="Search..."
-        />
+        /> */}
       </div>
     </div>
   );
