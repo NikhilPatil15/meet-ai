@@ -4,8 +4,8 @@ import { TypewriterEffect } from '../ui/typewriter-effect';
 import { Button } from '../ui/moving-border';
 import Link from 'next/link';
 import Image from 'next/image';
-import image from '@/assets/bentohero.jpg';
-import bgcimage from '@/assets/hero-background.jpg';
+import image from '@/assets/vrkK9OuCTWyvpqoQIp4V_w.jpeg';
+import bgcimage from '@/assets/temp-hero.png';
 import { BottomLine, Gradient } from '../Design/Hero';
 import { ScrollParallax } from 'react-just-parallax';
 
@@ -24,7 +24,7 @@ function HeroSection() {
         <div className="relative z-1 max-w-[62rem] mx-auto text-center mb-[4rem] md:mb-20 lg:mb-[6rem] px-4"> {/* Added px-4 */}
           <TypewriterEffect words={words} className="h1 text-white text-2xl md:text-3xl lg:text-3xl" />
           <p className="max-w-3xl mx-auto mt-4 mb-6 text-white text-base md:text-lg lg:text-xl xl:text-2xl">
-            Room Video Calls make it easy to connect with people, no matter how far apart you are. Whether it's chatting with friends, working with colleagues, or sharing special moments with family.
+            MeetAi make it easy to connect with people, no matter how far apart you are. Whether it's chatting with friends, working with colleagues, or sharing special moments with family.
           </p>
           <div className="mt-6">
             <Link href={'/courses'}>
@@ -34,20 +34,20 @@ function HeroSection() {
             </Link>
           </div>
         </div>
-        <div className="relative max-w-4xl mx-auto">
+        <div className="relative max-w-6xl max-h-4xl mx-auto">
 
-          <div className="relative z-1 p-0.5 rounded-2xl bg-conic-gradient">
+          <div className="relative z-1 p-0.5 rounded-2xl bg-conic-gradient ">
             <div className="relative bg-n-8 rounded-[1rem]">
               <div className="h-[1.7rem] bg-n-10 rounded-t-[0.9rem]" />
-              <div className="aspect-w-16 aspect-h-9 rounded-b-xl overflow-hidden">
+              <div className="aspect-w-26 aspect-h-15 rounded-b-xl overflow-hidden">
 
                 <Image 
                   src={image} 
                   alt="Meet" 
                   objectFit="cover" 
                   className="rounded-[1rem] w-full h-auto" 
-                  width={1024}
-                  height={790}
+                  width={1700}  // Adjusted width
+                  height={1000}  // Adjusted height
                 />
                 <ScrollParallax isAbsolutelyPositioned>
                   <ul className="hidden absolute -left-[5.5rem] bottom-[7.5rem] px-1 py-1 bg-n-9/40 backdrop-blur border border-n-1/10 rounded-2xl xl:flex"></ul>
@@ -56,15 +56,15 @@ function HeroSection() {
             </div>
             <Gradient />
           </div>
-          <div className="absolute -top-1/2 left-1/2 w-[234%] -translate-x-1/2 md:-top-1/3 md:w-[109%] lg:-top-1/2">
+          <div className="absolute -top-1/2 left-1/2 w-[204%] opacity-15 lg:w-[170%] -translate-x-1/2 md:-top-1/3 md:w-[109%] lg:-top-1/5 lg:pt-24 md:pt-14">
 
             <Image 
               src={bgcimage} 
               alt="hero" 
               objectFit="cover" 
               className="rounded-[1rem] w-full h-auto max-w-full" 
-              width={4440}
-              height={3800}
+              width={7440}
+              height={4800}
             />
           </div>
         </div>

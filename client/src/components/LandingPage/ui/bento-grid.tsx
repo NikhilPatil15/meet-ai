@@ -18,7 +18,7 @@ export const BentoGrid = ({
   return (
     <div
       className={cn(
-        'grid md:auto-rows-[18rem] grid-cols-1 md:grid-cols-12 gap-6 max-w-7xl mx-auto',
+        'grid grid-cols-1 md:grid-cols-12 gap-6 max-w-7xl mx-auto',
         className
       )}
     >
@@ -61,13 +61,13 @@ export const BentoGridItem = ({
     : "";
   
   const itemSizeClasses = id === 3 || id === 4 || id === 5
-    ? "md:col-span-4 md:h-[24rem] lg:h-[28rem] lg:mb-20" // Larger size and margin-bottom for items 3, 4, 5
-    : "md:col-span-6 md:h-[18rem] ";
+    ? "md:col-span-4 md:h-[24rem] p-4 sm:p-6" // Medium device sizes
+    : "md:col-span-6 p-4 sm:p-6"; // Medium device sizes
   
   return (
     <div
       className={cn(
-        `relative overflow-hidden rounded-2xl flex flex-col items-center justify-center p-6 shadow-lg border border-white/[0.6] group transition-transform duration-300 transform hover:scale-105 ${itemSizeClasses}`,
+        `relative overflow-hidden rounded-2xl flex flex-col items-center justify-center shadow-lg border border-white/[0.6] group transition-transform duration-300 transform hover:scale-105 ${itemSizeClasses}`,
         isBackgroundImage ? backgroundColorClasses : "bg-gray-800",
         className
       )}
@@ -118,10 +118,10 @@ export const gridItems = [
     title: "Easy to create meetings and invite people",
     description: "Our platform makes it a breeze to set up meetings and invite participants.",
     content: "Create link meetings",
-    subContent: "We re-engineered the service we built for secure business meetings, Room.me to make it free and available for all",
+    subContent: "We re-engineered the service we built for secure business meetings, MeetAi to make it free and available for all",
     button: "Join meet",
     link: "https://room.me/qwe-r1-2zx",
-    className: "col-span-6", // Spans 6 columns
+    className: "col-span-1 md:col-span-6", // Adjusted for medium devices
     imgClassName: "w-full h-full object-cover",
     img: b9, // Use imported StaticImageData
   },
@@ -133,7 +133,7 @@ export const gridItems = [
     subContent: "The kickoff meeting for the Aerebook Redesign Landing Page project aimed to outline the key objectives and strategies for revamping the existing landing page. The primary focus is on enhancing user experience, improving visual aesthetics, and optimizing the landing page for",
     button: "",
     link: "",
-    className: "col-span-6", // Spans 6 columns
+    className: "col-span-1 md:col-span-6", // Adjusted for medium devices
     imgClassName: "w-full h-full object-cover",
     img: item1, // Use imported StaticImageData
   },
@@ -145,7 +145,7 @@ export const gridItems = [
     subContent: "",
     button: "",
     link: "",
-    className: "col-span-4", 
+    className: "col-span-1 md:col-span-4", // Adjusted for medium devices
     imgClassName: "w-full h-full",
     img: item3,
   },
@@ -157,7 +157,7 @@ export const gridItems = [
     subContent: "",
     button: "Join meet",
     link: "",
-    className: "col-span-4",
+    className: "col-span-1 md:col-span-4", // Adjusted for medium devices
     imgClassName: "w-full h-full",
     img: item4,
   },
@@ -169,7 +169,7 @@ export const gridItems = [
     subContent: "",
     button: "",
     link: "",
-    className: "col-span-4", 
+    className: "col-span-1 md:col-span-4", // Adjusted for medium devices
     imgClassName: "w-full h-full",
     img: item5,
   },
