@@ -2,8 +2,8 @@ import React from 'react';
 
  function Heading() {
   return (
-    <div className=" lg:pt-[2rem] xl:pt-[5rem] flex flex-col items-center justify-center ml-1 md:ml-10">
-      <div className="flex justify-center items-center mt-10 md:mt-15 font-bold text-center ">
+    <div className="pt-[2rem]  flex flex-col items-center justify-center ml-1 md:ml-10">
+      <div className="flex justify-center items-center mt-0 md:mt-10 font-bold text-center">
         <h1 className="text-white text-3xl md:text-5xl">
           Professionals of all types get more done with MeetAi
         </h1>

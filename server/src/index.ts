@@ -3,7 +3,9 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { connectDatabase } from "./Database/db";
-
+import { corsOrigin, githubId, googleId, googleSecret, PORT } from "./config/envConfig";
+import passport from 'passport'
+import { githubStratergy, googleStratergy } from "./config/oauthStratergies";
 /* Backend server initialised */
 const app = express();
 
@@ -11,7 +13,7 @@ const app = express();
 dotenv.config({ path: "./.env" });
 
 /* Allow cross-origin requests from specified origin and include credentials (cookies, authorization headers, etc.) */
-app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+app.use(cors({ origin: corsOrigin, credentials: true }));
 
 /* Parse incoming requests with JSON payloads*/
 app.use(express.json());
@@ -27,7 +29,17 @@ connectDatabase().then(() => {
 /* Parse Cookie header and populate req.cookies with an object keyed by the cookie names*/
 app.use(cookieParser());
 
-const port = process.env.PORT || 5000;
+
+/* Stratergies added */
+passport.use(googleStratergy)
+
+passport.use(githubStratergy)
+
+/* passport initialized */
+app.use(passport.initialize())
+
+
+const port = PORT || 5000;
 
 app.listen(port, () => {
   console.log(`Server is running at: http://localhost:${port}`);

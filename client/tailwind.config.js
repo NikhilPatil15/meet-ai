@@ -11,6 +11,7 @@ module.exports = {
     "./public/assets/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    
     extend: {
       colors: {
         color: {
@@ -174,6 +175,7 @@ module.exports = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      
       backgroundImage: {
         "radial-gradient": "radial-gradient(var(--tw-gradient-stops))",
         "conic-gradient": "conic-gradient(from 225deg, #FFC876, #79FFF7, #9F53FF, #FF98E2, #FFC876)",

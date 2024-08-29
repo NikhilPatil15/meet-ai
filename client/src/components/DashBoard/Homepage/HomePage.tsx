@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import Image from 'next/image';
 
@@ -7,10 +7,42 @@ import { UpcomingMeet, UpcomingMeet2 } from "@/constants/UpcomingMeet";
 import MeetingCard from '@/components/DashBoard/meetingCard';
 import MeetingTypeList from '@/components/DashBoard/Homepage/MeetingTypeList';
 import TopBar from '../Slidebar/TopBar';
+import axios from 'axios';
+import { useUserContext } from '@/Context/userContext';
+import { useRouter } from 'next/navigation';
+
+interface User {
+  oAuthId: string,
+  fullName: string,
+  userName: string
+}
 
 const HomePage: React.FC = () => {
+
+  const { token, setToken } = useUserContext();
+  const [user, setUser] = useState<User | null>();
+
+  useEffect(() => {
+    async function fetchUserDetails() {
+      const response = await axios.get('http://localhost:5000/api/v1/user/get-user', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      console.log("Response: ", response.data.data);
+      setUser(response.data.data.FetchedUser);
+    }
+
+    fetchUserDetails();
+  }, []);
+
+  console.log("User: ", user);
+
   return (
-    <div className="lg:ml-[190px] sm:pl-20 p-6">
+    <div className="lg:ml-[190px]  p-3 lg:pl-16 md:pl-28 sm:pl-28">
+      <h1 className='font-semibold text-lg mb-4'>Hello, {user?.userName}</h1>
+      
       {/* Top Bar */}
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <h1 className="mb-6 text-3xl font-bold">Meetings</h1>
@@ -20,7 +52,7 @@ const HomePage: React.FC = () => {
       <MeetingTypeList />
 
       {/* Upcoming Meetings */}
-      <Box display="flex" alignItems="center" justifyContent="space-between" className="mt-12">
+      <Box id="upcoming" display="flex" alignItems="center" justifyContent="space-between" className="mt-12">
         <h1 className="mb-4 text-3xl font-bold">Upcoming</h1>
       </Box>
 
@@ -48,7 +80,7 @@ const HomePage: React.FC = () => {
       </Box>
 
       {/* Meeting History */}
-      <Box display="flex" alignItems="center" justifyContent="space-between" className="mt-12">
+      <Box id="history" display="flex" alignItems="center" justifyContent="space-between" className="mt-12">
         <h1 className="mb-4 text-3xl font-bold">History</h1>
       </Box>
 

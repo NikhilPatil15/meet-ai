@@ -2,18 +2,32 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { sidebarLinks } from '@/constants/index';
 import { cn } from '@/lib/utils';
+import axios from 'axios';
+import { useUserContext } from '@/Context/userContext';
 
 const Sidebar = () => {
-  // Get the current pathname to determine active link
   const pathname = usePathname();
+  const router = useRouter();
+  const { token, setToken } = useUserContext();
+
+  const logout = async () => {
+    const response = await axios.get('http://localhost:5000/api/v1/user/logout', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    });
+    console.log('Response: ', response.data);
+    router.push('/');
+  };
 
   return (
-    <aside className="fixed top-0 left-0 h-screen w-[264px] bg-black p-6 pt-28 text-white hidden lg:flex flex-col justify-between z-40">
+    <section className="fixed top-0 left-0 h-screen bg-black p-6 pt-28 text-white hidden  sm:flex flex-col justify-between z-40 sm:w-[130px] md:w-[130px] lg:w-[264px]">
       {/* Sidebar Navigation */}
-      <nav className="flex flex-1 flex-col gap-6">
+      <div className="flex flex-1 flex-col gap-6">
         {sidebarLinks.map(({ route, imgURL, label }) => {
           const isActive = pathname === route || pathname.startsWith(`${route}/`);
 
@@ -26,7 +40,6 @@ const Sidebar = () => {
                 isActive ? 'bg-blue-1' : 'hover:bg-blue-1'
               )}
             >
-              {/* Sidebar Link Icon */}
               <Image
                 src={imgURL}
                 alt={label}
@@ -34,28 +47,42 @@ const Sidebar = () => {
                 height={24}
                 className="min-w-[24px]"
               />
-              {/* Sidebar Link Label */}
+              {/* Hide label on small devices */}
               <span className="text-lg font-semibold hidden lg:block">
                 {label}
               </span>
             </Link>
           );
         })}
-      </nav>
+      </div>
+
+      {/* Logout Button */}
+      <button
+        onClick={logout}
+        className="text-lg hover:underline mt-1 block font-semibold text-center  lg:block"
+      >
+        Logout
+      </button>
 
       {/* Sidebar Footer */}
-      <footer className="mt-auto pt-6 border-t border-gray-700">
+      <footer className="mt-auto pt-6 border-t border-gray-700  lg:block">
         <p className="text-sm text-gray-400">
           © 2024 MeetAi. All rights reserved.
         </p>
-        <Link href="/terms" className="text-sm text-blue-500 hover:underline mt-2 block">
+        <Link
+          href="/terms"
+          className="text-sm text-blue-500 hover:underline mt-2 block"
+        >
           Terms & Conditions
         </Link>
-        <Link href="/privacy" className="text-sm text-blue-500 hover:underline mt-1 block">
+        <Link
+          href="/privacy"
+          className="text-sm text-blue-500 hover:underline mt-1 block"
+        >
           Privacy Policy
         </Link>
       </footer>
-    </aside>
+    </section>
   );
 };
 
