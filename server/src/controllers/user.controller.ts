@@ -1,10 +1,18 @@
+import path from "path";
+import {
+  jwtSecret,
+  smtpHost,
+  smtpPass,
+  smtpPort,
+  smtpUser,
+} from "../config/envConfig";
 import { User } from "../models/user.model";
 import { ApiError } from "../utils/apiError";
 import { ApiResponse } from "../utils/apiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import { Request, Response } from "express";
-import jwt from "jsonwebtoken"
-import nodemailer from 'nodemailer'
+import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 
 const options = {
   httpOnly: true,
@@ -97,12 +105,15 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     "-password -refreshToken"
   );
 
+  console.log("Credential login: ", loggedUser);
+  
+
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
     .json(
-      new ApiResponse(200, { user: loggedUser }, "user logged in successfully!")
+      new ApiResponse(200, { user: loggedUser,accessToken,refreshToken }, "user logged in successfully!")
     );
 });
 
@@ -117,6 +128,7 @@ const logoutUser = asyncHandler(async (req: any, res: Response) => {
     { $unset: { refreshToken: 1 } },
     { new: true }
   );
+
 
   res
     .status(200)
@@ -135,44 +147,48 @@ const getUser = asyncHandler(async (req: any, res: Response) => {
     );
 });
 
-const updatePassword = asyncHandler(async (req: any, res: Response)=>{
-  const { oldPassword, newPassword } = req.body
+const updatePassword = asyncHandler(async (req: any, res: Response) => {
+  const { oldPassword, newPassword } = req.body;
 
-  const user : any = await User.findById(req?.user._id)
-  const isPasswordCorrect : Boolean = await user.isPasswordCorrect(oldPassword)
+  const user: any = await User.findById(req?.user._id);
+  const isPasswordCorrect: Boolean = await user.isPasswordCorrect(oldPassword);
 
-  if(!isPasswordCorrect){
-    throw new ApiError(400, "Invalid Password")
+  if (!isPasswordCorrect) {
+    throw new ApiError(400, "Invalid Password");
   }
 
-  user.password = newPassword
+  user.password = newPassword;
 
-  await user.save({validateBeforeSave: false})
+  await user.save({ validateBeforeSave: false });
 
-  return res.status(200).json(new ApiResponse(201, {}, "Password Updated successfully"))
+  return res
+    .status(200)
+    .json(new ApiResponse(201, {}, "Password Updated successfully"));
 });
 
-const sendEmail = asyncHandler(async (req: Request, res: Response)=>{
-  const {email} = req.body
+const sendEmail = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = req.body;
 
-  if(!email){
-    throw new ApiError(402,"Email Required")
+  if (!email) {
+    throw new ApiError(402, "Email Required");
   }
 
-  const user = await User.find({email})
+  const user = await User.find({ email });
 
-  if(!user){
-    throw new ApiError(404,"User with given email doesn\'t exist")
+  if (!user) {
+    throw new ApiError(404, "User with given email doesn't exist");
   }
 
-  const token = jwt.sign({ _id: user[0]._id }, process.env.JWT_SECRET as string, { expiresIn: "1h" })
+  const token = jwt.sign({ _id: user[0]._id }, jwtSecret as string, {
+    expiresIn: "1h",
+  });
 
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST as string,
-    port: Number(process.env.SMTP_PORT),
+    host: smtpHost as string,
+    port: Number(smtpPort),
     auth: {
-      user: process.env.SMTP_USER as string,
-      pass: process.env.SMTP_PASS as string,
+      user: smtpUser as string,
+      pass: smtpPass as string,
     },
   });
 
@@ -181,49 +197,85 @@ const sendEmail = asyncHandler(async (req: Request, res: Response)=>{
     to: email,
     subject: "Password Reset Link",
     html: `<h4>You requested for password reset</h4>
-                  <p>Click <a href="http://localhost:5173/reset-password/${token}">here</a> to reset your password</p>`
-  }
+                  <p>Click <a href="http://localhost:5173/reset-password/${token}">here</a> to reset your password</p>`,
+  };
 
-  await transporter.sendMail(mailOptions)
+  await transporter.sendMail(mailOptions);
 
-  return res.status(200).json(new ApiResponse(201, { token }, "Email sended successfully"))
+  return res
+    .status(200)
+    .json(new ApiResponse(201, { token }, "Email sended successfully"));
 });
 
-const resetPassword = asyncHandler(async (req: Request, res: Response)=>{
-  const { token, newPassword } = req.body
+const resetPassword = asyncHandler(async (req: Request, res: Response) => {
+  const { token, newPassword } = req.body;
 
   console.log(token);
-  const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string)
-  const user = await User.findById(decoded?._id)
+  const decoded: any = jwt.verify(token, jwtSecret as string);
+  const user = await User.findById(decoded?._id);
 
   if (!user) {
-    throw new ApiError(401, "User not found")
+    throw new ApiError(401, "User not found");
   }
 
-  user.password = newPassword
+  user.password = newPassword;
 
-  await user.save({ validateBeforeSave: false })
+  await user.save({ validateBeforeSave: false });
 
-  res.status(200).json(new ApiResponse(201, {}, "Password reset Successfully"))
+  res.status(200).json(new ApiResponse(201, {}, "Password reset Successfully"));
 });
 
-const updateAccountDetails = asyncHandler(async(req: any, res:Response)=>{
-  const {userName, email} = req.body
+const updateAccountDetails = asyncHandler(async (req: any, res: Response) => {
+  const { userName, email, fullName } = req.body;
 
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
-        userName,
-        email: email,
+        userName: userName ? userName : req.user.userName,
+        email: email ? email : req.user.email,
+        fullName: fullName ? fullName : req.user.fullName,
       },
     },
     { new: true }
-  ).select("-password");
+  ).select("-password -refreshToken");
 
-  return res.status(200).json(new ApiResponse(200, user, "Account details updated successfully"));
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { UpdatedUser: user },
+        "Account details updated successfully"
+      )
+    );
 });
 
+const setOauthCookies = asyncHandler(async (req: any, res: Response) => {
+  console.log("auth: ", req.auth);
+  res
+    .cookie("accessToken", req.auth, options)
+    .redirect("http://localhost:3000/auth/setaccesstoken");
+});
 
+const setAccessToken = asyncHandler(async (req:any, res:Response) => {
+  let token =  req.cookies.accessToken
 
-export { registerUser, loginUser, logoutUser, getUser, updatePassword, sendEmail, resetPassword, updateAccountDetails };
+  console.log("Token: ", token);
+
+  res.status(201).json(new ApiResponse(201,token,"AccessToken fetched successfully!"))
+})
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  getUser,
+  updatePassword,
+  sendEmail,
+  resetPassword,
+  updateAccountDetails,
+  generateAccessAndRefreshToken,
+  setOauthCookies,
+  setAccessToken
+};

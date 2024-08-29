@@ -1,7 +1,6 @@
 import home from '@/assets/icons/Home.svg';
 import upcoming from '@/assets/icons/upcoming.svg';
 import previous from '@/assets/icons/previous.svg';
-import { BsPerson } from 'react-icons/bs';
 import join_meeting from'@/assets/icons/join-meeting.svg'
 
 
@@ -18,12 +17,12 @@ export const sidebarLinks = [
   },
   {
     imgURL: upcoming, // Use the imported SVG directly
-    route: '/upcoming',
+    route: '#upcoming',
     label: 'Upcoming',
   },
   {
     imgURL: previous, // Use the imported SVG directly
-    route: '/previous',
+    route: '#history',
     label: 'Previous',
   },
 ];

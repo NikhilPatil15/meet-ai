@@ -19,8 +19,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { base_url } from "@/config/config.js";
 import axios from "axios";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useUserContext } from "@/Context/userContext";
 
 export default function SignupFormDemo() {
+
+   const {token,setToken,refreshToken,setRefreshToken} = useUserContext()
+
   const USER_REGEX = useMemo(() => /^[A-z][A-z0-9-_]{3,23}$/, []);
   const PWD_REGEX = useMemo(
     () => /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/,
@@ -43,15 +48,8 @@ export default function SignupFormDemo() {
   const [validPassword, setValidPassword] = useState<boolean>(false);
   const [passwordFocus, setPasswordFocus] = useState(false);
 
-<<<<<<< HEAD
-  const [email, setEmail] = useState<string>("");
-  const [validEmail, setValidEmail] = useState<boolean>(false);
-
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-=======
   const [sendEmail, setSendEmail] = useState<boolean>(false);
->>>>>>> 585fca686722d2057fdf5f055e70668266b510a6
+  const router = useRouter()
 
   useEffect(() => {
     setValidPassword(PWD_REGEX.test(password));
@@ -65,35 +63,35 @@ export default function SignupFormDemo() {
     setValidUserName(USER_REGEX.test(userName));
   }, [USER_REGEX, userName]);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    setValidEmail(EMAIL_REGEX.test(email));
-  }, [EMAIL_REGEX, email]);
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-=======
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
->>>>>>> 585fca686722d2057fdf5f055e70668266b510a6
     e.preventDefault();
     const data = {
       userName,
-      fullName: firstName + " " + lastName,
       password,
       email,
     };
 
-    axios
-      .post(`${base_url}`, data)
+   await axios
+      .post(`${base_url}/user/login`,data,{withCredentials:true})
       .then((res) => {
         console.log(res.data);
+
+        setToken(res.data.data.accessToken)
+        setRefreshToken(res.data.data.refreshToken)
+
       })
       .catch((err) => {
         console.log(err);
       });
     console.log("Form submitted");
+
+
+
+    router.push('/auth/setaccesstoken')
+     
   };
   return (
-    <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
+    <main className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-black dark:bg-black">
       {sendEmail && (
         <div
           onClick={() => setSendEmail((prev) => !prev)}
@@ -103,11 +101,10 @@ export default function SignupFormDemo() {
         </div>
       )}
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
-        Welcome to Aceternity
+        Welcome to MeetAi
       </h2>
       <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
-        Login to aceternity if you can because we don&apos;t have a login flow
-        yet
+      Log in to MeetAi to continue. If you don't have an account yet, please sign up.
       </p>
 
       <form className="my-8" onSubmit={handleSubmit}>
@@ -212,38 +209,43 @@ export default function SignupFormDemo() {
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
           type="submit"
+          
         >
           {!sendEmail ? <span>Sign in &rarr;</span> : <span>Send Email</span>}
           <BottomGradient />
         </button>
-
+        </form>
         {!sendEmail && (
           <>
             <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
-            <div className="flex flex-col space-y-4">
+            <section className="flex flex-col space-y-4">
               <button
                 className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
-                type="submit"
+                
               >
                 <IconBrandGithub className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
+                <Link href="http://localhost:5000/api/v1/user/oauth/github">
                 <span className="text-neutral-700 dark:text-neutral-300 text-sm">
                   GitHub
                 </span>
+                </Link>
                 <BottomGradient />
               </button>
               <button
                 className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
-                type="submit"
+                
               >
                 <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
+                <Link href="http://localhost:5000/api/v1/user/oauth/google">
                 <span className="text-neutral-700 dark:text-neutral-300 text-sm">
                   Google
                 </span>
+                </Link>
                 <BottomGradient />
               </button>
               <button
                 className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
-                type="submit"
+                
               >
                 <IconBrandOnlyfans className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
                 <span className="text-neutral-700 dark:text-neutral-300 text-sm">
@@ -251,11 +253,11 @@ export default function SignupFormDemo() {
                 </span>
                 <BottomGradient />
               </button>
-            </div>
+            </section>
           </>
         )}
-      </form>
-    </div>
+      
+    </main>
   );
 }
 

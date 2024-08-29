@@ -121,7 +121,7 @@ export const gridItems = [
     subContent: "We re-engineered the service we built for secure business meetings, MeetAi to make it free and available for all",
     button: "Join meet",
     link: "https://room.me/qwe-r1-2zx",
-    className: "col-span-1 md:col-span-6", // Adjusted for medium devices
+    className: "col-span-1 md:col-span-6", // Default col-span-1 for small screens
     imgClassName: "w-full h-full object-cover",
     img: b9, // Use imported StaticImageData
   },
@@ -133,7 +133,7 @@ export const gridItems = [
     subContent: "The kickoff meeting for the Aerebook Redesign Landing Page project aimed to outline the key objectives and strategies for revamping the existing landing page. The primary focus is on enhancing user experience, improving visual aesthetics, and optimizing the landing page for",
     button: "",
     link: "",
-    className: "col-span-1 md:col-span-6", // Adjusted for medium devices
+    className: "col-span-1 md:col-span-6", // Default col-span-1 for small screens
     imgClassName: "w-full h-full object-cover",
     img: item1, // Use imported StaticImageData
   },
@@ -145,7 +145,7 @@ export const gridItems = [
     subContent: "",
     button: "",
     link: "",
-    className: "col-span-1 md:col-span-4", // Adjusted for medium devices
+    className: "col-span-1 md:col-span-4 lg:h-[80%]", // Default col-span-1 for small screens
     imgClassName: "w-full h-full",
     img: item3,
   },
@@ -157,7 +157,7 @@ export const gridItems = [
     subContent: "",
     button: "Join meet",
     link: "",
-    className: "col-span-1 md:col-span-4", // Adjusted for medium devices
+    className: "col-span-1 md:col-span-4 lg:h-[80%]", // Default col-span-1 for small screens
     imgClassName: "w-full h-full",
     img: item4,
   },
@@ -169,7 +169,7 @@ export const gridItems = [
     subContent: "",
     button: "",
     link: "",
-    className: "col-span-1 md:col-span-4", // Adjusted for medium devices
+    className: "col-span-1 md:col-span-4 lg:h-[80%]", // Default col-span-1 for small screens
     imgClassName: "w-full h-full",
     img: item5,
   },

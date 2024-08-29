@@ -39,6 +39,8 @@
   export const navigation = [
     {
       id: "0",
+      
+      
       title: "MeetAi",
       url: "#whyMeetai",
     },
@@ -62,18 +64,18 @@
         title: "Pricing",
         url: "#pricing",
       },
-    // {
-    //   id: "5",
-    //   title: "Sign up",
-    //   url: "#register",
-    //   onlyMobile: false,
-    // },
-    // {
-    //   id: "6",
-    //   title: "Sign in",
-    //   url: "#login",
-    //   onlyMobile: false,
-    // },
+    {
+      id: "5",
+      title: "Sign up",
+      url: "#register",
+      onlyMobile: true,
+    },
+    {
+      id: "6",
+      title: "Sign in",
+      url: "#login",
+      onlyMobile: true,
+    },
   ];
   
 //  export const heroIcons = [homeSmile, file02, searchMd, plusSquare];

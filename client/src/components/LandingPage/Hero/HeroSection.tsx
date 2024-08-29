@@ -19,12 +19,12 @@ function HeroSection() {
   ];
 
   return (
-    <div className="pt-[6rem] lg:pt-[4rem] xl:pt-[11rem] px-4 lg:px-8 xl:px-12" id="hero">
+    <div className="pt-[6rem] lg:pt-[4rem] xl:pt-[11rem] px-4 lg:px-8 xl:px-12 shadow-top" id="hero">
       <div className="container relative mx-auto max-w-screen-lg"> {/* Adjusted container */}
         <div className="relative z-1 max-w-[62rem] mx-auto text-center mb-[4rem] md:mb-20 lg:mb-[6rem] px-4"> {/* Added px-4 */}
           <TypewriterEffect words={words} className="h1 text-white text-2xl md:text-3xl lg:text-3xl" />
           <p className="max-w-3xl mx-auto mt-4 mb-6 text-white text-base md:text-lg lg:text-xl xl:text-2xl">
-            MeetAi make it easy to connect with people, no matter how far apart you are. Whether it's chatting with friends, working with colleagues, or sharing special moments with family.
+            MeetAi makes it easy to connect with people, no matter how far apart you are. Whether it's chatting with friends, working with colleagues, or sharing special moments with family.
           </p>
           <div className="mt-6">
             <Link href={'/courses'}>
@@ -56,13 +56,13 @@ function HeroSection() {
             </div>
             <Gradient />
           </div>
-          <div className="absolute -top-1/2 left-1/2 w-[204%] opacity-15 lg:w-[170%] -translate-x-1/2 md:-top-1/3 md:w-[109%] lg:-top-1/5 lg:pt-24 md:pt-14">
+          <div className="absolute -top-1/2 left-1/2 w-[204%] opacity-5 lg:w-[170%] -translate-x-1/2 md:-top-1/3 md:w-[109%] lg:-top-1/5 lg:pt-24 md:pt-14">
 
             <Image 
               src={bgcimage} 
               alt="hero" 
               objectFit="cover" 
-              className="rounded-[1rem] w-full h-auto max-w-full" 
+              className="rounded-[1rem] w-full h-auto max-w-full shadow-lg"  // Added shadow-lg
               width={7440}
               height={4800}
             />
