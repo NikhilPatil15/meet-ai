@@ -71,6 +71,10 @@ export default function SignupFormDemo() {
       email,
     };
 
+    if(!validEmail || !validUserName || !validPassword){
+      return;
+    }
+
    await axios
       .post(`${base_url}/user/login`,data,{withCredentials:true})
       .then((res) => {
@@ -100,12 +104,13 @@ export default function SignupFormDemo() {
           {"<-"}
         </div>
       )}
-      <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
-        Welcome to MeetAi
+      {/* <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
+        Welcome to Aceternity
       </h2>
       <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
-      Log in to MeetAi to continue. If you don't have an account yet, please sign up.
-      </p>
+        Login to aceternity if you can because we don&apos;t have a login flow
+        yet
+      </p> */}
 
       <form className="my-8" onSubmit={handleSubmit}>
         {!sendEmail ? (
@@ -145,7 +150,16 @@ export default function SignupFormDemo() {
               </p>
             </LabelInputContainer>
             <LabelInputContainer className="mb-4">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Password
+              <FontAwesomeIcon
+                  icon={faCheck}
+                  className={validPassword ? "valid" : "hide"}
+                />
+                <FontAwesomeIcon
+                  icon={faTimes}
+                  className={validPassword || !password ? "hide" : "invalid"}
+                />
+              </Label>
               <Input
                 id="password"
                 required
@@ -241,16 +255,6 @@ export default function SignupFormDemo() {
                   Google
                 </span>
                 </Link>
-                <BottomGradient />
-              </button>
-              <button
-                className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
-                
-              >
-                <IconBrandOnlyfans className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-                <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                  OnlyFans
-                </span>
                 <BottomGradient />
               </button>
             </section>
