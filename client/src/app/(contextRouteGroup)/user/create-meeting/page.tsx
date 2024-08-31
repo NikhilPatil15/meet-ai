@@ -1,37 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
-import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { useDispatch } from "react-redux";
+import {
+  Call,
+  StreamVideoClient,
+  useStreamVideoClient,
+} from "@stream-io/video-react-sdk";
 import { Loader2 } from "lucide-react";
-
-interface TitleInputProps {
-  value: string;
-  onChange: (value: string) => void;
-}
-
-interface DescriptionInputProps {
-  value: string;
-  onChange: (value: string) => void;
-}
-
-interface StartTimeInputProps {
-  value: string;
-  onChange: (value: string) => void;
-}
-
-interface ParticipantsInputProps {
-  users: { email: string; userName: string }[];
-  selectedParticipants: string[];
-  setSelectedParticipants: (emails: string[]) => void;
-}
-
-interface MeetingLinkProps {
-  call: Call;
-}
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 export default function CreateMeetingPage() {
   const [titleInput, setTitleInput] = useState("");
@@ -39,50 +18,55 @@ export default function CreateMeetingPage() {
   const [startTimeInput, setStartTimeInput] = useState("");
   const [participantsInput, setParticipantsInput] = useState("");
   const [call, setCall] = useState<Call>();
-  const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
-    []
-  );
-  const [allUsers, setAllUsers] = useState<
-    { email: string; userName: string; avatar: string }[]
-  >([]);
+  const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
+  const [allUsers, setAllUsers] = useState<{ email: string, userName: string }[]>([]);
 
   const [join, setJoin] = useState<boolean>(false);
   const [input, setInput] = useState<string>("");
 
-  const client = useStreamVideoClient()
+  const client = useStreamVideoClient();
   const router = useRouter();
-  const user = useSelector((state: RootState)=> state.user.userInfo)
+  const user = useSelector((state: RootState) => state?.user?.userInfo);
   const dispatch = useDispatch();
 
-  async function createMeeting(){
-    if(!client || !user){
+
+  async function createMeeting() {
+    if (!client || !user) {
       return;
     }
 
     try {
-      const id = crypto.randomUUID()
-      const call = client.call("default", id)
+      console.log(client);
+
+      const id = crypto.randomUUID();
+      console.log("ID: ", id);
+
+      const call = client.call("default", id);
+
       const response = await call.getOrCreate({
         data: {
-          custom: {description: descriptionInput},
-        }
+          custom: { description: descriptionInput && descriptionInput },
+        },
       });
+      console.log("Response: ", response);
 
       setCall(call);
-      router.push(`/meeting/${call?.id}`)
+      router.push(`/meeting/${call?.id}`);
     } catch (error) {
-      console.log("error: ",error);
+      console.log("error: ", error);
+      alert("Something went wrong. Please try again later.");
     }
   }
 
-  const joinMeeting = async ()=>{
-    router.push(`meeting/${input}`)
-  }
-  if(!client || !user){
+  const joincall = async () => {};
+
+  const joinMeeting = async () => {
+    router.push(`meeting/${input}`);
+  };
+  if (!client || !user) {
     return <Loader2 className="mx-auto animate-spin" />;
   }
 
-  
   return (
     <div className="flex flex-col items-center space-y-6 text-white">
       <h1 className="text-center text-2xl font-bold">
@@ -125,13 +109,12 @@ export default function CreateMeetingPage() {
       </div>
       {call && <MeetingLink call={call} />}
     </div>
-  );;
+  );
 }
 
-function MeetingLink({ call }: MeetingLinkProps) {
-  const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URI}/meeting/${call.id}`;
-
-  return <div className="text-center">{meetingLink}</div>;
+interface TitleInputProps {
+  value: string;
+  onChange: (value: string) => void;
 }
 
 function TitleInput({ value, onChange }: TitleInputProps) {
@@ -145,6 +128,11 @@ function TitleInput({ value, onChange }: TitleInputProps) {
       />
     </label>
   );
+}
+
+interface DescriptionInputProps {
+  value: string;
+  onChange: (value: string) => void;
 }
 
 function DescriptionInput({ value, onChange }: DescriptionInputProps) {
@@ -177,6 +165,11 @@ function DescriptionInput({ value, onChange }: DescriptionInputProps) {
       )}
     </div>
   );
+}
+
+interface StartTimeInputProps {
+  value: string;
+  onChange: (value: string) => void;
 }
 
 function StartTimeInput({ value, onChange }: StartTimeInputProps) {
@@ -227,6 +220,11 @@ function StartTimeInput({ value, onChange }: StartTimeInputProps) {
       )}
     </div>
   );
+}
+interface ParticipantsInputProps {
+  users: { email: string; userName: string }[];
+  selectedParticipants: string[];
+  setSelectedParticipants: (emails: string[]) => void;
 }
 
 function ParticipantsInput({
@@ -283,4 +281,14 @@ function ParticipantsInput({
       )}
     </div>
   );
+}
+
+interface MeetingLinkProps {
+  call: Call;
+}
+
+function MeetingLink({ call }: MeetingLinkProps) {
+  const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URI}/meeting/${call.id}`;
+
+  return <div className="text-center">{meetingLink}</div>;
 }
