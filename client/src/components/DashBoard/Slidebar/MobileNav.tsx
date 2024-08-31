@@ -20,14 +20,14 @@ const MobileSidebar = () => {
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
-        setIsOpen(false); // Close the mobile sidebar on larger screens
-        setIsMediumOrLarger(true); // Set state to true for medium or larger screens
+        setIsOpen(false); 
+        setIsMediumOrLarger(true);
       } else {
-        setIsMediumOrLarger(false); // Reset state for smaller screens
+        setIsMediumOrLarger(false);
       }
     };
 
-    handleResize(); // Run once on mount to check the initial size
+    handleResize(); 
     window.addEventListener('resize', handleResize);
 
     return () => window.removeEventListener('resize', handleResize);
@@ -49,7 +49,7 @@ const MobileSidebar = () => {
         <SheetContent
           side="left"
           className={cn("border-none", {
-            "bg-dark-1": isOpen || isMediumOrLarger, // Apply bg-dark-1 if sidebar is open or on larger screens
+            "bg-dark-1": isOpen || isMediumOrLarger, 
           })}
         >
           <Link href="/" className="flex items-center gap-2 p-4">
