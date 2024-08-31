@@ -4,8 +4,7 @@ import { disablePageScroll, enablePageScroll } from 'scroll-lock';
 import Image from 'next/image';
 import Link from 'next/link';
 import meetai from '@/assets/meetai.jpg';
-import { navigation } from '@/constants/navigationItems'; // Adjusted relative path
-import ButtonGradient from '@/assets/svg/ButtonGradient';
+import { navigation } from '@/constants/navigationItems';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -23,15 +22,16 @@ function Navbar() {
   };
 
   const handleClick = () => {
-    if (!openNavigation) return;
-    enablePageScroll();
-    setOpenNavigation(false);
+    if (openNavigation) {
+      setOpenNavigation(false);
+      enablePageScroll();
+    }
   };
 
   return (
     <div className="relative">
       <div className={`fixed top-0 left-0 w-full z-50 border-b border-n-6 transition-all duration-300 ${openNavigation ? 'bg-black/50' : 'bg-black/90 backdrop-blur-sm'}`}>
-        <div className='flex items-center px-5 lg:px-7.5 xl:px-10 py-4'>
+        <div className='flex items-center px-4 lg:px-3 xl:px-6 py-3'>
           <Link href="#hero" className='block w-[12rem] xl:mr-8'>
             <Image src={meetai} alt="Logo Meet" width={190} height={48} />
           </Link>
@@ -40,7 +40,7 @@ function Navbar() {
           <div className='hidden lg:flex flex-grow justify-center space-x-8'>
             {navigation.map((item) => (
                !item.onlyMobile && (
-                <Link key={item.id} href={item.url} className={`relative text-[16px] uppercase text-n-1 transition-colors hover:text-color-1 ${item.onlyMobile ? 'lg:hidden' : ''} px-6 py-6 md:py-8 lg:text-xs lg:font-semibold font-roboto font-normal`}>
+                <Link key={item.id} href={item.url} className={`relative text-[25px] uppercase text-n-1 transition-colors hover:text-color-1 ${item.onlyMobile ? 'lg:hidden' : ''} px-6 py-6 md:py-8 lg:text-sm lg:font-semibold font-roboto font-normal`}>
                   {item.title}
                 </Link>
                )
@@ -58,10 +58,8 @@ function Navbar() {
             </Link>
           </div>
 
-          <ButtonGradient />
-
           <button aria-label="Toggle Navigation" className='ml-auto lg:hidden px-3 relative z-10' onClick={toggleNavigation}>
-            <FontAwesomeIcon icon={openNavigation ? faTimes : faBars} className={`text-gray-600 transition-transform duration-300 ${openNavigation ? 'rotate-180' : ''}`} />
+            <FontAwesomeIcon icon={openNavigation ? faTimes : faBars} className="text-gray-600 transition-transform duration-300" />
           </button>
         </div>
       </div>

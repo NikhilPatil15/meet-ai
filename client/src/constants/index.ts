@@ -17,12 +17,12 @@ export const sidebarLinks = [
   },
   {
     imgURL: upcoming, // Use the imported SVG directly
-    route: '/upcoming',
+    route: '#upcoming',
     label: 'Upcoming',
   },
   {
     imgURL: previous, // Use the imported SVG directly
-    route: '/previous',
+    route: '#history',
     label: 'Previous',
   },
 ];
