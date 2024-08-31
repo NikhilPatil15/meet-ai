@@ -18,6 +18,8 @@
     "@mui/icons-material": "^5.16.7",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-label": "^2.1.0",
+    "@stream-io/node-sdk": "^0.4.0",
+    "@stream-io/video-react-sdk": "^1.2.23",
     "@tabler/icons-react": "^3.11.0",
     "autoprefixer": "^10.4.19",
     "axios": "^1.7.2",
