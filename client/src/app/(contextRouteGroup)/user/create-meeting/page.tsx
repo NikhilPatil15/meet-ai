@@ -51,7 +51,7 @@ export default function CreateMeetingPage() {
       console.log("Response: ", response);
 
       setCall(call);
-      router.push(`/meeting/${call?.id}`);
+      router.push(`meeting/${call?.id}`);
     } catch (error) {
       console.log("error: ", error);
       alert("Something went wrong. Please try again later.");
@@ -61,7 +61,7 @@ export default function CreateMeetingPage() {
   const joincall = async () => {};
 
   const joinMeeting = async () => {
-    router.push(`meeting/${input}`);
+    router.push(`/meeting/${input}`);
   };
   if (!client || !user) {
     return <Loader2 className="mx-auto animate-spin" />;
