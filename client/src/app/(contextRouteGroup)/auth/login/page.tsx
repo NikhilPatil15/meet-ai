@@ -21,8 +21,11 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUserContext } from "@/Context/userContext";
+import { setUser } from "@/redux/slices/userSlice";
+import { useDispatch } from "react-redux";
 
 export default function SignupFormDemo() {
+  const dispatch = useDispatch();
 
    const {token,setToken,refreshToken,setRefreshToken} = useUserContext()
 
@@ -49,7 +52,7 @@ export default function SignupFormDemo() {
   const [passwordFocus, setPasswordFocus] = useState(false);
 
   const [sendEmail, setSendEmail] = useState<boolean>(false);
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     setValidPassword(PWD_REGEX.test(password));
@@ -68,21 +71,20 @@ export default function SignupFormDemo() {
     const data = {
       userName,
       password,
-      email,
     };
 
-    if(!validEmail || !validUserName || !validPassword){
-      return;
-    }
+    // if(!validEmail || !validUserName || !validPassword){
+    //   return;
+    // }
 
    await axios
       .post(`${base_url}/user/login`,data,{withCredentials:true})
       .then((res) => {
-        console.log(res.data);
-
-        setToken(res.data.data.accessToken)
-        setRefreshToken(res.data.data.refreshToken)
-
+        // console.log(res?.data?.data?.user);
+        dispatch(setUser(res?.data?.data?.user))
+        // setToken(res.data.data.accessToken)
+        // setRefreshToken(res.data.data.refreshToken)
+        router.push("/user/create-meeting")
       })
       .catch((err) => {
         console.log(err);
@@ -91,7 +93,7 @@ export default function SignupFormDemo() {
 
 
 
-    router.push('/auth/setaccesstoken')
+    // router.push('/auth/setaccesstoken')
      
   };
   return (
