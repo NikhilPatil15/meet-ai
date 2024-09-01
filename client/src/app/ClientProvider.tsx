@@ -28,7 +28,6 @@ function useInitializeVideoClient() {
   );
   const [loading, setLoading] = useState<boolean>(true);
   const userInfo = useSelector((state: RootState) => state.user.userInfo);
-  const router = useRouter();
 
   useEffect(() => {
     const initializeClient = async () => {
