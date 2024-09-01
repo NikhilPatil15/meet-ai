@@ -96,6 +96,14 @@ export default function SignupFormDemo() {
     // router.push('/auth/setaccesstoken')
      
   };
+
+  const getUser = async ()=>{
+    axios.defaults.withCredentials = true;
+    axios.get("http://localhost:5000/api/v1/user/get-user").then((res)=>{
+      console.log(res);
+    }).catch((err)=>{console.log(err);
+    })
+  }
   return (
     <main className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-black dark:bg-black">
       {sendEmail && (
@@ -259,10 +267,13 @@ export default function SignupFormDemo() {
                 </Link>
                 <BottomGradient />
               </button>
+
+              <button onClick={getUser}>Get profile</button>
             </section>
           </>
         )}
       
+    
     </main>
   );
 }
