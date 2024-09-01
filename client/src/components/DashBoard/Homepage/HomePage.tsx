@@ -23,7 +23,6 @@ const HomePage: React.FC = () => {
   const [user,setUser] = useState<User|null>()
 
 
-
   useEffect(()=>{
     async function fetchUserDetails () {
       // console.log("Document cookie: ", document.cookie);
