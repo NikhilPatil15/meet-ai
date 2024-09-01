@@ -31,7 +31,7 @@ export const verifyJWT = asyncHandler(
         throw new ApiError(400, "token does not match!");
       }
 
-      console.log("Decoded Token: ", decodedToken);
+      // console.log("Decoded Token: ", decodedToken);
       
 
       const user = await User.findById(decodedToken?._id).select(
