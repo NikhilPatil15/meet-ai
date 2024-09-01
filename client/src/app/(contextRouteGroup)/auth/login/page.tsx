@@ -238,7 +238,7 @@ export default function SignupFormDemo() {
                 
               >
                 <IconBrandGithub className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-                <Link href="http://localhost:5000/api/v1/user/oauth/github">
+                <Link href="http://localhost:5000/api/v1/user/oauth/github/login">
                 <span className="text-neutral-700 dark:text-neutral-300 text-sm">
                   GitHub
                 </span>
@@ -250,7 +250,7 @@ export default function SignupFormDemo() {
                 
               >
                 <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-                <Link href="http://localhost:5000/api/v1/user/oauth/google">
+                <Link href="http://localhost:5000/api/v1/user/oauth/google/login">
                 <span className="text-neutral-700 dark:text-neutral-300 text-sm">
                   Google
                 </span>
