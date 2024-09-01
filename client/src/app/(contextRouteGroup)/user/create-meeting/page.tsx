@@ -51,7 +51,7 @@ export default function CreateMeetingPage() {
       console.log("Response: ", response);
 
       setCall(call);
-      router.push(`/meeting/${call?.id}`);
+      router.push(`/meet/${call?.id}`);
     } catch (error) {
       console.log("error: ", error);
       alert("Something went wrong. Please try again later.");
