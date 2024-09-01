@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -10,11 +11,31 @@ import hamburger from '@/assets/icons/hamburger.svg';
 import logo from '@/assets/icons/logo.svg';
 
 const MobileSidebar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMediumOrLarger, setIsMediumOrLarger] = useState(false);
   const pathname = usePathname();
+
+  const toggleSidebar = () => setIsOpen(!isOpen);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsOpen(false); 
+        setIsMediumOrLarger(true);
+      } else {
+        setIsMediumOrLarger(false);
+      }
+    };
+
+    handleResize(); 
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <section className="w-full max-w-[264px] sm:hidden">
-      <Sheet>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Image
             src={hamburger}
@@ -22,9 +43,15 @@ const MobileSidebar = () => {
             height={36}
             alt="Hamburger Icon"
             className="cursor-pointer"
+            onClick={toggleSidebar}
           />
         </SheetTrigger>
-        <SheetContent side="left" className="border-none bg-dark-1">
+        <SheetContent
+          side="left"
+          className={cn("border-none", {
+            "bg-dark-1": isOpen || isMediumOrLarger, 
+          })}
+        >
           <Link href="/" className="flex items-center gap-2 p-4">
             <Image
               src={logo}

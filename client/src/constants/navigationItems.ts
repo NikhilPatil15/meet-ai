@@ -39,9 +39,10 @@
   export const navigation = [
     {
       id: "0",
-      title: "Why Room?",
-      url: "#whyroom",
       
+      
+      title: "MeetAi",
+      url: "#whyMeetai",
     },
     {
       id: "1",
