@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 
 import { Inter } from "next/font/google";
 import "../../styles/globals.css";
-import { UserContextProvider } from "@/Context/userContext";
 import ClientProvider from "../ClientProvider";
 import { Providers } from "../providers";
 
@@ -28,11 +27,9 @@ export default function RootLayout({
       </head>
 
       <body className={inter.className}>
-      <Providers>
-            <ClientProvider>
-              {children}
-            </ClientProvider>
-          </Providers>
+        <Providers>
+          <ClientProvider>{children}</ClientProvider>
+        </Providers>
       </body>
     </html>
   );
