@@ -21,7 +21,7 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUserContext } from "@/Context/userContext";
-import { setUser } from "@/redux/slices/userSlice";
+import { setUser } from "@/redux/slices/authSlice";
 import { useDispatch } from "react-redux";
 
 export default function SignupFormDemo() {
@@ -77,6 +77,7 @@ export default function SignupFormDemo() {
     //   return;
     // }
 
+    axios.defaults.withCredentials=true
    await axios
       .post(`${base_url}/user/login`,data,{withCredentials:true})
       .then((res) => {
