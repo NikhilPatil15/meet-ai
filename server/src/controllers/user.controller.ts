@@ -14,9 +14,10 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 
-const options = {
+const options:any = {
   httpOnly: true,
   secure: true,
+  sameSite: "Strict"
 };
 
 const generateAccessAndRefreshToken = async (userId: any) => {

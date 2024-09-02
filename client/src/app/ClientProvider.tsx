@@ -6,39 +6,38 @@ import {
   User,
 } from "@stream-io/video-react-sdk";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 import { base_url } from "@/config/config";
-import { useRouter } from "next/navigation";
 import axios from "axios";
+import useAuth from "@/hooks/useAuth";
 
 interface ClientProviderProps {
   children: React.ReactElement;
 }
 
 export default function ClientProvider({ children }: ClientProviderProps) {
-  const videoClient: any = useInitializeVideoClient();
+  const videoClient:any = useInitializeVideoClient();
 
   return <StreamVideo client={videoClient}>{children}</StreamVideo>;
 }
 
 function useInitializeVideoClient() {
-  const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(
-    null
-  );
+  const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const userInfo = useSelector((state: RootState) => state.user.userInfo);
+  
+  const { user, loading: authLoading } = useAuth();
+  console.log(user);
+  
 
   useEffect(() => {
     const initializeClient = async () => {
-      if (!userInfo) {
+      if (authLoading || !user) {
         setLoading(false);
         return;
       }
 
       const streamUser: User = {
-        id: userInfo._id,
-        name: userInfo.userName,
+        id: user._id,
+        name: user.userName,
       };
 
       const apiKey = process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY;
@@ -49,7 +48,7 @@ function useInitializeVideoClient() {
 
       try {
         const response = await axios.get(
-          `${base_url}/token/get-token-user?userId=${userInfo._id}`
+          `${base_url}/token/get-token-user?userId=${user._id}`
         );
 
         const client = new StreamVideoClient({
@@ -60,12 +59,12 @@ function useInitializeVideoClient() {
 
         setVideoClient(client);
       } catch (error) {
-        console.log("Failed to initialize stream client: ", error);
+        console.error("Failed to initialize stream client: ", error);
       } finally {
         setLoading(false);
       }
-      setLoading(false);
     };
+
     initializeClient();
 
     return () => {
@@ -74,7 +73,7 @@ function useInitializeVideoClient() {
         setVideoClient(null);
       }
     };
-  }, [userInfo]);
+  }, [user, authLoading]);
 
   return loading ? null : videoClient;
 }

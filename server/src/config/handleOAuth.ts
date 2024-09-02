@@ -8,7 +8,8 @@ export const handleOAuth = async ( req: any, profile: any, callback: (err:any, u
     try {
       console.log("Profile: ", profile);
 
-      console.log("Action: ", req.query.action);
+      console.log("Type: ", req.type);
+      
       
 
       const id = profile?.id;
