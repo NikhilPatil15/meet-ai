@@ -14,7 +14,7 @@ function FeaturedTitle() {
         "text-4xl md:text-5xl font-bold text-center md:text-balance dark:text-white max-w-lg mx-auto leading-relaxed"
       )}>Be more productive in work , life and productivity for meeting summary. </h1>
         <p className='mt-5 text-base md:text-lg text-neutral-300 max-w-xl mx-auto leading-relaxed '>
-          Our meeting Summary tool is your key to being more productive,  Whether at work or in your personal lifr. it helps you stay organized and efficient . ensuring you never forget importatnt details , tasks or deadlines.
+          Our meeting Summary tool is your key to being more productive,  Whether at work or in your personal life. it helps you stay organized and efficient . ensuring you never forget important details , tasks or deadlines.
         </p>
         
       </div>
