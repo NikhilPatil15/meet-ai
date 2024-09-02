@@ -43,8 +43,8 @@ userRouter.route("/oauth/github/register").get(
   setOauthCookies
 );
 userRouter.route("/oauth/google/login").get(
-  (req, res)=>{
-    req.query.action = "login"
+  (req:any, res)=>{
+    req.type = 'login'
   console.log("at the login route");
   
     
