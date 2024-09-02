@@ -21,13 +21,13 @@ export default function LandingPage() {
         <Navbar />
         <HeroSection />
         <FeaturedTitle />
-        <Grid></Grid>
-        <Heading></Heading>
-        <FeaturedSection></FeaturedSection>
-        {/* <Review></Review> */}
-        {/* <HoverEffect items={hoverItems} /> */}
-        <Footer></Footer>
-        <Copyright></Copyright>
+        <Grid/>
+         <Heading/>
+        <FeaturedSection/>
+        <Review/>
+        <HoverEffect items={hoverItems} />
+        <Footer/>
+        <Copyright/>
       </div>
     </>
   );
