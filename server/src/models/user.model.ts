@@ -10,6 +10,7 @@ export interface IUser extends mongoose.Document {
   email: string;
   password: any;
   role: string;
+  avatar: string;
   refreshToken: any;
   generateAccessToken(): string;
   generateRefreshToken(): string;
@@ -48,6 +49,9 @@ const userSchema = new mongoose.Schema<IUser>(
     role: {
       type: String,
       enum: ["host", "participant", "guest"],
+    },
+    avatar: {
+      type: String
     },
     refreshToken: {
       type: String,

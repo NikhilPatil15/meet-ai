@@ -6,13 +6,14 @@ import {
   smtpPort,
   smtpUser,
 } from "../config/envConfig";
-import { User } from "../models/user.model";
+import { IUser, User } from "../models/user.model";
 import { ApiError } from "../utils/apiError";
 import { ApiResponse } from "../utils/apiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import uploadOnCloudinary from "../utils/cloudinary";
 
 const options:any = {
   httpOnly: true,
@@ -225,6 +226,43 @@ const resetPassword = asyncHandler(async (req: Request, res: Response) => {
 
   res.status(200).json(new ApiResponse(201, {}, "Password reset Successfully"));
 });
+const uploadAvatar = asyncHandler(async (req: Request | any, res: Response) => {
+  let avatarLocalPath: string | undefined;
+  const user: IUser | any = req?.user;
+
+  console.log(req?.file);
+
+  
+  if (req?.file) {
+    avatarLocalPath = req?.file?.path;
+    console.log(avatarLocalPath);
+    
+  }
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar file is required");
+  }
+
+  // Upload avatar to Cloudinary
+  const avatarImg = await uploadOnCloudinary(avatarLocalPath);
+  if (!avatarImg) {
+    throw new ApiError(500, "Something went wrong while uploading avatar");
+  }
+
+  // Update user with the new avatar URL
+  const updatedUser = await User.findByIdAndUpdate(
+    user._id,
+    { avatar: avatarImg?.secure_url },
+    { new: true } // Return the updated document
+  ).select("-password -refreshToken");
+
+  if (!updatedUser) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // Respond to the client with the updated user data
+  return res.status(201).json(new ApiResponse(200, updatedUser, "Avatar updated successfully"));
+});
 
 const updateAccountDetails = asyncHandler(async (req: any, res: Response) => {
   const { userName, email, fullName } = req.body;
@@ -278,5 +316,6 @@ export {
   updateAccountDetails,
   generateAccessAndRefreshToken,
   setOauthCookies,
-  setAccessToken
+  setAccessToken,
+  uploadAvatar
 };
