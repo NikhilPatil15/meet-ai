@@ -3,6 +3,7 @@ import {
   getUser,
   loginUser,
   logoutUser,
+  refreshAccessToken,
   registerUser,
   resetPassword,
   sendEmail,
@@ -54,6 +55,7 @@ userRouter.route("/update-password").put(updatePassword);
 userRouter
   .route("/upload-avatar")
   .put(upload.single("avatar"), uploadAvatar);
+userRouter.route("/refresh-token").post(refreshAccessToken)
 userRouter.route("/update-profile").put(updateAccountDetails);
 
 export default userRouter;

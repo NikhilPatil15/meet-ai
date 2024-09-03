@@ -1,16 +1,14 @@
 "use client";
 
-import { RootState } from "@/redux/store";
+import useAuth from "@/hooks/useAuth";
 import {
   Call,
-  StreamVideoClient,
   useStreamVideoClient,
 } from "@stream-io/video-react-sdk";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
 
 export default function CreateMeetingPage() {
   const [titleInput, setTitleInput] = useState("");
@@ -26,7 +24,7 @@ export default function CreateMeetingPage() {
 
   const client = useStreamVideoClient();
   const router = useRouter();
-  const user = useSelector((state: RootState) => state?.user?.userInfo);
+  const {user} = useAuth()
   const dispatch = useDispatch();
 
 
@@ -36,19 +34,13 @@ export default function CreateMeetingPage() {
     }
 
     try {
-      console.log(client);
-
       const id = crypto.randomUUID();
-      console.log("ID: ", id);
-
       const call = client.call("default", id);
-
       const response = await call.getOrCreate({
         data: {
           custom: { description: descriptionInput && descriptionInput },
         },
       });
-      console.log("Response: ", response);
 
       setCall(call);
       router.push(`meeting/${call?.id}`);

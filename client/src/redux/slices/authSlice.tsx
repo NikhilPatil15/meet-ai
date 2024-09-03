@@ -51,7 +51,7 @@ export const fetchUser = (): AppThunk => async (dispatch: AppDispatch | any) => 
   } catch (error:any) {
     if (error.response?.status === 401) {
       try {
-        await axios.post('/api/refresh-tokens');
+        await axios.post('http://localhost:5000/api/v1/user/refresh-tokens');
         dispatch(fetchUser());  // Retry fetching the user after refreshing tokens
       } catch (refreshError) {
         dispatch(clearUser());
