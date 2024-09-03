@@ -20,9 +20,8 @@ import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { base_url } from "@/config/config";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
+import useAuth from "@/hooks/useAuth";
 
 interface MeetingPageProps {
   id: string;
@@ -35,7 +34,7 @@ export default function MeetingPage({ id }: MeetingPageProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [client, setClient] = useState<StreamVideoClient | null>(null);
 
-  const userInfo = useSelector((state: RootState) => state.user.userInfo);
+  const {user} = useAuth()
 
   useEffect(() => {
     const initializeGuestClient = async (
@@ -65,10 +64,10 @@ export default function MeetingPage({ id }: MeetingPageProps) {
       }
     };
 
-    if (!userInfo && username) {
+    if (!user && username) {
       const guestUserId = `guest_${Date.now()}`;
       initializeGuestClient(guestUserId, username);
-    } else if (userInfo) {
+    } else if (user) {
       const initializeClient = async () => {
         const apiKey = process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY;
         if (!apiKey) {
@@ -78,12 +77,12 @@ export default function MeetingPage({ id }: MeetingPageProps) {
         const client = new StreamVideoClient({
           apiKey,
           user: {
-            id: userInfo._id,
-            name: userInfo.userName || userInfo._id,
+            id: user._id,
+            name: user.userName || user._id,
           },
           tokenProvider: async () => {
             const response = await axios.get(
-              `${base_url}/token/get-token-user?userId=${userInfo._id}`
+              `${base_url}/token/get-token-user?userId=${user._id}`
             );
             return response.data.token;
           },
@@ -94,13 +93,8 @@ export default function MeetingPage({ id }: MeetingPageProps) {
 
       initializeClient();
     }
-  }, [userInfo, username]);
-  // useEffect(()=>{
-  //   if (call) {
-
-  //     console.log("Microphone: ");
-  //   }
-  // },[call])
+  }, [user, username]);
+  
 
   const handleJoinMeeting = async () => {
     if (!client) return;
@@ -112,15 +106,15 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     setCall(call);
     setLoading(false);
   };
-  const handleLeaveMeeting = () => {
-    call?.leave({ reject: true });
+  const handleLeaveMeeting = async () => {
+    await call?.leave({ reject: true });
     router.push("/");
   };
 
   if (!call) {
     return (
       <div className="flex flex-col items-center justify-center space-y-4">
-        {!userInfo && (
+        {!user && (
           <input
             type="text"
             placeholder="Enter your name"
@@ -135,7 +129,7 @@ export default function MeetingPage({ id }: MeetingPageProps) {
         ) : (
           <button
             onClick={handleJoinMeeting}
-            disabled={loading || (!userInfo && !username)}
+            disabled={loading || (!user && !username)}
           >
             Join meeting
           </button>
