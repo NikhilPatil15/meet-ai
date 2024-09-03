@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { connectDatabase } from "./Database/db";
+import { connectDatabase } from "./database/db";
 import { corsOrigin, githubId, googleId, googleSecret, PORT } from "./config/envConfig";
 import passport from 'passport'
 import { githubStratergy, googleStratergy } from "./config/oauthStratergies";
