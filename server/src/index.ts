@@ -52,7 +52,9 @@ app.get("/", (req, res) => {
 
 import userRouter from "./routes/user.routes";
 import tokenRouter from "./routes/token.routes";
+import meetingRouter from "./routes/meeting.routes"
 
 /* user Routes */
 app.use('/api/v1/user',userRouter)
 app.use("/api/v1/token",tokenRouter)
+app.use("/api/v1/meeting", meetingRouter)

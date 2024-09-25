@@ -13,12 +13,16 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import uploadOnCloudinary from "../utils/cloudinary";
+import Meeting from "../models/meeting.model";
+import mongoose from "mongoose";
 
 const options: any = {
   httpOnly: true,
   secure: true,
   sameSite: "Strict",
 };
+
+const { ObjectId } = mongoose.Types;
 
 const generateAccessAndRefreshToken = async (userId: any) => {
   try {
@@ -342,6 +346,113 @@ const updateAccountDetails = asyncHandler(async (req: any, res: Response) => {
     );
 });
 
+const getMeetingHistory = asyncHandler(async (req: any, res: Response) => {
+  const userId = req?.user?._id;
+
+  const meetingHistory = await Meeting.aggregate([
+    {
+      $match: {
+        host: new ObjectId(userId),
+      },
+    },
+    {
+      $addFields: {
+        guestDetails: {
+          $filter: {
+            input: "$participants",
+            as: "participant",
+            cond: { $eq: ["$$participant.role", "guest"] },
+          },
+        },
+        userDetails: {
+          $filter: {
+            input: "$participants",
+            as: "participant",
+            cond: {
+              $or: [
+                { $eq: ["$$participant.role", "participant"] },
+                { $eq: ["$$participant.role", "host"] },
+              ],
+            },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userDetails.userId",
+        foreignField: "_id",
+        as: "userDetailsInfo",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "host",
+        foreignField: "_id",
+        as: "hostDetails",
+      },
+    },
+    {
+      $unwind: {
+        path: "$hostDetails",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $addFields: {
+        userDetails: {
+          $map: {
+            input: "$userDetails",
+            as: "user",
+            in: {
+              $mergeObjects: [
+                "$$user",
+                {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: "$userDetailsInfo",
+                        as: "userInfo",
+                        cond: { $eq: ["$$userInfo._id", "$$user.userId"] },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        "userDetails._id": 1,
+        "userDetails.userName": 1,
+        "userDetails.fullName": 1,
+        "userDetails.email": 1,
+        "userDetails.avatar": 1,
+        "userDetails.role": 1,
+        "hostDetails._id": 1,
+        "hostDetails.userName": 1,
+        "hostDetails.fullName": 1,
+        "hostDetails.email": 1,
+        "guestDetails": 1,
+        "title": 1,
+        "description": 1,
+        "status": 1,
+        "roomId": 1,
+        "createdAt": 1,
+        "updatedAt": 1,
+      },
+    },
+  ]);
+
+  res.status(200).json(new ApiResponse(201,meetingHistory,"Meeting data fetched successfully"));
+});
+
 const setOauthCookies = asyncHandler(async (req: any, res: Response) => {
   console.log("auth: ", req.auth);
   res
@@ -372,5 +483,6 @@ export {
   generateAccessAndRefreshToken,
   setOauthCookies,
   setAccessToken,
+  getMeetingHistory,
   uploadAvatar,
 };

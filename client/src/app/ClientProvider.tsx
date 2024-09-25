@@ -41,6 +41,8 @@ function useInitializeVideoClient() {
       };
 
       const apiKey = process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY;
+      console.log(apiKey);
+      
 
       if (!apiKey) {
         throw new Error("Stream API key not set");
