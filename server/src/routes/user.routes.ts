@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getMeetingHistory,
   getUser,
   loginUser,
   logoutUser,
@@ -57,5 +58,6 @@ userRouter
   .put(upload.single("avatar"), uploadAvatar);
 userRouter.route("/refresh-token").post(refreshAccessToken)
 userRouter.route("/update-profile").put(updateAccountDetails);
+userRouter.route("/get-meeting-history").get(getMeetingHistory)
 
 export default userRouter;
