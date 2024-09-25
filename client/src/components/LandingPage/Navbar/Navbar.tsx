@@ -7,14 +7,13 @@ import meetai from "@/assets/meetai.jpg";
 import { navigation } from "@/constants/navigationItems";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
-import useAuth from "@/hooks/useAuth";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { Avatar } from "@mui/material";
 
 
 function Navbar() {
   const { user } = useSelector((state: RootState) => state.auth);
-  console.log(user);
   
   const [openNavigation, setOpenNavigation] = useState(false);
 
@@ -68,7 +67,8 @@ function Navbar() {
           {/* Buttons for Larger Devices */}
           <div className=" lg:flex items-center space-x-4 ml-auto hidden">
             {user ? (
-              <Link href="user/dashboard">Dashboard</Link>
+              <><Link href="user/dashboard">Dashboard</Link>
+              <Avatar src={user?.avatar}/></>
             ) : (
               <>
                 <Link
