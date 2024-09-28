@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from "react";
 import { disablePageScroll, enablePageScroll } from "scroll-lock";
 import Image from "next/image";
@@ -6,16 +5,15 @@ import Link from "next/link";
 import meetai from "@/assets/meetai.jpg";
 import { navigation } from "@/constants/navigationItems";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faTimes, faCaretDown, faCaretUp, faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { Avatar } from "@mui/material";
 
-
 function Navbar() {
   const { user } = useSelector((state: RootState) => state.auth);
-  
   const [openNavigation, setOpenNavigation] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleNavigation = () => {
     if (openNavigation) {
@@ -27,11 +25,9 @@ function Navbar() {
     }
   };
 
-  const handleClick = () => {
-    if (openNavigation) {
-      setOpenNavigation(false);
-      enablePageScroll();
-    }
+  const handleDropdownToggle = (event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent redirect to dashboard
+    setDropdownOpen((prev) => !prev);
   };
 
   return (
@@ -65,10 +61,45 @@ function Navbar() {
           </div>
 
           {/* Buttons for Larger Devices */}
-          <div className=" lg:flex items-center space-x-4 ml-auto hidden">
+          <div className="lg:flex items-center space-x-4 ml-auto hidden relative">
             {user ? (
-              <><Link href="user/dashboard">Dashboard</Link>
-              <Avatar src={user?.avatar}/></>
+              <div className="relative flex">
+                <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2">
+                  <Link href="user/dashboard" className="text-white mr-2 hover:text-white-200">
+                    Dashboard
+                  </Link>
+                  <div className="h-6 w-px bg-gray-300 mx-2"></div> 
+                  <FontAwesomeIcon
+                    icon={dropdownOpen ? faCaretUp : faCaretDown}
+                    className="ml-2 text-white cursor-pointer"
+                    onClick={handleDropdownToggle}
+                  />
+                </div>
+                <Avatar src={user?.avatar} className="ml-2" />
+
+                {/* Dropdown for Logout */}
+                {dropdownOpen && (
+                  <ul
+                    className="absolute top-full right-0 mt-2 w-40 bg-black shadow-md rounded-lg transition-all duration-200 border border-gray-300"
+                    role="menu"
+                    aria-expanded={dropdownOpen}
+                  >
+                    {/* Separator Line */}
+                    
+
+                   <li>
+                    <button
+              
+                className="flex gap-4 items-center p-4 rounded-lg w-full  transition-colors duration-200 "
+              >
+                <FontAwesomeIcon icon={faArrowRightFromBracket} style={{ fontSize: '24px' }}  className="hover:text-white-200"/>
+                <p className="font-semibold 
+                ">Logout</p>
+              </button>
+              </li>
+                  </ul>
+                )}
+              </div>
             ) : (
               <>
                 <Link
@@ -119,12 +150,12 @@ function Navbar() {
           openNavigation
             ? "opacity-100 md:opacity-0"
             : "opacity-0 pointer-events-none"
-        } `}
+        }`}
       >
         {openNavigation && (
           <div
             className="absolute inset-0 bg-black/80"
-            onClick={handleClick}
+            onClick={toggleNavigation}
           ></div>
         )}
         <nav
@@ -133,35 +164,62 @@ function Navbar() {
           } z-50 md:hidden`}
         >
           <div className="flex flex-col items-center mt-4">
-            {navigation.map(
-              (item) =>
-                !item.onlyMobile && (
-                  <Link
-                    key={item.id}
-                    href={item.url}
-                    onClick={handleClick}
-                    className={`block text-[16px] uppercase text-n-1 transition-colors hover:text-color-1 ${
-                      item.onlyMobile ? "lg:hidden" : ""
-                    } px-6 py-6 md:py-8 font-roboto font-normal `}
-                  >
-                    {item.title}
-                  </Link>
-                )
-            )}
-            <Link
-              href="auth/register"
-              className="text-xl uppercase text-n-1 transition-colors hover:text-color-1 py-6"
-            >
-              Sign up
-            </Link>
-            <Link
-              href="auth/login"
-              className="text-xl uppercase bg-primary-gradient text-white px-6 py-3 rounded-lg hover:text-white/80"
-            >
-              Sign in
-            </Link>
-          </div>
-        </nav>
+    {navigation.map(
+      (item) =>
+        !item.onlyMobile && (
+          <Link
+            key={item.id}
+            href={item.url}
+            onClick={toggleNavigation}
+            className={`block text-[16px] uppercase text-n-1 transition-colors hover:text-color-1 ${
+              item.onlyMobile ? "lg:hidden" : ""
+            } px-6 py-6 md:py-8 font-roboto font-normal`}
+          >
+            {item.title}
+          </Link>
+        )
+    )}
+
+    {user ? (
+      <>
+        <Link
+          href="user/dashboard"
+          onClick={toggleNavigation}
+          className="text-[16px] uppercase text-n-1 transition-colors hover:text-color-1 px-6 py-6 md:py-8 font-roboto font-normal flex items-center justify-between"
+        >
+          Dashboard
+        </Link>
+        <button
+          onClick={() => {
+            // Add your logout functionality here
+            console.log("Logout clicked");
+            // For example, call an action to log out the user
+            // dispatch(logoutUser());
+          }}
+          className="text-[16px] uppercase text-n-1 transition-colors hover:text-color-1 px-6 py-6 md:py-8 font-roboto font-normal flex items-center justify-between"
+        >
+          Logout
+        </button>
+      </>
+    ) : (
+      <>
+        <Link
+          href="auth/register"
+          className="text-xl uppercase text-n-1 transition-colors hover:text-color-1 py-6"
+        >
+          Sign up
+        </Link>
+        <Link
+          href="auth/login"
+          className="text-xl uppercase bg-primary-gradient text-white px-6 py-3 rounded-lg hover:text-white/80"
+        >
+          Sign in
+        </Link>
+      </>
+    )}
+  </div>
+</nav>
+        
       </div>
     </div>
   );

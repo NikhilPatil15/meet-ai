@@ -21,7 +21,7 @@
     "@reduxjs/toolkit": "^2.2.7",
     "@stream-io/node-sdk": "^0.4.0",
     "@stream-io/video-react-sdk": "^1.2.23",
-    "@tabler/icons-react": "^3.11.0",
+    "@tabler/icons-react": "^3.19.0",
     "autoprefixer": "^10.4.19",
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
