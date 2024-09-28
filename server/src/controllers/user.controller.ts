@@ -1,4 +1,3 @@
-import path from "path";
 import {
   jwtSecret,
   smtpHost,
@@ -6,18 +5,24 @@ import {
   smtpPort,
   smtpUser,
 } from "../config/envConfig";
-import { User } from "../models/user.model";
+import { IUser, User } from "../models/user.model";
 import { ApiError } from "../utils/apiError";
 import { ApiResponse } from "../utils/apiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import uploadOnCloudinary from "../utils/cloudinary";
+import Meeting from "../models/meeting.model";
+import mongoose from "mongoose";
 
-const options = {
+const options: any = {
   httpOnly: true,
   secure: true,
+  sameSite: "Strict",
 };
+
+const { ObjectId } = mongoose.Types;
 
 const generateAccessAndRefreshToken = async (userId: any) => {
   try {
@@ -106,14 +111,17 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
   );
 
   console.log("Credential login: ", loggedUser);
-  
 
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
     .json(
-      new ApiResponse(200, { user: loggedUser,accessToken,refreshToken }, "user logged in successfully!")
+      new ApiResponse(
+        200,
+        { user: loggedUser, accessToken, refreshToken },
+        "user logged in successfully!"
+      )
     );
 });
 
@@ -129,12 +137,61 @@ const logoutUser = asyncHandler(async (req: any, res: Response) => {
     { new: true }
   );
 
-
   res
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, {}, "user loggedout successfully"));
+});
+
+const refreshAccessToken = asyncHandler(async (req: any, res: Response) => {
+  const incomingRefreshToken: any =
+    req.cookies.refreshToken || req.body.refreshToken;
+
+  if (!incomingRefreshToken) {
+    throw new ApiError(401, "unauthorized request");
+  }
+
+  try {
+    const decodedToken: any = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET as string
+    );
+
+    const user = await User.findById(decodedToken?._id);
+
+    if (!user) {
+      throw new ApiError(401, "Invalid refresh token");
+    }
+
+    if (incomingRefreshToken !== user?.refreshToken) {
+      throw new ApiError(401, "Refresh token is expired or used");
+    }
+
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    const {
+      accessToken,
+      refreshToken: newRefreshToken,
+    } = await generateAccessAndRefreshToken(user._id);
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", newRefreshToken, options)
+      .json(
+        new ApiResponse(
+          200,
+          { accessToken, refreshToken: newRefreshToken },
+          "Access token refreshed"
+        )
+      );
+  } catch (error: any) {
+    throw new ApiError(401, error?.message || "Invalid refresh token");
+  }
 });
 
 const getUser = asyncHandler(async (req: any, res: Response) => {
@@ -225,6 +282,44 @@ const resetPassword = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json(new ApiResponse(201, {}, "Password reset Successfully"));
 });
 
+const uploadAvatar = asyncHandler(async (req: Request | any, res: Response) => {
+  let avatarLocalPath: string | undefined;
+  const user: IUser | any = req?.user;
+
+  console.log(req?.file);
+
+  if (req?.file) {
+    avatarLocalPath = req?.file?.path;
+    console.log(avatarLocalPath);
+  }
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar file is required");
+  }
+
+  // Upload avatar to Cloudinary
+  const avatarImg = await uploadOnCloudinary(avatarLocalPath);
+  if (!avatarImg) {
+    throw new ApiError(500, "Something went wrong while uploading avatar");
+  }
+
+  // Update user with the new avatar URL
+  const updatedUser = await User.findByIdAndUpdate(
+    user._id,
+    { avatar: avatarImg?.secure_url },
+    { new: true } // Return the updated document
+  ).select("-password -refreshToken");
+
+  if (!updatedUser) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // Respond to the client with the updated user data
+  return res
+    .status(201)
+    .json(new ApiResponse(200, updatedUser, "Avatar updated successfully"));
+});
+
 const updateAccountDetails = asyncHandler(async (req: any, res: Response) => {
   const { userName, email, fullName } = req.body;
 
@@ -251,6 +346,113 @@ const updateAccountDetails = asyncHandler(async (req: any, res: Response) => {
     );
 });
 
+const getMeetingHistory = asyncHandler(async (req: any, res: Response) => {
+  const userId = req?.user?._id;
+
+  const meetingHistory = await Meeting.aggregate([
+    {
+      $match: {
+        host: new ObjectId(userId),
+      },
+    },
+    {
+      $addFields: {
+        guestDetails: {
+          $filter: {
+            input: "$participants",
+            as: "participant",
+            cond: { $eq: ["$$participant.role", "guest"] },
+          },
+        },
+        userDetails: {
+          $filter: {
+            input: "$participants",
+            as: "participant",
+            cond: {
+              $or: [
+                { $eq: ["$$participant.role", "participant"] },
+                { $eq: ["$$participant.role", "host"] },
+              ],
+            },
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userDetails.userId",
+        foreignField: "_id",
+        as: "userDetailsInfo",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "host",
+        foreignField: "_id",
+        as: "hostDetails",
+      },
+    },
+    {
+      $unwind: {
+        path: "$hostDetails",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $addFields: {
+        userDetails: {
+          $map: {
+            input: "$userDetails",
+            as: "user",
+            in: {
+              $mergeObjects: [
+                "$$user",
+                {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: "$userDetailsInfo",
+                        as: "userInfo",
+                        cond: { $eq: ["$$userInfo._id", "$$user.userId"] },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        "userDetails._id": 1,
+        "userDetails.userName": 1,
+        "userDetails.fullName": 1,
+        "userDetails.email": 1,
+        "userDetails.avatar": 1,
+        "userDetails.role": 1,
+        "hostDetails._id": 1,
+        "hostDetails.userName": 1,
+        "hostDetails.fullName": 1,
+        "hostDetails.email": 1,
+        "guestDetails": 1,
+        "title": 1,
+        "description": 1,
+        "status": 1,
+        "roomId": 1,
+        "createdAt": 1,
+        "updatedAt": 1,
+      },
+    },
+  ]);
+
+  res.status(200).json(new ApiResponse(201,meetingHistory,"Meeting data fetched successfully"));
+});
+
 const setOauthCookies = asyncHandler(async (req: any, res: Response) => {
   console.log("auth: ", req.auth);
   res
@@ -258,24 +460,29 @@ const setOauthCookies = asyncHandler(async (req: any, res: Response) => {
     .redirect("http://localhost:3000/auth/setaccesstoken");
 });
 
-const setAccessToken = asyncHandler(async (req:any, res:Response) => {
-  let token =  req.cookies.accessToken
+const setAccessToken = asyncHandler(async (req: any, res: Response) => {
+  let token = req.cookies.accessToken;
 
   console.log("Token: ", token);
 
-  res.status(201).json(new ApiResponse(201,token,"AccessToken fetched successfully!"))
-})
+  res
+    .status(201)
+    .json(new ApiResponse(201, token, "AccessToken fetched successfully!"));
+});
 
 export {
   registerUser,
   loginUser,
   logoutUser,
   getUser,
+  refreshAccessToken,
   updatePassword,
   sendEmail,
   resetPassword,
   updateAccountDetails,
   generateAccessAndRefreshToken,
   setOauthCookies,
-  setAccessToken
+  setAccessToken,
+  getMeetingHistory,
+  uploadAvatar,
 };

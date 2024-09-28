@@ -1,8 +1,10 @@
 import { Router } from "express";
 import {
+  getMeetingHistory,
   getUser,
   loginUser,
   logoutUser,
+  refreshAccessToken,
   registerUser,
   resetPassword,
   sendEmail,
@@ -10,10 +12,11 @@ import {
   setOauthCookies,
   updateAccountDetails,
   updatePassword,
+  uploadAvatar,
 } from "../controllers/user.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";
 import passport from "passport";
-import { ApiResponse } from "../utils/apiResponse";
+import { upload } from "../middlewares/multer.middleware";
 
 const userRouter = Router();
 
@@ -28,7 +31,7 @@ userRouter.route("/reset-password").put(resetPassword);
 /* Oauth routes */
 userRouter.route("/oauth/google").get(
   passport.authenticate("google", {
-    scope: ["profile","email"],
+    scope: ["profile", "email"],
     session: false,
   }),
   setOauthCookies
@@ -50,6 +53,11 @@ userRouter.use(verifyJWT);
 userRouter.route("/get-user").get(getUser);
 userRouter.route("/logout").get(logoutUser);
 userRouter.route("/update-password").put(updatePassword);
+userRouter
+  .route("/upload-avatar")
+  .put(upload.single("avatar"), uploadAvatar);
+userRouter.route("/refresh-token").post(refreshAccessToken)
 userRouter.route("/update-profile").put(updateAccountDetails);
+userRouter.route("/get-meeting-history").get(getMeetingHistory)
 
 export default userRouter;

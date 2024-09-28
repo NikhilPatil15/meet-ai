@@ -1,6 +1,6 @@
 import mongoose ,{Schema,Document, ObjectId, model} from "mongoose";
 
-interface IMeeting extends Document{
+export interface IMeeting extends Document{
     _id : ObjectId ;
     title : string ;
     participants:Schema.Types.ObjectId[];
