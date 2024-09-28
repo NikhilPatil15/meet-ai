@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 
-import { Inter } from 'next/font/google';
+import { Inter } from "next/font/google";
 import "../../styles/globals.css";
 import { UserContextProvider } from "@/Context/userContext";
+import { Providers } from "../providers";
+import ClientProvider from "../ClientProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,12 +22,13 @@ export default function RootLayout({
         <meta charSet="UTF-8" />
         <link rel="icon" type="image/jpg" href="/assets/logo_meet.jpg" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        
       </head>
-     <UserContextProvider>
-      <body className={inter.className}>
-        {children}
-      </body>
+      <UserContextProvider>
+        <Providers>
+          <ClientProvider>
+            <body className={inter.className}>{children}</body>
+          </ClientProvider>
+        </Providers>
       </UserContextProvider>
     </html>
   );
