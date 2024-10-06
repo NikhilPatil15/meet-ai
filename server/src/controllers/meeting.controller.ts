@@ -13,7 +13,7 @@ const expirationTime = Math.floor(Date.now() / 1000) + 60 * 60;
 const issuedAt = Math.floor(Date.now() / 1000) - 60;
 
 const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
-  const { title, description, participants, scheduledTime, type } = req?.body;
+  const { title, description, participants, scheduledTime, type="public" } = req?.body;
   const createdBy = req?.user?.id;
   let participantsList: any;
 
