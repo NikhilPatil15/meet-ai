@@ -4,11 +4,14 @@ import { User } from "../models/user.model";
 import { ApiError } from "../utils/apiError";
 
 
-export const handleOAuth = async ( req: any, profile: any, callback: (err:any, user?:any)=>void) => {
+export const handleOAuth = async ( req: any, profile: any, callback: (err:any, user?:any,)=>void, action:any) => {
     try {
       console.log("Profile: ", profile);
 
-      console.log("Type: ", req.type);
+      console.log("query: ", req.query);
+      
+      console.log("Type: ",action);
+      
       
       
 

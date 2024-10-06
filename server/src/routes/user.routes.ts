@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { query, Router } from "express";
 import {
   getUser,
   loginUser,
@@ -13,7 +13,7 @@ import {
 } from "../controllers/user.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";
 import passport from "passport";
-
+import { asyncHandler } from "../utils/asyncHandler";
 
 const userRouter = Router();
 
@@ -27,50 +27,38 @@ userRouter.route("/reset-password").put(resetPassword);
 
 /* Oauth routes */
 userRouter.route("/oauth/google/register").get(
-  (req, res, next)=>{
-    req.query.action = "register"
+  (req, res, next) => {
+    req.query.action = "register";
   },
   passport.authenticate("google", {
-    scope: ["profile","email"],
-    session: false,
-  }),
-);
-userRouter.route("/oauth/github/register").get(
-  passport.authenticate("github", {
     scope: ["profile", "email"],
     session: false,
-  }),
-  setOauthCookies
+  })
 );
-userRouter.route("/oauth/google/login").get(
-  (req:any, res)=>{
-    req.type = 'login'
-  console.log("at the login route");
-  
-    
-    res.redirect('http://localhost:5000/api/v1/user/oauth/google/callback')
+userRouter.route("oauth/google/login").get(
+  // passport.authenticate('google',{
+  //   scope:["profile,email"],
+  //   session:false,
+  //   state:"login"
+  // })
+  (req, res) => {
+    res.redirect("http://localhost:5000/api/v1/user/oauth/google/callback?type=login");
   }
 );
-userRouter.route("/oauth/github/login").get(
-  passport.authenticate("github", {
-   
-    session: false,
-  }),
-  setOauthCookies
-);
 
-userRouter.route("/oauth/github/callback").get(
-  setOauthCookies
-)
+userRouter.route("/oauth/github/callback").get(setOauthCookies);
 
 userRouter.route("/oauth/google/callback").get(
-  passport.authenticate('google',{  
-    scope: ["profile", "email"],
-    session:false
-  }),
-  setOauthCookies
-  
-)
+  asyncHandler(async (req, res) => {
+    console.log("Query: ",req,query);
+    
+    passport.authenticate("google", {
+      scope: ["profile", "email"],
+      session: false,
+    }),
+      setOauthCookies;
+  })
+);
 
 userRouter.route("/set-access-token").get(setAccessToken);
 

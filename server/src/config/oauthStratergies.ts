@@ -12,7 +12,7 @@ const googleStratergy = new GoogleStratergy(
     passReqToCallback: true,
   } ,
   function (req: any, token: any, refreshToken: any, profile: any, cb: (err: any, user?: any) => void) {
-    handleOAuth(req, profile, cb);
+    handleOAuth(req, profile, cb,req.query.state);
   }
 );
 
@@ -24,7 +24,7 @@ const githubStratergy = new GithubStratergy(
         passReqToCallback:true
     },
     function(req: any, token: any, refreshToken: any, profile: any, cb: (err: any, user?: any) => void ){
-        handleOAuth(req, profile, cb)
+        handleOAuth(req, profile, cb, req.query.action)
     }
 )
 
