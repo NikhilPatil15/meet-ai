@@ -24,7 +24,7 @@ const HomePage: React.FC = () => {
   const { token } = useUserContext();
   const {user} = useAuth()
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     const loadContent = async () => {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Delay of 1 second

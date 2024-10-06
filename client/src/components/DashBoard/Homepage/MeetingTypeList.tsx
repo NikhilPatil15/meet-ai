@@ -7,13 +7,13 @@ import { StateCardData } from '@/constants/StateCardData';
 import MeetingModal from './MeetingModal';
 
 const MeetingTypeList = () => {
-  const [meetingState, setMeetingState] = useState<'isScheduleMeeting' | 'isJoiningMeeting' | 'isInstantMeeting' | undefined>(undefined);
+  const [meetingState, setMeetingState] = useState<'isScheduleMeeting' | 'isJoiningMeeting' | 'isInstantMeeting' | 'isPrivateMeeting' | undefined>(undefined);
   const [meetingDate, setMeetingDate] = useState<string>('');
   const [meetingTime, setMeetingTime] = useState<string>('');
 
-  const handleCardClick = (state: 'isScheduleMeeting' | 'isJoiningMeeting' | 'isInstantMeeting') => {
+  const handleCardClick = (state: 'isScheduleMeeting' | 'isJoiningMeeting' | 'isInstantMeeting' | 'isPrivateMeeting') => {
     setMeetingState(state);
-    if (state === 'isInstantMeeting') {
+    if (state === 'isInstantMeeting' || state === 'isPrivateMeeting') {
       createMeeting();
     }
   };
@@ -42,9 +42,9 @@ const MeetingTypeList = () => {
         />
       ))}
       <MeetingModal 
-        isOpen={meetingState === 'isInstantMeeting'}
+        isOpen={meetingState === 'isInstantMeeting' || meetingState === 'isPrivateMeeting'}
         onClose={() => setMeetingState(undefined)}
-        title="Start an Instant Meeting"
+        title={meetingState === 'isPrivateMeeting' ? "Start a Private Meeting" : "Start an Instant Meeting"}
         className="text-center"
         buttonText="Start Meeting"
         handleClick={createMeeting}
