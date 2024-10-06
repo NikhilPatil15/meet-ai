@@ -1,29 +1,29 @@
-import React from 'react';
-import bgimage from "@/assets/images/WhatsApp Image 2024-10-06 at 12.39.39 AM.jpeg"
+// import React from 'react';
+// import bgimage from "@/assets/images/WhatsApp Image 2024-10-06 at 12.39.39 AM.jpeg"
 
-const MeetAIPage = () => {
-  return (
-    <div className="bg-gray-50 min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gray-900 text-white py-10 px-4">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center">
-          <div className="lg:w-1/2">
-            <h1 className="text-4xl font-bold mb-4 leading-normal">
-              DIGITAL-FRIENDLY STRATEGIC SOLUTIONS FOR MODERN WORLD
-            </h1>
-            <button className="mt-6 py-2 px-4 bg-white text-black rounded-md">
-              All Services
-            </button>
-          </div>
-          <div className="lg:w-1/2  lg:mt-0">
-            <img
-              src={bgimage.src}
-              alt="Background image"
-              className="w-full h-85 bg-cover rounded-lg shadow-lg"
-            />
-          </div>
-        </div>
-      </section>
+// const MeetAIPage = () => {
+//   return (
+//     <div className="bg-gray-50 min-h-screen">
+//       {/* Hero Section */}
+//       <section className="bg-gray-900 text-white py-10 px-4">
+//         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center">
+//           <div className="lg:w-1/2">
+//             <h1 className="text-4xl font-bold mb-4 leading-normal">
+//               DIGITAL-FRIENDLY STRATEGIC SOLUTIONS FOR MODERN WORLD
+//             </h1>
+//             <button className="mt-6 py-2 px-4 bg-white text-black rounded-md">
+//               All Services
+//             </button>
+//           </div>
+//           <div className="lg:w-1/2  lg:mt-0">
+//             <img
+//               src={bgimage.src}
+//               alt="Background image"
+//               className="w-full h-85 bg-cover rounded-lg shadow-lg"
+//             />
+//           </div>
+//         </div>
+//       </section>
 
       {/* Blog Section
       <section className="py-12 px-4">
@@ -80,25 +80,25 @@ const MeetAIPage = () => {
           <FooterTag text="CREATIVE DESIGN" />
         </div>
       </footer> */}
-    </div>
-  );
-}; 
+    // </div>
+//   );
+// }; 
 
-const BlogCard = ({ title, date, image }) => (
-  <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-    <img src={image} alt={title} className="h-40 w-full object-cover" />
-    <div className="p-4">
-      <span className="text-gray-400 text-sm">{date}</span>
-      <h3 className="mt-2 text-xl font-bold">{title}</h3>
-      <p className="text-gray-600">Short description of the blog post to give readers an idea of the content.</p>
-    </div>
-  </div>
-);
+// const BlogCard = ({ title, date, image }) => (
+//   <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+//     <img src={image} alt={title} className="h-40 w-full object-cover" />
+//     <div className="p-4">
+//       <span className="text-gray-400 text-sm">{date}</span>
+//       <h3 className="mt-2 text-xl font-bold">{title}</h3>
+//       <p className="text-gray-600">Short description of the blog post to give readers an idea of the content.</p>
+//     </div>
+//   </div>
+// );
 
-const FooterTag = ({ text }) => (
-  <span className="bg-purple-600 py-1 px-3 rounded-full text-sm">
-    {text}
-  </span>
-); 
+// const FooterTag = ({ text }) => (
+//   <span className="bg-purple-600 py-1 px-3 rounded-full text-sm">
+//     {text}
+//   </span>
+// ); 
 
-export default MeetAIPage;
+// export default MeetAIPage;
