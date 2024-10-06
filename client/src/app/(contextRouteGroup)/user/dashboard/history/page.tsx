@@ -12,7 +12,7 @@ export default function MeetingHistory(){
         try {
                 const response = await axios.get('http://localhost:5000/api/v1/user/get-meeting-history')
                 setMeetings(response.data)
-
+                console.log("meet hist " , response.data)
         } catch (error) {
             console.error("Error Fetching meeting History")
             
@@ -24,13 +24,6 @@ export default function MeetingHistory(){
     },[])
     return(
         <div>
-            <Box className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-      {meetings.map((meeting) => (
-        <>
-
-        </>
-      ))}
-    </Box>
         </div>
     )
 }
