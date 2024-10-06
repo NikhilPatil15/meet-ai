@@ -8,18 +8,15 @@ export const handleOAuth = async ( req: any, profile: any, callback: (err:any, u
     try {
       console.log("Profile: ", profile);
 
-      console.log("query: ", req.query);
-      
-      console.log("Type: ",action);
-      
-      
-      
-
       const id = profile?.id;
 
       const userExists = await User.findOne({ OauthId: id });
 
       if (userExists) {
+
+        console.log("Oauth user exists: ", userExists);
+        
+
         const { accessToken } =
           await generateAccessAndRefreshToken(userExists?._id);
 
@@ -34,11 +31,17 @@ export const handleOAuth = async ( req: any, profile: any, callback: (err:any, u
       });
 
       if (userWithSameEmail) {
+
+        console.log("user in oauth with same email: ", userWithSameEmail);
+        
+
         userWithSameEmail.OauthId = profile?.id;
 
         let userName;
 
-        if (!profile?.name?.givenName) {
+        if (profile?.provider === 'github') {
+          console.log("Github Provider: ", profile?.provider);
+          
           userName = profile?.userName;
         } else {
           if (!(userWithSameEmail.userName === profile?.name?.givenName)) {
@@ -59,7 +62,7 @@ export const handleOAuth = async ( req: any, profile: any, callback: (err:any, u
 
       let userWithSameUserName;
 
-      if (profile?.name?.givenName) {
+      if (profile?.provider === 'google') {
         userWithSameUserName = await User.findOne({
           userName: profile?.name?.givenName,
         });

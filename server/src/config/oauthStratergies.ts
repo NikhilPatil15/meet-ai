@@ -8,7 +8,7 @@ const googleStratergy = new GoogleStratergy(
   {
     clientID: googleId!,
     clientSecret:googleSecret!,
-    callbackURL:'http://localhost:5000/api/v1/user/oauth/google/callback',
+    callbackURL:'http://localhost:5000/api/v1/user/oauth/google',
     passReqToCallback: true,
   } ,
   function (req: any, token: any, refreshToken: any, profile: any, cb: (err: any, user?: any) => void) {
@@ -20,7 +20,7 @@ const githubStratergy = new GithubStratergy(
     {
         clientID:githubId!,
         clientSecret:githubSecret!,
-        callbackURL:`http://localhost:5000/api/v1/user/oauth/github/login`,
+        callbackURL:`http://localhost:5000/api/v1/user/oauth/github`,
         passReqToCallback:true
     },
     function(req: any, token: any, refreshToken: any, profile: any, cb: (err: any, user?: any) => void ){
