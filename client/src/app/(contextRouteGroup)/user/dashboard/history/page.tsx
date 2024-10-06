@@ -34,9 +34,7 @@ export default function MeetingHistory() {
 
   const fetchMeetingsHistory = async () => {
     try {
-      const response = await axios.get<Meeting[]>(
-        "http://localhost:5000/api/v1/user/get-meeting-history"
-      );
+      const response = await axios.get<Meeting[]>('http://localhost:5000/api/v1/user/get-meeting-history');
       console.log("API Response: ", response.data); // Log the response
       setMeetings(response.data); // Ensure this is an array
     } catch (error) {
