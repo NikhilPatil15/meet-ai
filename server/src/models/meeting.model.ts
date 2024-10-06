@@ -29,7 +29,7 @@ const MeetingSchema = new Schema<IMeeting>({
     }],
     scheduledTime: {
         type: Date,
-        required: true,
+        default: Date.now()
     },
     createdBy: {
         type: Schema.Types.ObjectId,
