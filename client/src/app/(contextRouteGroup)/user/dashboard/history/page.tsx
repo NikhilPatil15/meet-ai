@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Ensure this component runs in client-side rendering
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Box from "@mui/material/Box";
@@ -9,6 +9,7 @@ import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import upcoming from "@/assets/icons/upcoming.svg";
 
+// Define interfaces for the data structure
 interface HostDetails {
   _id: string;
   userName: string;
@@ -29,22 +30,24 @@ interface Meeting {
 }
 
 export default function MeetingHistory() {
-  const [meetings, setMeetings] = useState<Meeting[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [meetings, setMeetings] = useState<Meeting[]>([]); // State to hold meeting data
+  const [error, setError] = useState<string | null>(null); // State for error messages
 
   const fetchMeetingsHistory = async () => {
     try {
-      const response = await axios.get<Meeting[]>('http://localhost:5000/api/v1/user/get-meeting-history');
-      console.log("API Response: ", response.data); // Log the response
-      setMeetings(response.data); // Ensure this is an array
+      const response = await axios.get('http://localhost:5000/api/v1/user/get-meeting-history');
+      console.log("API Response: ", response.data); // Log the API response
+      
+      // Access the meetings array from the response and set it in state
+      setMeetings(response.data.data); // Make sure to use response.data.data
     } catch (error) {
       console.error("Error fetching meeting history:", error);
-      setError("Failed to fetch meeting history.");
+      setError("Failed to fetch meeting history."); // Set error message on failure
     }
   };
 
   useEffect(() => {
-    fetchMeetingsHistory();
+    fetchMeetingsHistory(); // Fetch meeting history on component mount
   }, []);
 
   return (
@@ -61,12 +64,12 @@ export default function MeetingHistory() {
     >
       {error ? (
         <Typography variant="body1" sx={{ color: "#fff" }}>
-          {error}
+          {error} {/* Display error message */}
         </Typography>
       ) : meetings.length > 0 ? (
         meetings.map((meeting) => (
           <Card
-            key={meeting._id}
+            key={meeting._id} // Use _id as the key
             sx={{
               width: "100%",
               maxWidth: 400,
@@ -79,7 +82,6 @@ export default function MeetingHistory() {
               overflow: "visible",
             }}
           >
-           
             <Box
               sx={{
                 position: "absolute",
@@ -101,20 +103,20 @@ export default function MeetingHistory() {
 
             <CardContent>
               <Typography variant="body1" sx={{ mb: 1.5, fontWeight: "bold" }}>
-                {meeting.title}
+                {meeting.title} {/* Display meeting title */}
               </Typography>
               <Typography variant="body2" sx={{ color: "#aaa" }}>
-                Last Updated: {new Date(meeting.updatedAt).toLocaleString()}
+                Last Updated: {new Date(meeting.updatedAt).toLocaleString()} {/* Display last updated time */}
               </Typography>
 
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
                 <Avatar alt={meeting.hostDetails.fullName} />
                 <Box>
                   <Typography variant="body2">
-                    Host: {meeting.hostDetails.fullName}
+                    Host: {meeting.hostDetails.fullName} {/* Display host's full name */}
                   </Typography>
                   <Typography variant="caption" sx={{ color: "#aaa" }}>
-                    {meeting.hostDetails.email}
+                    {meeting.hostDetails.email} {/* Display host's email */}
                   </Typography>
                 </Box>
               </Box>
@@ -123,7 +125,7 @@ export default function MeetingHistory() {
         ))
       ) : (
         <Typography variant="body1" sx={{ color: "#fff" }}>
-          No meetings available
+          No meetings available {/* Display message when no meetings are found */}
         </Typography>
       )}
     </Box>
