@@ -5,6 +5,7 @@ import {
   Call,
   useStreamVideoClient,
 } from "@stream-io/video-react-sdk";
+import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -55,9 +56,18 @@ export default function CreateMeetingPage() {
           custom: { description: descriptionInput && descriptionInput },
         },
       });
-
       setCall(call);
-      router.push(`meeting/${call?.id}`);
+      if(call){
+        const res = await axios.post("http://localhost:5000/api/v1/meeting/create-meeting",{
+          title: titleInput,
+          description: descriptionInput,
+          participants: participantsInput,
+          scheduleTime: startTimeInput,
+        })
+        console.log(res);
+        
+      }
+      // router.push(`meeting/${call?.id}`);
     } catch (error) {
       console.error("Error creating meeting:", error);
       alert("Something went wrong. Please try again later.");
