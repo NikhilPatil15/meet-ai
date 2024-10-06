@@ -454,7 +454,7 @@ const getMeetingHistory = asyncHandler(async (req: any, res: Response) => {
 });
 
 const setOauthCookies = asyncHandler(async (req: any, res: Response) => {
-  console.log("auth: ", req.auth);
+  // console.log("auth: ", req.auth);
   res
     .cookie("accessToken", req.auth, options)
     .redirect("http://localhost:3000/auth/setaccesstoken");
@@ -463,7 +463,7 @@ const setOauthCookies = asyncHandler(async (req: any, res: Response) => {
 const setAccessToken = asyncHandler(async (req: any, res: Response) => {
   let token = req.cookies.accessToken;
 
-  console.log("Token: ", token);
+  // console.log("Token: ", token);
 
   res
     .status(201)
