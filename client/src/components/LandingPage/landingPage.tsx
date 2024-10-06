@@ -16,18 +16,21 @@ import {
 import { hoverItems } from '../../constants/hoverItems';
 import Grid from './Featured/Grid';
 
+import MeetCandidatesPage from '@/components/Solution/temp'
+import MeetaiHeroSection from '../Solution/MeetingHero';
 export default function LandingPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadContent = async () => {
-      await new Promise(resolve => setTimeout(resolve, 4000)); // Delay of 2 seconds
+ 
+      await new Promise(resolve => setTimeout(resolve, 4000)); 
       setLoading(false);
     };
 
     loadContent();
 
-    // This timeout will move the loader out of view after 3.2 seconds
+  
     setTimeout(() => {
       const loader = document.querySelector('.loader-container');
       if (loader && loader instanceof HTMLElement) {
@@ -41,24 +44,44 @@ export default function LandingPage() {
       {loading ? (
         <div className="loader-container">
          
-          <h1 className='head fy'>MeetAi</h1>
-          <h1 className='head sy'>AI-Powered</h1>
-          <h1 className='head ty'>Meeting</h1>
-          <h1 className='head ffy'>Platform</h1>
-          
+          <h1 className="head fy">MeetAi</h1>
+          <h1 className="head sy">AI-Powered</h1>
+          <h1 className="head ty">Meeting</h1>
+          <h1 className="head ffy">Platform</h1>
         </div>
       ) : (
         <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
+          {/* Navbar */}
           <Navbar />
+
+          {/* Hero Section */}
           <HeroSection />
+
+          {/* Featured Title */}
           <FeaturedTitle />
+
+          {/* Grid Section */}
           <Grid />
+
+          {/* Heading Section */}
           <Heading />
+
+          {/* Featured Section */}
           <FeaturedSection />
+
+          {/* Review Section */}
           <Review />
+
+          {/* Hover Effect Section */}
           <HoverEffect items={hoverItems} />
+
+          {/* Footer */}
           <Footer />
+
+          {/* Copyright Section */}
           <Copyright />
+          {/* <MeetCandidatesPage></MeetCandidatesPage>
+          <MeetaiHeroSection></MeetaiHeroSection> */}
         </div>
       )}
     </>

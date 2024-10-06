@@ -7,7 +7,7 @@ import {
 } from "@stream-io/video-react-sdk";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 export default function CreateMeetingPage() {
@@ -17,16 +17,30 @@ export default function CreateMeetingPage() {
   const [participantsInput, setParticipantsInput] = useState("");
   const [call, setCall] = useState<Call>();
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
-  const [allUsers, setAllUsers] = useState<{ email: string, userName: string }[]>([]);
+  const [allUsers, setAllUsers] = useState<{ email: string; userName: string }[]>([]);
 
   const [join, setJoin] = useState<boolean>(false);
   const [input, setInput] = useState<string>("");
 
   const client = useStreamVideoClient();
   const router = useRouter();
-  const {user} = useAuth()
+  const { user } = useAuth();
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    // Fetch all users for participants selection
+    // This is a placeholder. Replace with your actual data fetching logic.
+    const fetchUsers = async () => {
+      // Example users
+      const users = [
+        { email: "john.doe@example.com", userName: "John Doe" },
+        { email: "jane.smith@example.com", userName: "Jane Smith" },
+        { email: "alice.wonderland@example.com", userName: "Alice Wonderland" },
+      ];
+      setAllUsers(users);
+    };
+    fetchUsers();
+  }, []);
 
   async function createMeeting() {
     if (!client || !user) {
@@ -45,57 +59,73 @@ export default function CreateMeetingPage() {
       setCall(call);
       router.push(`meeting/${call?.id}`);
     } catch (error) {
-      console.log("error: ", error);
+      console.error("Error creating meeting:", error);
       alert("Something went wrong. Please try again later.");
     }
   }
 
-  const joincall = async () => {};
-
   const joinMeeting = async () => {
-    router.push(`/meeting/${input}`);
+    if (input.trim()) {
+      router.push(`/meeting/${input.trim()}`);
+    } else {
+      alert("Please enter a valid meeting ID.");
+    }
   };
+
   if (!client || !user) {
-    return <Loader2 className="mx-auto animate-spin" />;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+        <Loader2 className="animate-spin text-indigo-500" size={50} />
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-col items-center space-y-6 text-white">
-      <h1 className="text-center text-2xl font-bold">
-        Welcome {user.userName}!
+    <div className="min-h-screen bg-gray-900 flex flex-col items-center py-10 px-4">
+      <h1 className="text-center text-3xl font-extrabold text-white mb-8">
+        Welcome, {user.userName}!
       </h1>
-      <div className="mx-auto w-80 space-y-6 rounded-md  p-5">
-        <h2 className="text-xl font-bold">Create a new meeting</h2>
+      <div className="w-full max-w-md bg-gray-800 rounded-xl shadow-lg p-8 space-y-6">
+        <h2 className="text-2xl font-bold text-white">Create a New Meeting</h2>
         <TitleInput value={titleInput} onChange={setTitleInput} />
         <DescriptionInput
           value={descriptionInput}
           onChange={setDescriptionInput}
         />
         <StartTimeInput value={startTimeInput} onChange={setStartTimeInput} />
-        {/* <ParticipantsInput
-          value={participantsInput}
-          onChange={setParticipantsInput}
-        /> */}
-         <ParticipantsInput
+        <ParticipantsInput
           users={allUsers}
           selectedParticipants={selectedParticipants}
           setSelectedParticipants={setSelectedParticipants}
         />
 
-        <button onClick={createMeeting} className="w-full">
-          Create meeting
+        <button
+          onClick={createMeeting}
+          className="w-full bg-purpleAccent-200 hover:bg-purpleAccent-100 text-white font-semibold py-2 px-4 rounded-md shadow-md transition transform hover:scale-105 duration-300"
+        >
+          Create Meeting
         </button>
-        <button className="w-full" onClick={() => setJoin(true)}>
-          join a meeting
+        <button
+          className="w-full  bg-blue-900 hover:bg-blue-2 text-white font-semibold py-2 px-4 rounded-md shadow-md transition transform hover:scale-105 duration-300"
+          onClick={() => setJoin(true)}
+        >
+          Join a Meeting
         </button>
         {join && (
-          <div>
-            {" "}
+          <div className="mt-4">
             <input
+              type="text"
+              placeholder="Enter Meeting ID"
+              value={input}
               onChange={(e) => setInput(e.target.value)}
-              className="w-full"
-            />{" "}
-            <br /> <button onClick={joinMeeting}>Join</button>
+              className="w-full p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button
+              onClick={joinMeeting}
+              className="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition transform hover:scale-105 duration-300"
+            >
+              Join
+            </button>
           </div>
         )}
       </div>
@@ -111,12 +141,14 @@ interface TitleInputProps {
 
 function TitleInput({ value, onChange }: TitleInputProps) {
   return (
-    <label className="block space-y-1">
-      <span className="font-medium">Title</span>
+    <label className="block">
+      <span className="text-white font-medium">Title</span>
       <input
+        type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-gray-600 p-2"
+        className="mt-1 block w-full p-3 rounded-md bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Enter meeting title"
       />
     </label>
   );
@@ -131,28 +163,36 @@ function DescriptionInput({ value, onChange }: DescriptionInputProps) {
   const [active, setActive] = useState(false);
 
   return (
-    <div className="space-y-2">
-      <div className="font-medium">Meeting info:</div>
-      <label className="flex items-center gap-1.5">
+    <div className="block">
+      <div className="text-white font-medium mb-2">Meeting Info:</div>
+      <label className="flex items-center gap-2 mb-2">
         <input
           type="checkbox"
           checked={active}
           onChange={(e) => {
             setActive(e.target.checked);
-            onChange("");
+            if (!e.target.checked) {
+              onChange("");
+            }
           }}
+          className="form-checkbox h-5 w-5 text-indigo-600"
         />
-        Add description
+        <span className="text-gray-300">Add Description</span>
       </label>
       {active && (
-        <label className="block space-y-1">
-          <span className="font-medium">Description</span>
+        <label className="block">
+          <span className="text-white font-medium">Description</span>
           <textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}
             maxLength={500}
-            className="w-full rounded-md border border-gray-300 p-2"
+            rows={4}
+            className="mt-1 block w-full p-3 rounded-md bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter meeting description (optional)"
           />
+          <div className="text-gray-400 text-sm text-right">
+            {value.length}/500
+          </div>
         </label>
       )}
     </div>
@@ -174,45 +214,50 @@ function StartTimeInput({ value, onChange }: StartTimeInputProps) {
     .slice(0, 16);
 
   return (
-    <div className="space-y-2">
-      <div className="font-medium">Meeting start:</div>
-      <label className="flex items-center gap-1.5">
-        <input
-          type="radio"
-          checked={!active}
-          onChange={() => {
-            setActive(false);
-            onChange("");
-          }}
-        />
-        Start meeting immediately
-      </label>
-      <label className="flex items-center gap-1.5">
-        <input
-          type="radio"
-          checked={active}
-          onChange={() => {
-            setActive(true);
-            onChange(dateTimeLocalNow);
-          }}
-        />
-        Start meeting at date/time
-      </label>
+    <div className="block">
+      <div className="text-white font-medium mb-2">Meeting Start:</div>
+      <div className="flex items-center gap-4 mb-2">
+        <label className="flex items-center gap-2">
+          <input
+            type="radio"
+            checked={!active}
+            onChange={() => {
+              setActive(false);
+              onChange("");
+            }}
+            className="form-radio h-5 w-5 text-indigo-600"
+          />
+          <span className="text-gray-300">Start immediately</span>
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="radio"
+            checked={active}
+            onChange={() => {
+              setActive(true);
+              onChange(dateTimeLocalNow);
+            }}
+            className="form-radio h-5 w-5 text-indigo-600"
+          />
+          <span className="text-gray-300">Schedule for later</span>
+        </label>
+      </div>
       {active && (
-        <label className="block space-y-1">
-          <span className="font-medium">Start time</span>
+        <label className="block">
+          <span className="text-white font-medium">Start Time</span>
           <input
             type="datetime-local"
             value={value}
             onChange={(e) => onChange(e.target.value)}
             min={dateTimeLocalNow}
-            className="w-full rounded-md border border-gray-300 p-2"
+            className="mt-1 block w-full p-3 rounded-md bg-gray-700 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </label>
       )}
     </div>
   );
 }
+
 interface ParticipantsInputProps {
   users: { email: string; userName: string }[];
   selectedParticipants: string[];
@@ -235,38 +280,47 @@ function ParticipantsInput({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="font-medium">Participants:</div>
-      <label className="flex items-center gap-1.5">
-        <input
-          type="radio"
-          checked={!active}
-          onChange={() => {
-            setActive(false);
-            setSelectedParticipants([]);
-          }}
-        />
-        Everyone with link can join
-      </label>
-      <label className="flex items-center gap-1.5">
-        <input type="radio" checked={active} onChange={() => setActive(true)} />
-        Private meeting
-      </label>
+    <div className="block">
+      <div className="text-white font-medium mb-2">Participants:</div>
+      <div className="flex items-center gap-4 mb-2">
+        <label className="flex items-center gap-2">
+          <input
+            type="radio"
+            checked={!active}
+            onChange={() => {
+              setActive(false);
+              setSelectedParticipants([]);
+            }}
+            className="form-radio h-5 w-5 text-indigo-600"
+          />
+          <span className="text-gray-300">Anyone with the link</span>
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="radio"
+            checked={active}
+            onChange={() => setActive(true)}
+            className="form-radio h-5 w-5 text-indigo-600"
+          />
+          <span className="text-gray-300">Invite specific people</span>
+        </label>
+      </div>
       {active && (
-        <div className="space-y-1">
-          <span className="font-medium">Select participants</span>
-          <div className="space-y-2">
+        <div className="mt-2">
+          <span className="text-white font-medium mb-2 block">Select Participants</span>
+          <div className="max-h-40 overflow-y-auto p-2 bg-gray-700 rounded-md border border-gray-600">
             {users.map((user) => (
-              <div key={user.email} className="flex items-center gap-2">
+              <label key={user.email} className="flex items-center gap-2 mb-2">
                 <input
                   type="checkbox"
                   checked={selectedParticipants.includes(user.email)}
                   onChange={() => toggleSelection(user.email)}
+                  className="form-checkbox h-5 w-5 text-indigo-600"
                 />
-                <span>
+                <span className="text-gray-300">
                   {user.userName} ({user.email})
                 </span>
-              </div>
+              </label>
             ))}
           </div>
         </div>
@@ -282,5 +336,20 @@ interface MeetingLinkProps {
 function MeetingLink({ call }: MeetingLinkProps) {
   const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URI}/meeting/${call.id}`;
 
-  return <div className="text-center">{meetingLink}</div>;
+  return (
+    <div className="mt-6 bg-gray-800 rounded-md p-4 w-full max-w-md">
+      <h3 className="text-white font-semibold mb-2">Meeting Created Successfully!</h3>
+      <p className="text-gray-300 break-all">
+        Share this link with your participants:
+      </p>
+      <a
+        href={meetingLink}
+        className="text-indigo-400 underline mt-1 block"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {meetingLink}
+      </a>
+    </div>
+  );
 }
