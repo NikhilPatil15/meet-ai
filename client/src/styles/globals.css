@@ -168,6 +168,155 @@ body {
     background: linear-gradient(90deg, #161a31 0%, #06091f 100%);
   }
 }
+.loader-container {
+   /* Full viewport width */
+   height: 100%;
+   width:100%;
+  position: fixed;
+  top: 0;
+  padding: 10rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  /* transition: all 3s ease-out; */
+  animation: slideUp 2s ease-out ;
+  transition-delay: 3s;
+}
+
+
+.head {
+  font-size: 4vw;
+  height:fit-content;
+  padding-bottom: 20px;
+  padding-top: 20px;
+  font-weight:600;
+  color: transparent;
+  background: linear-gradient(to right, #45c4f9, #7d09ff 50.33%, #ff0be5);
+  -webkit-background-clip: text;
+  opacity: 0;
+  position: absolute; /* Positioning each text absolutely */
+  animation: fadeInOut 1s linear alternate; 
+  animation-delay: 2s;/* Infinite loop for continuous animation */
+}
+
+
+
+.head:nth-child(2) {
+  animation-delay: 2.5s; /* Second text */
+}
+
+.head:nth-child(3) {
+  animation-delay: 3s; /* Third text */
+}
+
+.head:nth-child(4) {
+  animation-delay: 3.5s; /* Fourth text */
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(0); /* Initial position */
+  }
+  50%{
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(-100%); /* Move up and out of view */
+  }
+}
+
+.custom{
+  margin-top: 30px;
+  width:100%;
+  display:flex;
+  align-items:  center;
+  justify-content: center;
+}
+.balls{
+  display: flex;
+}
+.ball{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background-color:white ;
+  margin-right: 10px;
+  animation: ball 0.5s ease infinite alternate;
+}
+.ball2{
+  animation-delay: 0.1s
+
+}
+.ball3{
+  animation-delay: 0.2s
+
+}
+@keyframes ball{
+  to{
+    transform: translateY(-10px)
+  }
+}
+.subMenu {
+  background-color: white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+  position: absolute;
+  right: 10px;
+  top: 85px;
+  min-width: 235px;
+  display: none;
+  z-index: 600;
+}
+
+.signInDropdownWrapper:hover .subMenu {
+  display: block;
+}
+@media (min-width: 768px) {
+  .signInDropdownWrapper {
+    float: right;
+    line-height: 71px;
+    position: relative;
+  }
+
+  .subMenu {
+    display: none;
+  }
+
+  .signInDropdownWrapper:hover .subMenu {
+    display: block;
+  }
+}
+.presentation li:first-child:before {
+  right: 20px;
+}
+.presentation li:first-child:before {
+  border-color: transparent transparent #fff transparent;
+  border-style: solid;
+  border-width: 0 10px 10px 10px;
+  content: "";
+  height: 0;
+  position: absolute;
+  top: -9px;
+  width: 0;
+}
 
 .rotate-45 {
   @apply rotate-[45deg];

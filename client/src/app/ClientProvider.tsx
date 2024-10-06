@@ -15,32 +15,34 @@ interface ClientProviderProps {
 }
 
 export default function ClientProvider({ children }: ClientProviderProps) {
-  const videoClient:any = useInitializeVideoClient();
+  const videoClient: any = useInitializeVideoClient();
 
   return <StreamVideo client={videoClient}>{children}</StreamVideo>;
 }
 
 function useInitializeVideoClient() {
-  const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(null);
+  const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(
+    null
+  );
   const [loading, setLoading] = useState<boolean>(true);
-  
-  const { user, loading: authLoading } = useAuth();
-  console.log(user);
-  
+  const {user} = useAuth()
 
   useEffect(() => {
     const initializeClient = async () => {
-      if (authLoading || !user) {
+      if (!user) {
         setLoading(false);
+
         return;
       }
 
       const streamUser: User = {
         id: user._id,
-        name: user.userName,
+        name: user.userName || user._id,
       };
 
       const apiKey = process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY;
+      console.log(apiKey);
+      
 
       if (!apiKey) {
         throw new Error("Stream API key not set");
@@ -50,22 +52,22 @@ function useInitializeVideoClient() {
         const response = await axios.get(
           `${base_url}/token/get-token-user?userId=${user._id}`
         );
-
         const client = new StreamVideoClient({
           apiKey,
           user: streamUser,
           tokenProvider: () => Promise.resolve(response.data.token),
-        });
-
+        });        
         setVideoClient(client);
       } catch (error) {
-        console.error("Failed to initialize stream client: ", error);
-      } finally {
-        setLoading(false);
+        console.error("Failed to initialize Stream client:", error);
       }
+
+      setLoading(false);
     };
 
     initializeClient();
+    
+    
 
     return () => {
       if (videoClient) {
@@ -73,7 +75,7 @@ function useInitializeVideoClient() {
         setVideoClient(null);
       }
     };
-  }, [user, authLoading]);
+  }, [user]);
 
   return loading ? null : videoClient;
 }

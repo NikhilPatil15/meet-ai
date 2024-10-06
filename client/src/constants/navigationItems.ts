@@ -59,19 +59,15 @@
       title: "Resources",
       url: "#resources",
     },
+   
     {
-        id: "4",
-        title: "Pricing",
-        url: "#pricing",
-      },
-    {
-      id: "5",
+      id: "4",
       title: "Sign up",
       url: "#register",
       onlyMobile: true,
     },
     {
-      id: "6",
+      id: "5",
       title: "Sign in",
       url: "#login",
       onlyMobile: true,
