@@ -12,6 +12,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { useUserContext } from '@/Context/userContext';
 import CardSkeleton from '@/components/DashBoard/Homepage/CardSkeleton'; // Ensure this import is correct
 import CardSkeleton2 from '@/components/DashBoard/Homepage/CardSkeleton2'; // Import the updated CardSkeleton2
+import useAuth from '@/hooks/useAuth';
 
 interface User {
   oAuthId: string;
@@ -21,7 +22,7 @@ interface User {
 
 const HomePage: React.FC = () => {
   const { token } = useUserContext();
-  const [user, setUser] = useState<User | null>(null);
+  const {user} = useAuth()
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,26 +34,26 @@ const HomePage: React.FC = () => {
     loadContent(); // This should be called immediately after the function definition
   }, []); // Add an empty dependency array to run this effect once
 
-  useEffect(() => {
-    async function fetchUserDetails() {
-      try {
-        const response = await axios.get('http://localhost:5000/api/v1/user/get-user', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+  // useEffect(() => { //  no neeed of this  
+  //   async function fetchUserDetails() {
+  //     try {
+  //       const response = await axios.get('http://localhost:5000/api/v1/user/get-user', {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`
+  //         }
+  //       });
 
-        console.log("Response: ", response.data.data);
-        setUser(response.data.data.FetchedUser);
-      } catch (error) {
-        console.error("Failed to fetch user details:", error);
-      }
-    }
+  //       console.log("Response: ", response.data.data);
+  //       setUser(response.data.data.FetchedUser);
+  //     } catch (error) {
+  //       console.error("Failed to fetch user details:", error);
+  //     }
+  //   }
 
-    if (token) {
-      fetchUserDetails();
-    }
-  }, [token]);
+  //   if (token) {
+  //     fetchUserDetails();
+  //   }
+  // }, [token]);
 
   console.log("User: ", user);
 
