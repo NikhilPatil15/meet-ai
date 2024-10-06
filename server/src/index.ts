@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { connectDatabase } from "./Database/db";
+import { connectDatabase } from "./database/db";
 import { corsOrigin, githubId, googleId, googleSecret, PORT } from "./config/envConfig";
 import passport from 'passport'
 import { githubStratergy, googleStratergy } from "./config/oauthStratergies";
@@ -52,7 +52,9 @@ app.get("/", (req, res) => {
 
 import userRouter from "./routes/user.routes";
 import tokenRouter from "./routes/token.routes";
+import meetingRouter from "./routes/meeting.routes"
 
 /* user Routes */
 app.use('/api/v1/user',userRouter)
 app.use("/api/v1/token",tokenRouter)
+app.use("/api/v1/meeting", meetingRouter)

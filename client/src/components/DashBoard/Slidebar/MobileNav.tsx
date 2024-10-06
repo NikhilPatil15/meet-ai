@@ -9,12 +9,15 @@ import { sidebarLinks } from '@/constants/index';
 import { cn } from '@/lib/utils';
 import hamburger from '@/assets/icons/hamburger.svg';
 import logo from '@/assets/icons/logo.svg';
+import router from 'next/router';
+import axios from 'axios';
+import { useUserContext } from '@/Context/userContext';
 
 const MobileSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMediumOrLarger, setIsMediumOrLarger] = useState(false);
   const pathname = usePathname();
-
+  const { token, setToken } = useUserContext();
   const toggleSidebar = () => setIsOpen(!isOpen);
 
   useEffect(() => {
@@ -32,6 +35,18 @@ const MobileSidebar = () => {
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+  
+  const logout = async () => {
+    const response = await axios.get('http://localhost:5000/api/v1/user/logout', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    });
+    console.log('Response: ', response.data);
+    router.push('/');
+  };
+
 
   return (
     <section className="w-full max-w-[264px] sm:hidden">
@@ -89,6 +104,16 @@ const MobileSidebar = () => {
                   </SheetClose>
                 );
               })}
+            </section>
+
+            <section className='py-4'>
+              <button
+              onClick={logout}
+                className="flex gap-4 items-center p-4 rounded-lg w-full text-white transition-colors duration-200"
+              >
+                <i className="fa-solid fa-arrow-right-from-bracket" style={{ fontSize: '24px' }}></i>
+                <p className="font-semibold">Logout</p>
+              </button>
             </section>
           </div>
         </SheetContent>

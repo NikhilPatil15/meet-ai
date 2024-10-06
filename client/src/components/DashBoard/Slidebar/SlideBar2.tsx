@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import { usePathname, useRouter } from 'next/navigation';
 import { sidebarLinks } from '@/constants/index';
 import { cn } from '@/lib/utils';
@@ -54,15 +55,20 @@ const Sidebar = () => {
             </Link>
           );
         })}
+          {/* Logout Button */}
+      <button
+          onClick={logout}
+          className="flex items-center gap-4 p-4 rounded-lg hover:bg-blue-1 transition-colors duration-200 "
+        >
+          <i className="fa-solid fa-arrow-right-from-bracket" style={{ fontSize: '24px' }}></i>
+          <span className="text-lg font-semibold hidden lg:block">
+            Logout
+          </span>
+        </button>
       </div>
 
-      {/* Logout Button */}
-      <button
-        onClick={logout}
-        className="text-lg hover:underline mt-1 block font-semibold text-center  lg:block"
-      >
-        Logout
-      </button>
+    
+      
 
       {/* Sidebar Footer */}
       <footer className="mt-auto pt-6 border-t border-gray-700  lg:block">

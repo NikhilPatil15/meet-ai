@@ -1,6 +1,6 @@
 import mongoose ,{Schema,Document, ObjectId, model} from "mongoose";
 
-interface IMeeting extends Document{
+export interface IMeeting extends Document{
     _id : ObjectId ;
     title : string ;
     participants:Schema.Types.ObjectId[];
@@ -29,7 +29,7 @@ const MeetingSchema = new Schema<IMeeting>({
     }],
     scheduledTime: {
         type: Date,
-        required: true,
+        default: Date.now()
     },
     createdBy: {
         type: Schema.Types.ObjectId,
