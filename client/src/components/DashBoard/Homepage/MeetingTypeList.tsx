@@ -1,31 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import HomeCard from '@/components/DashBoard/Homepage/HomeCard';
 import { StateCardData } from '@/constants/StateCardData';
-import MeetingModal from './MeetingModal';
+import { useUserContext } from '@/Context/userContext';
 
 const MeetingTypeList = () => {
-  const [meetingState, setMeetingState] = useState<'isScheduleMeeting' | 'isJoiningMeeting' | 'isInstantMeeting' | 'isPrivateMeeting' | undefined>(undefined);
-  const [meetingDate, setMeetingDate] = useState<string>('');
-  const [meetingTime, setMeetingTime] = useState<string>('');
+  const { token } = useUserContext(); // Assuming user authentication context is used here.
+  const router = useRouter();
 
   const handleCardClick = (state: 'isScheduleMeeting' | 'isJoiningMeeting' | 'isInstantMeeting' | 'isPrivateMeeting') => {
-    setMeetingState(state);
-    if (state === 'isInstantMeeting' || state === 'isPrivateMeeting') {
-      createMeeting();
+    if (state === 'isInstantMeeting') {
+      router.push('/user/create-meeting'); // Redirect to the instant meeting creation page.
+    } else if (state === 'isScheduleMeeting') {
+      router.push('/user/create-meeting'); // Redirect to the schedule meeting page.
+    } else if (state === 'isJoiningMeeting') {
+      router.push('/user/create-meeting'); // Redirect to the join meeting page.
+    } else if (state === 'isPrivateMeeting') {
+      router.push('/user/create-meeting'); // Redirect to the private meeting page.
     }
-  };
-
-  const createMeeting = () => {
-    const now = new Date();
-    const dateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-    const timeOptions: Intl.DateTimeFormatOptions = { hour12: true, hour: 'numeric', minute: 'numeric', second: 'numeric' }; 
-    const formattedDate = now.toLocaleDateString('en-US', dateOptions);
-    const formattedTime = now.toLocaleTimeString('en-US', timeOptions);
-    setMeetingDate(formattedDate);
-    setMeetingTime(formattedTime);
   };
 
   return (
@@ -41,19 +35,6 @@ const MeetingTypeList = () => {
           handleClick={() => handleCardClick(item.isState)}
         />
       ))}
-      <MeetingModal 
-        isOpen={meetingState === 'isInstantMeeting' || meetingState === 'isPrivateMeeting'}
-        onClose={() => setMeetingState(undefined)}
-        title={meetingState === 'isPrivateMeeting' ? "Start a Private Meeting" : "Start an Instant Meeting"}
-        className="text-center"
-        buttonText="Start Meeting"
-        handleClick={createMeeting}
-      >
-        <div>
-          <p id="meetingDate">Date: {meetingDate}</p>
-          <p id="meetingTime">Time: {meetingTime}</p>
-        </div>
-      </MeetingModal>
     </Box>
   );
 };
