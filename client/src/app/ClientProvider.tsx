@@ -25,7 +25,7 @@ function useInitializeVideoClient() {
     null
   );
   const [loading, setLoading] = useState<boolean>(true);
-  const {user} = useAuth()
+  const { user } = useAuth();
 
   useEffect(() => {
     const initializeClient = async () => {
@@ -42,7 +42,6 @@ function useInitializeVideoClient() {
 
       const apiKey = process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY;
       console.log(apiKey);
-      
 
       if (!apiKey) {
         throw new Error("Stream API key not set");
@@ -56,7 +55,7 @@ function useInitializeVideoClient() {
           apiKey,
           user: streamUser,
           tokenProvider: () => Promise.resolve(response.data.token),
-        });        
+        });
         setVideoClient(client);
       } catch (error) {
         console.error("Failed to initialize Stream client:", error);
@@ -66,8 +65,6 @@ function useInitializeVideoClient() {
     };
 
     initializeClient();
-    
-    
 
     return () => {
       if (videoClient) {
