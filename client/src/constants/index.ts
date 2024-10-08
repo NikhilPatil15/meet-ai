@@ -7,7 +7,7 @@ import join_meeting from'@/assets/icons/join-meeting.svg'
 export const sidebarLinks = [
   {
     imgURL: home, // Use the imported SVG directly
-    route: '/Home',
+    route: '/user/dashboard',
     label: 'Home',
   },
   {
@@ -22,7 +22,7 @@ export const sidebarLinks = [
   },
   {
     imgURL: previous, // Use the imported SVG directly
-    route: '#history',
+    route: '/user/dashboard/history',
     label: 'Previous',
   },
 ];
