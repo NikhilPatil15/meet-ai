@@ -1,21 +1,13 @@
-"use client";
+"use client";;
 import React, { useEffect, useMemo, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import {
-  IconBrandGithub,
-  IconBrandGoogle,
-  IconBrandOnlyfans,
-} from "@tabler/icons-react";
-import {
-  faCheck,
-  faTimes,
-} from "@fortawesome/free-solid-svg-icons";
+import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
+import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { base_url } from "@/config/config.js";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import axiosInstance from "@/utils/axios";
 
 export default function SignupFormDemo() {
   const USER_REGEX = useMemo(() => /^[A-z][A-z0-9-_]{3,23}$/, []);
@@ -30,22 +22,18 @@ export default function SignupFormDemo() {
 
   const [userName, setUserName] = useState<string>("");
   const [validUserName, setValidUserName] = useState<Boolean>(false);
-  const [userNameFocus, setUserNameFocus] = useState<boolean>(false);
-
   const [password, setPassword] = useState<string>("");
   const [validPassword, setValidPassword] = useState<boolean>(false);
-  const [passwordFocus, setPasswordFocus] = useState(false);
-
   const [email, setEmail] = useState<string>("");
   const [validEmail, setValidEmail] = useState<boolean>(false);
-
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
 
-  const [showModal, setShowModal] = useState<boolean>(false); // Modal visibility state
-  const [modalContent, setModalContent] = useState<string>(""); // Modal content state
-  const [verificationCode, setVerificationCode] = useState<string>(""); // Verification code state
-  const [codeError, setCodeError] = useState<string>(""); // Error message for invalid code
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [modalContent, setModalContent] = useState<string>("");
+  const [verificationCode, setVerificationCode] = useState<string>("");
+  const [codeError, setCodeError] = useState<string>("");
+  const [token, setToken] = useState<string>("");
 
   const router = useRouter();
 
@@ -65,72 +53,76 @@ export default function SignupFormDemo() {
     e.preventDefault();
     const data = {
       userName,
-      fullName: firstName + " " + lastName,
+      fullName: `${firstName} ${lastName}`,
       password,
       email,
     };
 
-    await axios
-      .post(`${base_url}/user/register`, data)
-      .then((res) => {
-        console.log(res.data);
-        setModalContent("Enter the verification code sent to your email.");
-        setShowModal(true); // Show modal for code entry after registration
-      })
-      .catch((err) => {
-        console.log("Error while requesting register route: ", err);
-      });
-    console.log("Form submitted");
+    try {
+      const response = await axiosInstance.post(`/user/register`, data);
+      console.log("Registration successful:", response.data);
+      setToken(response.data.data);
+      setModalContent("Enter the verification code sent to your email.");
+      setShowModal(true);
+    } catch (err:any) {
+      console.log(
+        "Error during registration:",
+        err.response?.data || err.message
+      );
+    }
   };
 
   const verifyCode = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Assuming you have an endpoint to verify the code
-    await axios
-      .post(`${base_url}/user/verify`, { code: verificationCode, userName })
-      .then((res) => {
-        console.log(res.data);
-        // Navigate to login on successful verification
-        router.push("/auth/login");
-      })
-      .catch((err) => {
-        setCodeError("Invalid verification code. Please try again.");
-        console.log("Error while verifying code: ", err);
+    try {
+      const response = await axiosInstance.post(`/user/verify`, {
+        activationToken: token,
+        otp: verificationCode,
       });
+      console.log("Verification successful:", response.data);
+      router.push("/auth/login"); 
+    } catch (err:any) {
+      setCodeError("Invalid verification code. Please try again.");
+      console.log(
+        "Error during verification:",
+        err.response?.data || err.message
+      );
+    }
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-  };
+  const closeModal = () => setShowModal(false);
 
   return (
-    <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
+    <div className="max-w-md w-full mx-auto p-4 md:p-8 bg-white dark:bg-black">
       <form className="my-8" onSubmit={handleSubmit}>
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
           <LabelInputContainer>
-            <Label htmlFor="firstname" className="text-sky-200">First name</Label>
+            <Label htmlFor="firstname">First name</Label>
             <Input
               id="firstname"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               placeholder="First Name"
               type="text"
+              required
             />
           </LabelInputContainer>
           <LabelInputContainer>
-            <Label htmlFor="lastname" className="text-sky-200">Last name</Label>
+            <Label htmlFor="lastname">Last name</Label>
             <Input
               id="lastname"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               placeholder="Last Name"
               type="text"
-              autoComplete="off"
+              required
             />
           </LabelInputContainer>
         </div>
+
         <LabelInputContainer className="mb-4">
-          <Label htmlFor="username" className="text-sky-200">Username {"    "}
+          <Label htmlFor="username">
+            Username
             <FontAwesomeIcon
               icon={faCheck}
               className={validUserName ? "valid" : "hide"}
@@ -143,16 +135,17 @@ export default function SignupFormDemo() {
           <Input
             id="username"
             placeholder="Username"
-            required
-            autoComplete="off"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
             type="text"
+            required
           />
         </LabelInputContainer>
+
         <LabelInputContainer className="mb-4">
-          <Label htmlFor="email">Email Address
-          <FontAwesomeIcon
+          <Label htmlFor="email">
+            Email Address
+            <FontAwesomeIcon
               icon={faCheck}
               className={validEmail ? "valid" : "hide"}
             />
@@ -163,16 +156,18 @@ export default function SignupFormDemo() {
           </Label>
           <Input
             id="email"
-            autoComplete="off"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="projectmayhem@fc.com"
+            placeholder="your.email@example.com"
             type="email"
+            required
           />
         </LabelInputContainer>
+
         <LabelInputContainer className="mb-4">
-          <Label htmlFor="password">Password
-          <FontAwesomeIcon
+          <Label htmlFor="password">
+            Password
+            <FontAwesomeIcon
               icon={faCheck}
               className={validPassword ? "valid" : "hide"}
             />
@@ -183,24 +178,22 @@ export default function SignupFormDemo() {
           </Label>
           <Input
             id="password"
-            required
-            autoComplete="off"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             type="password"
+            required
           />
         </LabelInputContainer>
+
         <button
-          className="bg-gradient-to-br relative group/btn from-blue-900 dark:from-blue-700 dark:to-blue-300 to-blue-700 block dark:bg-blue-900 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+          className="bg-blue-700 text-white w-full h-10 rounded-md"
           type="submit"
         >
-          Sign up &rarr;
-          <BottomGradient />
+          Sign Up
         </button>
       </form>
 
-      {/* Modal for Verification Code Input */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white dark:bg-black p-6 rounded-md shadow-lg w-80">
@@ -212,9 +205,9 @@ export default function SignupFormDemo() {
                 onChange={(e) => setVerificationCode(e.target.value)}
                 placeholder="Enter verification code"
                 type="text"
-                className="mb-2"
+                required
               />
-              {codeError && <p className="text-red-500 text-sm">{codeError}</p>}
+              {codeError && <p className="text-red-500">{codeError}</p>}
               <button
                 className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md w-full"
                 type="submit"
@@ -222,22 +215,16 @@ export default function SignupFormDemo() {
                 Verify
               </button>
             </form>
-            <button
-              className="mt-2 text-blue-500"
-              onClick={closeModal}
-            >
+            <button className="mt-2 text-blue-500" onClick={closeModal}>
               Cancel
             </button>
           </div>
         </div>
       )}
 
-      <div className="mt-6 flex justify-between text-sm text-neutral-500 dark:text-neutral-400">
+      <div className="mt-6 flex justify-between text-sm">
         <span>Already have an account?</span>
-        <a
-          href="/auth/login"
-          className="font-medium text-sky-500 hover:text-sky-400 dark:hover:text-sky-400"
-        >
+        <a href="/auth/login" className="text-sky-500">
           Log in
         </a>
       </div>
@@ -260,16 +247,6 @@ export default function SignupFormDemo() {
           <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
           <span className="text-neutral-700 dark:text-neutral-300 text-sm">
             Google
-          </span>
-          <BottomGradient />
-        </button>
-        <button
-          className="relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900"
-          type="button"
-        >
-          <IconBrandOnlyfans className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-          <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-            OnlyFans
           </span>
           <BottomGradient />
         </button>
