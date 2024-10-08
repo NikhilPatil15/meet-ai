@@ -1,29 +1,29 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AppThunk, AppDispatch } from '../store';
-import axios from 'axios';
+import { createSlice } from "@reduxjs/toolkit";
+import { AppThunk } from "../store"; // Import AppThunk type
+import axiosInstance from "../../utils/axios";
 
 interface AuthState {
   user: any;
   loading: boolean;
   error: string | null;
-}
 
+}
 
 const initialState: AuthState = {
   user: null,
-  loading: true, 
+  loading: true,
   error: null,
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction) => {
+    setUser: (state, action) => {
       state.user = action.payload;
       state.loading = false;
     },
-    setError: (state, action: PayloadAction<string>) => {
+    setError: (state, action) => {
       state.error = action.payload;
       state.loading = false;
     },
@@ -37,25 +37,41 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, setError, setLoading, clearUser } = authSlice.actions;
+export const {
+  setUser,
+  setError,
+  setLoading,
+  clearUser,
+  
+} = authSlice.actions;
 
-export const fetchUser = (): AppThunk => async (dispatch: AppDispatch | any) => {
+export const loginUser = (credentials: {
+  userName: string;
+  password: string;
+}): AppThunk => async (dispatch) => {
   dispatch(setLoading());
   try {
-    axios.defaults.withCredentials = true
-    const response = await axios.get('http://localhost:5000/api/v1/user/get-user');
-    dispatch(setUser(response.data.data.FetchedUser));
+    const response = await axiosInstance.post("/user/login", credentials);
+    console.log(response);
+    
+    dispatch(fetchUser());
   } catch (error:any) {
-    if (error.response?.status === 401) {
-      try {
-        await axios.post('http://localhost:5000/api/v1/user/refresh-tokens');
-        dispatch(fetchUser());
-      } catch (refreshError) {
-        dispatch(clearUser());
-      }
-    } else {
-      dispatch(setError(error.message));
-    }
+    dispatch(setError(error.response?.data?.message || "Login failed"));
+  }
+};
+
+export const fetchUser = (): AppThunk => async (
+  dispatch: (arg0: {
+    payload: any;
+    type: "auth/setUser" | "auth/setError" | "auth/setLoading";
+  }) => void
+) => {
+  dispatch(setLoading());
+  try {
+    const response = await axiosInstance.get("/user/get-user");
+    dispatch(setUser(response.data.data.FetchedUser));
+  } catch (error) {
+    dispatch(setError("Unauthorized"));
   }
 };
 

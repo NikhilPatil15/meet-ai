@@ -8,30 +8,42 @@ import {
 import { useEffect, useState } from "react";
 import { base_url } from "@/config/config";
 import axios from "axios";
-import useAuth from "@/hooks/useAuth";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { fetchUser } from "@/redux/slices/authSlice";
 
 interface ClientProviderProps {
   children: React.ReactElement;
 }
 
 export default function ClientProvider({ children }: ClientProviderProps) {
-  const videoClient: any = useInitializeVideoClient();
+  const videoClient = useInitializeVideoClient();
 
-  return <StreamVideo client={videoClient}>{children}</StreamVideo>;
+  return videoClient ? (
+    <StreamVideo client={videoClient}>{children}</StreamVideo>
+  ) : (
+    <>{children}</>
+  );
 }
 
 function useInitializeVideoClient() {
-  const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(
-    null
-  );
+  const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const { user } = useAuth();
+
+  const dispatch: AppDispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    if (!user) {
+      dispatch(fetchUser());
+    }
+  }, [dispatch, user]);
 
   useEffect(() => {
     const initializeClient = async () => {
-      if (!user) {
+      if (!user || !user._id) {
+        console.error("User or user ID is missing");
         setLoading(false);
-
         return;
       }
 
@@ -41,38 +53,45 @@ function useInitializeVideoClient() {
       };
 
       const apiKey = process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY;
-      console.log(apiKey);
-
       if (!apiKey) {
-        throw new Error("Stream API key not set");
+        console.error("Stream API key is not set");
+        setLoading(false);
+        return;
       }
 
       try {
         const response = await axios.get(
           `${base_url}/token/get-token-user?userId=${user._id}`
         );
+
+        if (!response.data?.token) {
+          throw new Error("Failed to retrieve token for the user");
+        }
+
         const client = new StreamVideoClient({
           apiKey,
           user: streamUser,
           tokenProvider: () => Promise.resolve(response.data.token),
         });
+
         setVideoClient(client);
       } catch (error) {
         console.error("Failed to initialize Stream client:", error);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
-    initializeClient();
+    if (user) {
+      initializeClient();
+    }
 
     return () => {
       if (videoClient) {
-        videoClient.disconnectUser();
-        setVideoClient(null);
+        videoClient.disconnectUser(); 
       }
     };
-  }, [user]);
+  }, [user]); 
 
   return loading ? null : videoClient;
 }

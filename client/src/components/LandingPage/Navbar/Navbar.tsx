@@ -1,33 +1,54 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { disablePageScroll, enablePageScroll } from "scroll-lock";
 import Image from "next/image";
 import Link from "next/link";
 import meetai from "@/assets/meetai.jpg";
 import { navigation } from "@/constants/navigationItems";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faTimes, faCaretDown, faCaretUp, faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
-import { Avatar } from "@mui/material";
+import {
+  faBars,
+  faTimes,
+  faCaretDown,
+  faCaretUp,
+  faArrowRightFromBracket,
+} from "@fortawesome/free-solid-svg-icons";
+import { Avatar, Box, IconButton, Typography } from "@mui/material";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { fetchUser } from "@/redux/slices/authSlice";
 
 function Navbar() {
+  const dispatch: AppDispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
+
+  // Fetch user information on component mount
+  useEffect(() => {
+    dispatch(fetchUser());
+  }, [dispatch]);
+
   const [openNavigation, setOpenNavigation] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleNavigation = () => {
-    if (openNavigation) {
-      setOpenNavigation(false);
-      enablePageScroll();
-    } else {
-      setOpenNavigation(true);
+    setOpenNavigation((prev) => !prev);
+    if (!openNavigation) {
       disablePageScroll();
+    } else {
+      enablePageScroll();
     }
   };
 
   const handleDropdownToggle = (event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent redirect to dashboard
+    event.stopPropagation();
     setDropdownOpen((prev) => !prev);
+  };
+
+  const handleOptionClick = (option: string) => {
+    console.log(option);
+    if (option === "Logout") {
+      // Add your logout functionality here
+    }
+    setDropdownOpen(false);
   };
 
   return (
@@ -50,9 +71,7 @@ function Navbar() {
                   <Link
                     key={item.id}
                     href={item.url}
-                    className={`relative text-[25px] uppercase text-n-1 transition-colors hover:text-color-1 ${
-                      item.onlyMobile ? "lg:hidden" : ""
-                    } px-6 py-6 md:py-8 lg:text-sm lg:font-semibold font-roboto font-normal`}
+                    className="relative text-[25px] uppercase text-n-1 transition-colors hover:text-color-1 px-6 py-6 md:py-8 lg:text-sm lg:font-semibold font-roboto font-normal"
                   >
                     {item.title}
                   </Link>
@@ -63,54 +82,71 @@ function Navbar() {
           {/* Buttons for Larger Devices */}
           <div className="lg:flex items-center space-x-4 ml-auto hidden relative">
             {user ? (
-              <div className="relative flex">
-                <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2">
-                  <Link href="user/dashboard" className="text-white mr-2 hover:text-white-200">
-                    Dashboard
-                  </Link>
-                  <div className="h-6 w-px bg-gray-300 mx-2"></div> 
-                  <FontAwesomeIcon
-                    icon={dropdownOpen ? faCaretUp : faCaretDown}
-                    className="ml-2 text-white cursor-pointer"
-                    onClick={handleDropdownToggle}
+              <Box position="relative">
+                <Box display="flex" alignItems="center">
+                  <Avatar
+                    src={
+                      user?.avatar ||
+                      "https://www.w3schools.com/howto/img_avatar.png"
+                    }
                   />
-                </div>
-                <Avatar src={user?.avatar} className="ml-2" />
+                  <Typography sx={{ ml: 1 }}>
+                    {user?.userName || "User"}
+                  </Typography>
+                  <IconButton onClick={handleDropdownToggle}>
+                    <FontAwesomeIcon
+                      color="white"
+                      icon={isDropdownOpen ? faCaretUp : faCaretDown}
+                    />
+                  </IconButton>
+                </Box>
 
-                {/* Dropdown for Logout */}
-                {dropdownOpen && (
-                  <ul
-                    className="absolute top-full right-0 mt-2 w-40 bg-black shadow-md rounded-lg transition-all duration-200 border border-gray-300"
-                    role="menu"
-                    aria-expanded={dropdownOpen}
+                {isDropdownOpen && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "100%",
+                      right: 0,
+                      bgcolor: "background.paper",
+                      boxShadow: 1,
+                      borderRadius: 1,
+                      zIndex: 999,
+                    }}
                   >
-                    {/* Separator Line */}
-                    
-
-                   <li>
-                    <button
-              
-                className="flex gap-4 items-center p-4 rounded-lg w-full  transition-colors duration-200 "
-              >
-                <FontAwesomeIcon icon={faArrowRightFromBracket} style={{ fontSize: '24px' }}  className="hover:text-white-200"/>
-                <p className="font-semibold 
-                ">Logout</p>
-              </button>
-              </li>
-                  </ul>
+                    <Link
+                      href="/profile"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        toggleNavigation(); // Close menu on profile click
+                      }}
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      href="/auth/logout"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        // Add your logout functionality here
+                      }}
+                    >
+                      Logout
+                    </Link>
+                  </Box>
                 )}
-              </div>
+              </Box>
             ) : (
               <>
                 <Link
-                  className="button text-n-1/50 transition-colors hover:text-n-1"
                   href="auth/register"
+                  className="button text-n-1/50 transition-colors hover:text-n-1"
                 >
                   Sign up
                 </Link>
                 <Link
                   href="auth/login"
-                  className="font-semibold whitespace-nowrap leading-none transition duration-300 ease-in-out focus:outline-none text-sm px-6 py-3 rounded-lg bg-primary-gradient text-white hover:text-white/80 hover:shadow-md hover:shadow-brand-purple-500/80 flex items-center space-x-2"
+                  className="font-semibold whitespace-nowrap leading-none transition duration-300 ease-in-out text-sm px-6 py-3 rounded-lg bg-primary-gradient text-white hover:text-white/80 hover:shadow-md hover:shadow-brand-purple-500/80 flex items-center space-x-2"
                 >
                   <span>Sign in</span>
                   <svg
@@ -146,7 +182,7 @@ function Navbar() {
 
       {/* Overlay and Menu */}
       <div
-        className={`fixed inset-0 z-40 transition-opacity  duration-300 ${
+        className={`fixed inset-0 z-40 transition-opacity duration-300 ${
           openNavigation
             ? "opacity-100 md:opacity-0"
             : "opacity-0 pointer-events-none"
@@ -164,62 +200,61 @@ function Navbar() {
           } z-50 md:hidden`}
         >
           <div className="flex flex-col items-center mt-4">
-    {navigation.map(
-      (item) =>
-        !item.onlyMobile && (
-          <Link
-            key={item.id}
-            href={item.url}
-            onClick={toggleNavigation}
-            className={`block text-[16px] uppercase text-n-1 transition-colors hover:text-color-1 ${
-              item.onlyMobile ? "lg:hidden" : ""
-            } px-6 py-6 md:py-8 font-roboto font-normal`}
-          >
-            {item.title}
-          </Link>
-        )
-    )}
+            {navigation.map(
+              (item) =>
+                !item.onlyMobile && (
+                  <Link
+                    key={item.id}
+                    href={item.url}
+                    onClick={toggleNavigation}
+                    className={`block text-[16px] uppercase text-n-1 transition-colors hover:text-color-1 ${
+                      item.onlyMobile ? "lg:hidden" : ""
+                    } px-6 py-6 md:py-8 font-roboto font-normal`}
+                  >
+                    {item.title}
+                  </Link>
+                )
+            )}
 
-    {user ? (
-      <>
-        <Link
-          href="user/dashboard"
-          onClick={toggleNavigation}
-          className="text-[16px] uppercase text-n-1 transition-colors hover:text-color-1 px-6 py-6 md:py-8 font-roboto font-normal flex items-center justify-between"
-        >
-          Dashboard
-        </Link>
-        <button
-          onClick={() => {
-            // Add your logout functionality here
-            console.log("Logout clicked");
-            // For example, call an action to log out the user
-            // dispatch(logoutUser());
-          }}
-          className="text-[16px] uppercase text-n-1 transition-colors hover:text-color-1 px-6 py-6 md:py-8 font-roboto font-normal flex items-center justify-between"
-        >
-          Logout
-        </button>
-      </>
-    ) : (
-      <>
-        <Link
-          href="auth/register"
-          className="text-xl uppercase text-n-1 transition-colors hover:text-color-1 py-6"
-        >
-          Sign up
-        </Link>
-        <Link
-          href="auth/login"
-          className="text-xl uppercase bg-primary-gradient text-white px-6 py-3 rounded-lg hover:text-white/80"
-        >
-          Sign in
-        </Link>
-      </>
-    )}
-  </div>
-</nav>
-        
+            {user ? (
+              <>
+                <Link
+                  href="user/dashboard"
+                  onClick={toggleNavigation}
+                  className="text-[16px] uppercase text-n-1 transition-colors hover:text-color-1 px-6 py-6 md:py-8 font-roboto font-normal flex items-center justify-between"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    // Add your logout functionality here
+                    console.log("Logout clicked");
+                    // For example, call an action to log out the user
+                    // dispatch(logoutUser());
+                  }}
+                  className="text-[16px] uppercase text-n-1 transition-colors hover:text-color-1 px-6 py-6 md:py-8 font-roboto font-normal flex items-center justify-between"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="auth/register"
+                  className="text-xl uppercase text-n-1 transition-colors hover:text-color-1 py-6"
+                >
+                  Sign up
+                </Link>
+                <Link
+                  href="auth/login"
+                  className="text-xl uppercase bg-primary-gradient text-white px-6 py-3 rounded-lg hover:text-white/80"
+                >
+                  Sign in
+                </Link>
+              </>
+            )}
+          </div>
+        </nav>
       </div>
     </div>
   );
