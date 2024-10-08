@@ -17,9 +17,10 @@ import Meeting from "../models/meeting.model";
 import mongoose from "mongoose";
 
 const options: any = {
-  httpOnly: true,
+  httpOnly: false,
   secure: true,
   sameSite: "Strict",
+  path: '/',
 };
 
 const { ObjectId } = mongoose.Types;

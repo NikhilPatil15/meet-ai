@@ -21,13 +21,14 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUserContext } from "@/Context/userContext";
-import { setUser } from "@/redux/slices/authSlice";
+import { loginUser } from "@/redux/slices/authSlice";
 import { useDispatch } from "react-redux";
+import axiosInstance from "@/utils/axios";
+import { AppDispatch } from "@/redux/store";
 
 export default function SignupFormDemo() {
-  const dispatch = useDispatch();
-
-   const {token,setToken,refreshToken,setRefreshToken} = useUserContext()
+  const dispatch: AppDispatch = useDispatch();
+  //  const {token,setToken,refreshToken,setRefreshToken} = useUserContext()
 
   const USER_REGEX = useMemo(() => /^[A-z][A-z0-9-_]{3,23}$/, []);
   const PWD_REGEX = useMemo(
@@ -68,43 +69,32 @@ export default function SignupFormDemo() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data = {
-      userName,
-      password,
-    };
+
+    dispatch(loginUser({ userName, password }));
 
     // if(!validEmail || !validUserName || !validPassword){
     //   return;
     // }
 
-    axios.defaults.withCredentials=true
-   await axios
-      .post(`${base_url}/user/login`,data,{withCredentials:true})
-      .then((res) => {
-        // console.log(res?.data?.data?.user);
-        dispatch(setUser(res?.data?.data?.user))
-        // setToken(res.data.data.accessToken)
-        // setRefreshToken(res.data.data.refreshToken)
-        router.push("/user/create-meeting")
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    //   axios.defaults.withCredentials=true
+    //  await axios
+    //     .post(`${base_url}/user/login`,data,{withCredentials:true})
+    //     .then((res) => {
+    //       // console.log(res?.data?.data?.user);
+    //       dispatch(setUser(res?.data?.data?.user))
+    //       // setToken(res.data.data.accessToken)
+    //       // setRefreshToken(res.data.data.refreshToken)
+    //       router.push("/user/create-meeting")
+    //     })
+    //     .catch((err) => {
+    //       console.log(err);
+    //     });
+
     console.log("Form submitted");
 
-
-
     // router.push('/auth/setaccesstoken')
-     
   };
 
-  const getUser = async ()=>{
-    axios.defaults.withCredentials = true;
-    axios.get("http://localhost:5000/api/v1/user/get-user").then((res)=>{
-      console.log(res);
-    }).catch((err)=>{console.log(err);
-    })
-  }
   return (
     <main className="max-w-md  w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-black dark:bg-black">
       {sendEmail && (
@@ -115,14 +105,6 @@ export default function SignupFormDemo() {
           {"<-"}
         </div>
       )}
-      {/* <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
-        Welcome to Aceternity
-      </h2>
-      <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
-        Login to aceternity if you can because we don&apos;t have a login flow
-        yet
-      </p> */}
-
       <form className="my-8" onSubmit={handleSubmit}>
         {!sendEmail ? (
           <>
@@ -161,8 +143,9 @@ export default function SignupFormDemo() {
               </p>
             </LabelInputContainer>
             <LabelInputContainer className="mb-4">
-              <Label htmlFor="password">Password
-              <FontAwesomeIcon
+              <Label htmlFor="password">
+                Password
+                <FontAwesomeIcon
                   icon={faCheck}
                   className={validPassword ? "valid" : "hide"}
                 />
@@ -234,47 +217,36 @@ export default function SignupFormDemo() {
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
           type="submit"
-          
         >
           {!sendEmail ? <span>Sign in &rarr;</span> : <span>Send Email</span>}
           <BottomGradient />
         </button>
-        </form>
-        {!sendEmail && (
-          <>
-            <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
-            <section className="flex flex-col space-y-4">
-              <button
-                className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
-                
-              >
-                <IconBrandGithub className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-                <Link href="http://localhost:5000/api/v1/user/oauth/github">
+      </form>
+      {!sendEmail && (
+        <>
+          <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
+          <section className="flex flex-col space-y-4">
+            <button className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]">
+              <IconBrandGithub className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
+              <Link href="http://localhost:5000/api/v1/user/oauth/github">
                 <span className="text-neutral-700 dark:text-neutral-300 text-sm">
                   GitHub
                 </span>
-                </Link>
-                <BottomGradient />
-              </button>
-              <button
-                className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
-                
-              >
-                <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-                <Link href="http://localhost:5000/api/v1/user/oauth/google">
+              </Link>
+              <BottomGradient />
+            </button>
+            <button className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]">
+              <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
+              <Link href="http://localhost:5000/api/v1/user/oauth/google">
                 <span className="text-neutral-700 dark:text-neutral-300 text-sm">
                   Google
                 </span>
-                </Link>
-                <BottomGradient />
-              </button>
-
-              <button onClick={getUser}>Get profile</button>
-            </section>
-          </>
-        )}
-      
-    
+              </Link>
+              <BottomGradient />
+            </button>
+          </section>
+        </>
+      )}
     </main>
   );
 }
