@@ -15,12 +15,13 @@ import nodemailer from "nodemailer";
 import uploadOnCloudinary from "../utils/cloudinary";
 import Meeting from "../models/meeting.model";
 import mongoose from "mongoose";
+import sendMail from "../utils/sendMail";
 
 const options: any = {
   httpOnly: false,
   secure: true,
   sameSite: "Strict",
-  path: '/',
+  path: "/",
 };
 
 const { ObjectId } = mongoose.Types;
@@ -64,24 +65,68 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(401, "Username or email already exists!");
   }
 
-  const user = await User.create({
-    userName,
+  const user = {
     fullName,
+    userName,
     email,
     password,
-  });
+  };
 
-  const displayUser = await User.findById(user._id)?.select(
-    "-password -refreshToken"
+  console.log(process.env.NEXT_PUBLIC_ACTIVATION_SECRET!);
+  
+
+  const otp = Math.floor(Math.random() * 1000000);
+
+  const activationToken = jwt.sign(
+    {
+      user,
+      otp,
+    },
+    process.env.NEXT_PUBLIC_ACTIVATION_SECRET!,
+    {
+      expiresIn: "5m",
+    }
   );
 
-  if (!displayUser) {
-    throw new ApiError(401, "Something went wrong while creating user!");
-  }
+  const data = {
+    userName,
+    otp,
+  };
+
+  await sendMail(email, "Meet AI", data);
 
   return res
     .status(200)
-    .json(new ApiResponse(200, displayUser, "user created successfully!"));
+    .json(new ApiResponse(201, activationToken, "Otp send to your mail"));
+});
+
+const verifyUser = asyncHandler(async (req, res) => {
+  const { otp, activationToken } = req.body;
+  console.log(otp, activationToken);
+
+  const verify:any = jwt.verify(activationToken, process.env.NEXT_PUBLIC_ACTIVATION_SECRET!);
+  console.log(verify);
+
+  if (!verify)
+    return res.status(400).json({
+      message: "Otp Expired",
+    });
+
+  console.log(verify.otp === Number(otp));
+
+  if (!(verify.otp === Number(otp)))
+    return res.status(400).json({
+      message: "Wrong Otp",
+    });
+
+  await User.create({
+    userName: verify.user.userName,
+    email: verify.user.email,
+    fullName: verify.user.fullName,
+    password: verify.user.password,
+  });
+
+  res.json(new ApiResponse(200,null,"User register successfully"));
 });
 
 const loginUser = asyncHandler(async (req: Request, res: Response) => {
@@ -190,7 +235,7 @@ const refreshAccessToken = asyncHandler(async (req: any, res: Response) => {
           "Access token refreshed"
         )
       );
-  } catch (error: any) {
+  } catch (error:any) {
     throw new ApiError(401, error?.message || "Invalid refresh token");
   }
 });
@@ -440,18 +485,22 @@ const getMeetingHistory = asyncHandler(async (req: any, res: Response) => {
         "hostDetails.userName": 1,
         "hostDetails.fullName": 1,
         "hostDetails.email": 1,
-        "guestDetails": 1,
-        "title": 1,
-        "description": 1,
-        "status": 1,
-        "roomId": 1,
-        "createdAt": 1,
-        "updatedAt": 1,
+        guestDetails: 1,
+        title: 1,
+        description: 1,
+        status: 1,
+        roomId: 1,
+        createdAt: 1,
+        updatedAt: 1,
       },
     },
   ]);
 
-  res.status(200).json(new ApiResponse(201,meetingHistory,"Meeting data fetched successfully"));
+  res
+    .status(200)
+    .json(
+      new ApiResponse(201, meetingHistory, "Meeting data fetched successfully")
+    );
 });
 
 const setOauthCookies = asyncHandler(async (req: any, res: Response) => {
@@ -486,4 +535,5 @@ export {
   setAccessToken,
   getMeetingHistory,
   uploadAvatar,
+  verifyUser
 };
