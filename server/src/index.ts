@@ -6,6 +6,7 @@ import { connectDatabase } from "./database/db";
 import { corsOrigin, githubId, googleId, googleSecret, PORT } from "./config/envConfig";
 import passport from 'passport'
 import { githubStratergy, googleStratergy } from "./config/oauthStratergies";
+import { User } from "./models/user.model";
 /* Backend server initialised */
 const app = express();
 
@@ -46,7 +47,10 @@ app.listen(port, () => {
 });
 
 /* HealthCheck route */
-app.get("/", (req, res) => {
+app.get("/",async (req, res) => {
+  // const p:any = await User.deleteOne({email: "project9960@gmail.com"})
+  // console.log(p);
+  
   res.send("Meet AI backend!");
 });
 

@@ -71,25 +71,7 @@ export default function SignupFormDemo() {
     e.preventDefault();
 
     dispatch(loginUser({ userName, password }));
-
-    // if(!validEmail || !validUserName || !validPassword){
-    //   return;
-    // }
-
-    //   axios.defaults.withCredentials=true
-    //  await axios
-    //     .post(`${base_url}/user/login`,data,{withCredentials:true})
-    //     .then((res) => {
-    //       // console.log(res?.data?.data?.user);
-    //       dispatch(setUser(res?.data?.data?.user))
-    //       // setToken(res.data.data.accessToken)
-    //       // setRefreshToken(res.data.data.refreshToken)
-    //       router.push("/user/create-meeting")
-    //     })
-    //     .catch((err) => {
-    //       console.log(err);
-    //     });
-
+    router.push('user/dashboard')
     console.log("Form submitted");
 
     // router.push('/auth/setaccesstoken')
