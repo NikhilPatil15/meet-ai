@@ -13,6 +13,7 @@ import {
   updateAccountDetails,
   updatePassword,
   uploadAvatar,
+  verifyUser,
 } from "../controllers/user.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";
 import passport from "passport";
@@ -22,6 +23,7 @@ const userRouter = Router();
 
 /* Register route */
 userRouter.route("/register").post(registerUser);
+userRouter.post("/verify", verifyUser);
 
 /* Login route */
 userRouter.route("/login").post(loginUser);
