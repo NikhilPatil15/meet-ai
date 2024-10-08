@@ -10,9 +10,9 @@ const useAuth = () => {
   const { user, loading } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
 
-  // useLayoutEffect(() => {
-  //   dispatch(fetchUser());
-  // }, [dispatch]);
+  useLayoutEffect(() => {
+    dispatch(fetchUser());
+  }, [dispatch]);
 
   useLayoutEffect(() => {
     // if (!loading && !user) {

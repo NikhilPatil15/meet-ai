@@ -33,8 +33,53 @@ export default function MeetingPage({ id }: MeetingPageProps) {
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [client, setClient] = useState<StreamVideoClient | null>(null);
+  // const [transcription, setTranscription] = useState<string[]>([]);
 
-  const {user} = useAuth()
+ 
+  
+
+  // const { useTranscriptionEvents } = useCallStateHooks();
+
+ 
+  // useEffect(() => {
+  //   if (call) {
+  //     // Check if transcription is enabled and listen for changes
+  //     const transcribing = call?.state?.transcribing;
+
+  //     if (transcribing) {
+  //       console.log("Transcription is active");
+
+  //       // You can access transcription text updates here
+  //       call.on(transcriptionstarted, () => {
+  //         console.log("Transcription started");
+  //       });
+
+  //       call.on("transcription.updated", (event: any) => {
+  //         const transcriptionText = event.data.text; // Assuming this structure
+  //         setTranscription((prev) => [...prev, transcriptionText]); // Add to state
+  //         console.log(`Received transcription: ${transcriptionText}`);
+  //       });
+
+  //       call.on("transcription.stopped", () => {
+  //         console.log("Transcription stopped");
+  //       });
+  //     }
+  //   }
+  // }, [call]);
+
+  // const { useMicrophoneState }: any = useCallStateHooks();
+  // console.log(useMicrophoneState);
+
+
+
+  const { useMicrophoneState } = useCallStateHooks();
+  let microphone, isMute;
+
+
+
+  // console.log(`Microphone is ${isMute ? "off" : "on"}`);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     const initializeGuestClient = async (
@@ -94,7 +139,25 @@ export default function MeetingPage({ id }: MeetingPageProps) {
       initializeClient();
     }
   }, [user, username]);
-  
+
+  const { useCallSettings, useIsCallTranscribingInProgress } = useCallStateHooks();
+  const { transcription } = useCallSettings() || {};
+
+      console.log(useCallSettings, useIsCallTranscribingInProgress);
+    
+      
+      useEffect(()=>{
+        if(call){
+      
+    
+      console.log(transcription);
+      
+    }else{
+      console.log("call is not there");
+      
+    }
+
+  },[call])
 
   const handleJoinMeeting = async () => {
     if (!client) return;
@@ -106,6 +169,7 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     setCall(call);
     setLoading(false);
   };
+
   const handleLeaveMeeting = async () => {
     await call?.leave({ reject: true });
     router.push("/");
