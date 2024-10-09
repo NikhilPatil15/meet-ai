@@ -59,9 +59,9 @@ function Navbar() {
         }`}
       >
         <div className="flex items-center px-4 lg:px-3 xl:px-6 py-3">
-          <Link href="#hero" className="block w-[12rem] xl:mr-8">
+          {/* <Link href="#hero" className="block w-[12rem] xl:mr-8">
             <Image src={meetai} alt="Logo Meet" width={190} height={48} />
-          </Link>
+          </Link> */}
 
           {/* Navigation for Larger Devices */}
           <div className="hidden lg:flex flex-grow justify-center space-x-8">
@@ -104,34 +104,44 @@ function Navbar() {
                 {isDropdownOpen && (
                   <Box
                     sx={{
+                      marginTop: "0.5rem",
                       position: "absolute",
                       top: "100%",
                       right: 0,
-                      bgcolor: "background.paper",
+                      bgcolor: "#313131",
                       boxShadow: 1,
                       borderRadius: 1,
                       zIndex: 999,
+                      padding: "0.5rem"
                     }}
                   >
                     <Link
-                      href="/profile"
-                      className="block px-4 py-2 hover:bg-gray-100"
+                      href="profile"
+                      className="block px-4 py-2 rounded-md hover:bg-[#434244]"
                       onClick={() => {
                         setDropdownOpen(false);
-                        toggleNavigation(); // Close menu on profile click
+                        toggleNavigation();
                       }}
                     >
                       Profile
                     </Link>
                     <Link
                       href="/auth/logout"
-                      className="block px-4 py-2 hover:bg-gray-100"
+                      className="block px-4 py-2 rounded-md hover:bg-[#434244]"
                       onClick={() => {
                         setDropdownOpen(false);
-                        // Add your logout functionality here
                       }}
                     >
                       Logout
+                    </Link>
+                    <Link
+                      href="/user/dashboard"
+                      className="block px-4 py-2 rounded-md hover:bg-[#434244]"
+                      onClick={() => {
+                        setDropdownOpen(false);
+                      }}
+                    >
+                      Dashboard
                     </Link>
                   </Box>
                 )}

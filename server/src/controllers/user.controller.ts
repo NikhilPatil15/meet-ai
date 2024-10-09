@@ -73,7 +73,6 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
   };
 
   console.log(process.env.NEXT_PUBLIC_ACTIVATION_SECRET!);
-  
 
   const otp = Math.floor(Math.random() * 1000000);
 
@@ -104,7 +103,10 @@ const verifyUser = asyncHandler(async (req, res) => {
   const { otp, activationToken } = req.body;
   console.log(otp, activationToken);
 
-  const verify:any = jwt.verify(activationToken, process.env.NEXT_PUBLIC_ACTIVATION_SECRET!);
+  const verify: any = jwt.verify(
+    activationToken,
+    process.env.NEXT_PUBLIC_ACTIVATION_SECRET!
+  );
   console.log(verify);
 
   if (!verify)
@@ -126,7 +128,7 @@ const verifyUser = asyncHandler(async (req, res) => {
     password: verify.user.password,
   });
 
-  res.json(new ApiResponse(200,null,"User register successfully"));
+  res.json(new ApiResponse(200, null, "User register successfully"));
 });
 
 const loginUser = asyncHandler(async (req: Request, res: Response) => {
@@ -198,7 +200,6 @@ const refreshAccessToken = asyncHandler(async (req: any, res: Response) => {
     throw new ApiError(401, "unauthorized request");
   }
 
-  try {
     const decodedToken: any = jwt.verify(
       incomingRefreshToken,
       process.env.REFRESH_TOKEN_SECRET as string
@@ -235,9 +236,6 @@ const refreshAccessToken = asyncHandler(async (req: any, res: Response) => {
           "Access token refreshed"
         )
       );
-  } catch (error:any) {
-    throw new ApiError(401, error?.message || "Invalid refresh token");
-  }
 });
 
 const getUser = asyncHandler(async (req: any, res: Response) => {
@@ -503,6 +501,41 @@ const getMeetingHistory = asyncHandler(async (req: any, res: Response) => {
     );
 });
 
+const getScheduleMeetings = asyncHandler(async (req: any, res: Response) => {
+  const userId = req.user._id;
+
+  console.log(userId);
+  
+
+  const userObjectId = new ObjectId(userId);
+
+  console.log(userObjectId);
+  
+
+  const meetings = await Meeting.aggregate([
+    {
+      $match: {
+        $and: [
+          {
+            $or: [
+              { createdBy: userObjectId },
+              { participants: { $in: [userObjectId] } },
+            ],
+          },
+          {
+            status: "scheduled"
+          }
+        ],
+      },
+      
+    },
+  ]);
+
+  console.log(meetings);
+
+  return res.status(200).json(new ApiResponse(201, meetings, "Scheduled meetings fetched"))
+});
+
 const setOauthCookies = asyncHandler(async (req: any, res: Response) => {
   // console.log("auth: ", req.auth);
   res
@@ -535,5 +568,6 @@ export {
   setAccessToken,
   getMeetingHistory,
   uploadAvatar,
-  verifyUser
+  verifyUser,
+  getScheduleMeetings
 };

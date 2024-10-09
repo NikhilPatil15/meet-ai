@@ -39,7 +39,7 @@ axiosInstance.interceptors.response.use(
             try {
                 const refreshResponse = await axiosInstance.post('/user/refresh-token', { refreshToken });
                 document.cookie = `accessToken=${refreshResponse.data.accessToken}; path=/; secure; SameSite=Strict`;
-                originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.accessToken}`;
+                originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.data.accessToken}`;
                 return axiosInstance(originalRequest);
             } catch (refreshError) {
                 console.error('Error refreshing token', refreshError);
