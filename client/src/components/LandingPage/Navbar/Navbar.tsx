@@ -58,10 +58,10 @@ function Navbar() {
           openNavigation ? "bg-black/50" : "bg-black/90 backdrop-blur-sm"
         }`}
       >
-        <div className="flex items-center px-4 lg:px-3 xl:px-6 py-3">
-          {/* <Link href="#hero" className="block w-[12rem] xl:mr-8">
+        <div className="flex items-center px-4 lg:px-3 xl:px-6 ">
+          <Link href="#hero" className="block w-[12rem] xl:mr-8">
             <Image src={meetai} alt="Logo Meet" width={190} height={48} />
-          </Link> */}
+          </Link>
 
           {/* Navigation for Larger Devices */}
           <div className="hidden lg:flex flex-grow justify-center space-x-8">
