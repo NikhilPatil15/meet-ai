@@ -1,16 +1,15 @@
-"use client"; // Ensure this component runs in client-side rendering
+"use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Box from "@mui/material/Box";
 import Image from "next/image";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
-import upcoming from "@/assets/icons/upcoming.svg";
+import previous from "@/assets/icons/previous.svg";
 import axiosInstance from "@/utils/axios";
+import CardSkeleton from "@/app/(contextRouteGroup)/user/dashboard/history/CardSkeletonHistory"; // Import the CardSkeleton component
 
-// Define interfaces for the data structure
 interface HostDetails {
   _id: string;
   userName: string;
@@ -31,8 +30,9 @@ interface Meeting {
 }
 
 export default function MeetingHistory() {
-  const [meetings, setMeetings] = useState<Meeting[]>([]); // State to hold meeting data
-  const [error, setError] = useState<string | null>(null); // State for error messages
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true); // Loading state
 
   const fetchMeetingsHistory = async () => {
     try {
@@ -40,95 +40,71 @@ export default function MeetingHistory() {
       console.log("API Response: ", response.data); // Log the API response
       
       // Access the meetings array from the response and set it in state
-      setMeetings(response.data.data); // Make sure to use response.data.data
+      
+      setMeetings(response.data.data);
     } catch (error) {
       console.error("Error fetching meeting history:", error);
-      setError("Failed to fetch meeting history."); // Set error message on failure
+      setError("Failed to fetch meeting history.");
+    } finally {
+      setLoading(false); // Set loading to false after fetching
     }
   };
 
   useEffect(() => {
-    fetchMeetingsHistory(); // Fetch meeting history on component mount
+    fetchMeetingsHistory();
   }, []);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 3,
-        padding: 3,
-        backgroundColor: "#1c1c1c",
-      }}
-    >
+    <div className="flex flex-col items-center pt-4 sm:pt-11 pl-5 sm:pl-28 xs:pl-30 md:pl-32 lg:pl-56 min-h-screen px-4 w-full">
       {error ? (
-        <Typography variant="body1" sx={{ color: "#fff" }}>
-          {error} {/* Display error message */}
+        <Typography variant="body1" className="text-white">
+          {error}
         </Typography>
+      ) : loading ? ( // Show skeleton while loading
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-screen-lg">
+          {Array.from({ length: 6 }).map((_, index) => ( // Adjust length based on your needs
+            <CardSkeleton key={index} />
+          ))}
+        </div>
       ) : meetings.length > 0 ? (
-        meetings.map((meeting) => (
-          <Card
-            key={meeting._id} // Use _id as the key
-            sx={{
-              width: "100%",
-              maxWidth: 400,
-              padding: 2,
-              backgroundColor: "rgba(33, 33, 33, 0.85)",
-              color: "#fff",
-              boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.5)",
-              borderRadius: "20px",
-              position: "relative",
-              overflow: "visible",
-            }}
-          >
-            <Box
-              sx={{
-                position: "absolute",
-                top: "-25px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 60,
-                height: 60,
-                backgroundColor: "#333",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 0 10px rgba(0,0,0,0.5)",
-              }}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-screen-lg">
+          {meetings.map((meeting) => (
+            <Card
+              key={meeting._id}
+              className="bg-[#1c1c1c] text-white shadow-lg rounded-lg relative overflow-visible transition-transform hover:scale-105"
             >
-              <Image src={upcoming} alt="Upcoming Icon" width={30} height={30} />
-            </Box>
+              <div className="absolute top-[-20px] left-1/2 transform -translate-x-1/2 w-12 h-12 rounded-full flex items-center justify-center bg-[#333] shadow-lg overflow-hidden">
+                <Image src={previous} alt="Previous Meeting Icon" width={30} height={30} />
+              </div>
 
-            <CardContent>
-              <Typography variant="body1" sx={{ mb: 1.5, fontWeight: "bold" }}>
-                {meeting.title} {/* Display meeting title */}
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#aaa" }}>
-                Last Updated: {new Date(meeting.updatedAt).toLocaleString()} {/* Display last updated time */}
-              </Typography>
+              <CardContent className="pt-12">
+                <Typography variant="body1" className="mb-6 font-bold text-lg">
+                  {meeting.title}
+                </Typography>
+                <Typography variant="body2" className="text-gray-400 text-sm">
+                  Last Updated: {new Date(meeting.updatedAt).toLocaleString()}
+                </Typography>
 
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
-                <Avatar alt={meeting.hostDetails.fullName} />
-                <Box>
-                  <Typography variant="body2">
-                    Host: {meeting.hostDetails.fullName} {/* Display host's full name */}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: "#aaa" }}>
-                    {meeting.hostDetails.email} {/* Display host's email */}
-                  </Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        ))
+                <div className="flex items-center gap-2 mt-4">
+                  <Avatar alt={meeting.hostDetails.fullName} />
+                  <div>
+                    <Typography variant="body2" className="text-sm font-bold">
+                      {meeting.hostDetails.fullName}
+                    </Typography>
+                    <Typography variant="caption" className="text-gray-400 text-xs">
+                      {meeting.hostDetails.email}
+                    </Typography>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       ) : (
-        <Typography variant="body1" sx={{ color: "#fff" }}>
-          No meetings available {/* Display message when no meetings are found */}
+        <Typography variant="body1" className="text-white">
+          No meetings available
         </Typography>
       )}
-    </Box>
+    </div>
   );
 }

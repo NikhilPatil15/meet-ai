@@ -140,25 +140,6 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     }
   }, [user, username]);
 
-  const { useCallSettings, useIsCallTranscribingInProgress } = useCallStateHooks();
-  const { transcription } = useCallSettings() || {};
-
-      console.log(useCallSettings, useIsCallTranscribingInProgress);
-    
-      
-      useEffect(()=>{
-        if(call){
-      
-    
-      console.log(transcription);
-      
-    }else{
-      console.log("call is not there");
-      
-    }
-
-  },[call])
-
   const handleJoinMeeting = async () => {
     if (!client) return;
 
