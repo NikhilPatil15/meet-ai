@@ -40,8 +40,7 @@ export default function MeetingHistory() {
       console.log("API Response: ", response.data); // Log the API response
       
       // Access the meetings array from the response and set it in state
-      setMeetings(response.data.data); // Make sure to use response.data.data
-      const response = await axios.get("http://localhost:5000/api/v1/user/get-meeting-history");
+      
       setMeetings(response.data.data);
     } catch (error) {
       console.error("Error fetching meeting history:", error);
