@@ -8,6 +8,7 @@ import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/utils/axios";
+import Link from 'next/link'
 
 export default function Register() {
   const USER_REGEX = useMemo(() => /^[A-z][A-z0-9-_]{3,23}$/, []);
@@ -230,6 +231,7 @@ export default function Register() {
       </div>
 
       <div className="mt-6 flex flex-col space-y-2">
+      <Link href="http://localhost:5000/api/v1/user/oauth/github">
         <button
           className="relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900"
           type="button"
@@ -240,6 +242,8 @@ export default function Register() {
           </span>
           <BottomGradient />
         </button>
+        </Link>
+        <Link href="http://localhost:5000/api/v1/user/oauth/google">
         <button
           className="relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900"
           type="button"
@@ -250,6 +254,7 @@ export default function Register() {
           </span>
           <BottomGradient />
         </button>
+        </Link>
       </div>
     </div>
   );
