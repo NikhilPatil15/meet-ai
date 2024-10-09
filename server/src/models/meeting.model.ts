@@ -13,6 +13,7 @@ export interface IMeeting extends Document {
   host: Schema.Types.ObjectId;
   type: "public" | "private";
   roomId: string; // Unique room ID
+  enableSummary: boolean // To check if the user wants the summary of the meeting
 }
 
 const MeetingSchema = new Schema<IMeeting>(
@@ -55,6 +56,11 @@ const MeetingSchema = new Schema<IMeeting>(
       type: String,
       enum: ["public", "private"],
     },
+    enableSummary:{
+      type:Boolean,
+      required:true,
+      default:false
+    }
   },
   { timestamps: true }
 );
