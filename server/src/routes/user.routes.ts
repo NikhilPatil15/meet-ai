@@ -1,6 +1,7 @@
 import { query, Router } from "express";
 import {
   getMeetingHistory,
+  getScheduleMeetings,
   getUser,
   loginUser,
   logoutUser,
@@ -62,5 +63,6 @@ userRouter
 userRouter.route("/refresh-token").post(refreshAccessToken)
 userRouter.route("/update-profile").put(updateAccountDetails);
 userRouter.route("/get-meeting-history").get(getMeetingHistory)
+userRouter.route("/get-scheduled-meetings").get(getScheduleMeetings)
 
 export default userRouter;

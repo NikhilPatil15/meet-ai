@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import Meeting, { IMeeting } from "../models/meeting.model";
 import { Request, Response } from "express";
 import { ApiError } from "../utils/apiError";
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { User } from "../models/user.model";
 import { ApiResponse } from "../utils/apiResponse";
 import { streamClient } from "../config/getStream";
@@ -13,7 +13,15 @@ const expirationTime = Math.floor(Date.now() / 1000) + 60 * 60;
 const issuedAt = Math.floor(Date.now() / 1000) - 60;
 
 const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
-  const { title, description, participants, scheduledTime, type="public" } = req?.body;
+  const {
+    title,
+    description,
+    participants,
+    scheduledTime,
+    type,
+    status,
+    roomId,
+  } = req?.body;
   const createdBy = req?.user?.id;
   let participantsList: any;
 
@@ -26,7 +34,7 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
   //   }
   // }
 
-  if (type === "private") {
+  if (type === "private" && participants?.length > 0) {
     participantsList = await Promise.all(
       participants.map(async (participant: any) => {
         if (participant._id === createdBy) {
@@ -67,9 +75,9 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
     participants: participantsList || [],
     scheduledTime,
     createdBy: new ObjectId(createdBy),
-    roomId: crypto.randomUUID(),
-    status: scheduledTime ? "scheduled" : "not scheduled",
-    type,
+    roomId: roomId,
+    status: status ? status : "not scheduled",
+    type: type,
   });
 
   if (!newMeeting) {
@@ -83,11 +91,15 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
 
 const addJoinedParticipant: any = asyncHandler(
   async (req: any, res: Response) => {
+    console.log(req?.user);
     const user = {
       userId: req?.user?._id,
       userName: req?.user?.userName,
+      avatar: req?.user?.avatar,
       role: "participant",
     };
+
+    console.log(user);
 
     const meeting: IMeeting | any = await Meeting.findById(
       req?.body?.meetingId
@@ -130,7 +142,32 @@ const addJoinedParticipant: any = asyncHandler(
   }
 );
 
-export {
-    createMeeting,
-    addJoinedParticipant
-}
+const endMeeting = asyncHandler(async (req: any, res: Response) => {
+  const { meetingId } = req.params;
+  const meeting = await Meeting.findById(meetingId);
+
+  if (!meeting) {
+    throw new ApiError(404, "Meeting not found");
+  }
+
+  if (meeting.status === "completed" || meeting.status === "canceled") {
+    throw new ApiError(400, "Meeting already ended or canceled");
+  }
+
+  const currentTime = new Date();
+  meeting.endTime = currentTime;
+
+  const duration =
+    (currentTime.getTime() - meeting.scheduledTime.getTime()) / 6000;
+  meeting.duration = duration;
+
+  meeting.status = "completed";
+
+  await meeting.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(201, meeting, "Meeting ended successfully"));
+});
+
+export { createMeeting, addJoinedParticipant, endMeeting };

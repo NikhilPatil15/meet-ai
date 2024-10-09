@@ -1,6 +1,7 @@
 "use client";
 
 import useAuth from "@/hooks/useAuth";
+import axiosInstance from "@/utils/axios";
 import {
   Call,
   useStreamVideoClient,
@@ -15,6 +16,8 @@ export default function CreateMeetingPage() {
   const [titleInput, setTitleInput] = useState("");
   const [descriptionInput, setDescriptionInput] = useState("");
   const [startTimeInput, setStartTimeInput] = useState("");
+  const [activeTime, setActiveTime] = useState(false);
+  const [activeType, setActiveType] = useState(false);
   const [participantsInput, setParticipantsInput] = useState("");
   const [call, setCall] = useState<Call>();
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
@@ -61,16 +64,21 @@ export default function CreateMeetingPage() {
       });
       setCall(call);
       if(call){
-        const res = await axios.post("http://localhost:5000/api/v1/meeting/create-meeting",{
+        console.log(call);
+        
+        const res = await axiosInstance.post("http://localhost:5000/api/v1/meeting/create-meeting",{
           title: titleInput,
           description: descriptionInput,
           participants: participantsInput,
           scheduleTime: startTimeInput,
+          status: activeTime ? "scheduled" : "not scheduled",
+          roomId: call?.cid,
+          type: activeType ? "private" : "public"
         })
-        console.log(res);
+        console.log(res.data.data);
         
       }
-      // router.push(`meeting/${call?.id}`);
+      // router.push(`meeting/${call?.cid}`);
     } catch (error) {
       console.error("Error creating meeting:", error);
       alert("Something went wrong. Please try again later.");
@@ -105,11 +113,13 @@ export default function CreateMeetingPage() {
           value={descriptionInput}
           onChange={setDescriptionInput}
         />
-        <StartTimeInput value={startTimeInput} onChange={setStartTimeInput} />
+        <StartTimeInput value={startTimeInput} onChange={setStartTimeInput} activeTime={activeTime} setActiveTime={setActiveTime} />
         <ParticipantsInput
           users={allUsers}
           selectedParticipants={selectedParticipants}
           setSelectedParticipants={setSelectedParticipants}
+          activeType={activeType}
+          setActiveType={setActiveType}
         />
 
         <button
@@ -215,10 +225,12 @@ function DescriptionInput({ value, onChange }: DescriptionInputProps) {
 interface StartTimeInputProps {
   value: string;
   onChange: (value: string) => void;
+  activeTime: boolean;
+  setActiveTime: (value: boolean) => void;
 }
 
-function StartTimeInput({ value, onChange }: StartTimeInputProps) {
-  const [active, setActive] = useState(false);
+function StartTimeInput({ value, onChange, activeTime, setActiveTime }: StartTimeInputProps) {
+  
 
   const dateTimeLocalNow = new Date(
     new Date().getTime() - new Date().getTimezoneOffset() * 60_000
@@ -233,9 +245,9 @@ function StartTimeInput({ value, onChange }: StartTimeInputProps) {
         <label className="flex items-center gap-2">
           <input
             type="radio"
-            checked={!active}
+            checked={!activeTime}
             onChange={() => {
-              setActive(false);
+              setActiveTime(false);
               onChange("");
             }}
             className="form-radio h-5 w-5 text-indigo-600"
@@ -245,9 +257,9 @@ function StartTimeInput({ value, onChange }: StartTimeInputProps) {
         <label className="flex items-center gap-2">
           <input
             type="radio"
-            checked={active}
+            checked={activeTime}
             onChange={() => {
-              setActive(true);
+              setActiveTime(true);
               onChange(dateTimeLocalNow);
             }}
             className="form-radio h-5 w-5 text-indigo-600"
@@ -255,7 +267,7 @@ function StartTimeInput({ value, onChange }: StartTimeInputProps) {
           <span className="text-gray-300">Schedule for later</span>
         </label>
       </div>
-      {active && (
+      {activeTime && (
         <label className="block">
           <span className="text-white font-medium">Start Time</span>
           <input
@@ -275,14 +287,17 @@ interface ParticipantsInputProps {
   users: { email: string; userName: string }[];
   selectedParticipants: string[];
   setSelectedParticipants: (emails: string[]) => void;
+  activeType: boolean;
+  setActiveType: (value: boolean)=>void;
 }
 
 function ParticipantsInput({
   users,
   selectedParticipants,
   setSelectedParticipants,
+  activeType,
+  setActiveType,
 }: ParticipantsInputProps) {
-  const [active, setActive] = useState(false);
 
   const toggleSelection = (email: string) => {
     if (selectedParticipants.includes(email)) {
@@ -299,9 +314,9 @@ function ParticipantsInput({
         <label className="flex items-center gap-2">
           <input
             type="radio"
-            checked={!active}
+            checked={!activeType}
             onChange={() => {
-              setActive(false);
+              setActiveType(false);
               setSelectedParticipants([]);
             }}
             className="form-radio h-5 w-5 text-indigo-600"
@@ -311,14 +326,14 @@ function ParticipantsInput({
         <label className="flex items-center gap-2">
           <input
             type="radio"
-            checked={active}
-            onChange={() => setActive(true)}
+            checked={activeType}
+            onChange={() => setActiveType(true)}
             className="form-radio h-5 w-5 text-indigo-600"
           />
           <span className="text-gray-300">Invite specific people</span>
         </label>
       </div>
-      {active && (
+      {activeType && (
         <div className="mt-2">
           <span className="text-white font-medium mb-2 block">Select Participants</span>
           <div className="max-h-40 overflow-y-auto p-2 bg-gray-700 rounded-md border border-gray-600">
