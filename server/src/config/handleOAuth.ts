@@ -7,7 +7,8 @@ import { ApiError } from "../utils/apiError";
 export const handleOAuth = async ( req: any, profile: any, callback: (err:any, user?:any,)=>void, action:any) => {
     try {
       console.log("Profile: ", profile);
-
+      // console.log("Profile: ", profile.photos[0].value);
+      
       const id = profile?.id;
 
       const userExists = await User.findOne({ OauthId: id });
@@ -37,20 +38,29 @@ export const handleOAuth = async ( req: any, profile: any, callback: (err:any, u
 
         userWithSameEmail.OauthId = profile?.id;
 
-        let userName;
+        let userName, fullName, avatar;
 
-        if (profile?.provider === 'github') {
-          console.log("Github Provider: ", profile?.provider);
+        if (profile?.provider === 'github') {         
+          userName = profile?.username;
           
-          userName = profile?.userName;
         } else {
           if (!(userWithSameEmail.userName === profile?.name?.givenName)) {
             userName = profile?.name?.givenName;
           }
         }
+        fullName = profile?.displayName
+        avatar = profile?.photos[0].value
+
+        console.log("username: ", userName);
+        
         userWithSameEmail.userName = userName;
+        userWithSameEmail.fullName = fullName
+        userWithSameEmail.avatar = avatar
 
         await userWithSameEmail.save({ validateBeforeSave: false });
+
+        console.log("User after changing username: ", userWithSameEmail);
+        
 
         const { accessToken } =
           await generateAccessAndRefreshToken(userWithSameEmail?._id);
@@ -91,6 +101,8 @@ export const handleOAuth = async ( req: any, profile: any, callback: (err:any, u
         fullName: profile?.displayName,
         email: profile?.emails[0].value,
         OauthId: profile?.id,
+        avatar:profile?.photos[0].value
+        
       });
 
       console.log("user in handleauth: ", user);

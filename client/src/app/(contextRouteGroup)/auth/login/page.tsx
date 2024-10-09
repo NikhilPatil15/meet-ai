@@ -1,5 +1,5 @@
 'use client';
-import Login from '@/components/User/Login/Login';
+import Login from '@/components/User/Login/Login'
 import React from 'react'
 
 const page = () => {
