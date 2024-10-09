@@ -7,7 +7,7 @@ import threephoto from '@/assets/images/image3.png';
 import bgimage from "@/assets/images/WhatsApp Image 2024-10-06 at 12.39.39 AM.jpeg";
 
 // ProfileCard Component
-const ProfileCard = ({ name, role, position }) => (
+const ProfileCard = ({ name, role, position }: any) => (
   <div className={`absolute ${position} bg-black bg-opacity-70 px-4 py-2 rounded-lg text-white flex items-center space-x-4`}>
     <img
       src={onephoto.src} // Use the 'src' property here
