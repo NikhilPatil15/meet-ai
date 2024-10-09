@@ -13,7 +13,9 @@ export interface IMeeting extends Document {
   host: Schema.Types.ObjectId;
   type: "public" | "private";
   roomId: string; // Unique room ID
-  enableSummary: boolean // To check if the user wants the summary of the meeting
+  enableSummary: boolean; // To check if the user wants the summary of the meeting
+  dialogues: string;
+  summary: string;
 }
 
 const MeetingSchema = new Schema<IMeeting>(
@@ -60,6 +62,12 @@ const MeetingSchema = new Schema<IMeeting>(
       type:Boolean,
       required:true,
       default:false
+    },
+    dialogues: {
+      type: String,
+    },
+    summary: {
+      type: String
     }
   },
   { timestamps: true }
