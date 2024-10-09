@@ -7,6 +7,7 @@ import CardContent from "@mui/material/CardContent";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import previous from "@/assets/icons/previous.svg";
+import axiosInstance from "@/utils/axios";
 import CardSkeleton from "@/app/(contextRouteGroup)/user/dashboard/history/CardSkeletonHistory"; // Import the CardSkeleton component
 
 interface HostDetails {
@@ -35,6 +36,11 @@ export default function MeetingHistory() {
 
   const fetchMeetingsHistory = async () => {
     try {
+      const response = await axiosInstance.get('http://localhost:5000/api/v1/user/get-meeting-history');
+      console.log("API Response: ", response.data); // Log the API response
+      
+      // Access the meetings array from the response and set it in state
+      setMeetings(response.data.data); // Make sure to use response.data.data
       const response = await axios.get("http://localhost:5000/api/v1/user/get-meeting-history");
       setMeetings(response.data.data);
     } catch (error) {
