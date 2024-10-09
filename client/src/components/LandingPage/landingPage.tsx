@@ -18,6 +18,9 @@ import Grid from './Featured/Grid';
 
 import MeetCandidatesPage from '@/components/Solution/temp'
 import MeetaiHeroSection from '../Solution/MeetingHero';
+import MeetingSummary from '../Solution/MeetSummary';
+import Team from '../Solution/team';
+import ProfileEdit from '../Solution/Profile';
 export default function LandingPage() {
   const [loading, setLoading] = useState(true);
 
@@ -82,6 +85,8 @@ export default function LandingPage() {
           <Copyright />
           {/* <MeetCandidatesPage></MeetCandidatesPage>
           <MeetaiHeroSection></MeetaiHeroSection> */}
+       <Team></Team>
+       <ProfileEdit></ProfileEdit>
         </div>
       )}
     </>
