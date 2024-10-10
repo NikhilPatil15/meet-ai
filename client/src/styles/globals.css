@@ -318,6 +318,11 @@ body {
   width: 0;
 }
 
+.skeleton-bg {
+  background-color: #1c1c1c;
+}
+
+
 .rotate-45 {
   @apply rotate-[45deg];
 }
