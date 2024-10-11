@@ -1,27 +1,23 @@
 "use client";
-
 import "@stream-io/video-react-sdk/dist/css/styles.css";
+import "@/styles/globals.css";
 import {
   Call,
-  CallControls,
-  CancelCallButton,
-  ParticipantView,
-  SpeakerLayout,
   StreamCall,
   StreamTheme,
   StreamVideoClient,
-  ToggleAudioPublishingButton,
-  ToggleVideoPreviewButton,
-  ToggleVideoPublishingButton,
+  StreamVideo,
   useCallStateHooks,
-  useParticipantViewContext,
 } from "@stream-io/video-react-sdk";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { base_url } from "@/config/config";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
-import useAuth from "@/hooks/useAuth";
+import MeetingScreen from "./MeetingScreen";
+import axiosInstance from "@/utils/axios";
 
 interface MeetingPageProps {
   id: string;
@@ -33,110 +29,48 @@ export default function MeetingPage({ id }: MeetingPageProps) {
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [client, setClient] = useState<StreamVideoClient | null>(null);
-  // const [transcription, setTranscription] = useState<string[]>([]);
+  // const { useMicrophoneState } = useCallStateHooks();
+  // const { microphone, isMute } = useMicrophoneState();
 
- 
-  
-
-  // const { useTranscriptionEvents } = useCallStateHooks();
-
- 
-  // useEffect(() => {
-  //   if (call) {
-  //     // Check if transcription is enabled and listen for changes
-  //     const transcribing = call?.state?.transcribing;
-
-  //     if (transcribing) {
-  //       console.log("Transcription is active");
-
-  //       // You can access transcription text updates here
-  //       call.on(transcriptionstarted, () => {
-  //         console.log("Transcription started");
-  //       });
-
-  //       call.on("transcription.updated", (event: any) => {
-  //         const transcriptionText = event.data.text; // Assuming this structure
-  //         setTranscription((prev) => [...prev, transcriptionText]); // Add to state
-  //         console.log(`Received transcription: ${transcriptionText}`);
-  //       });
-
-  //       call.on("transcription.stopped", () => {
-  //         console.log("Transcription stopped");
-  //       });
-  //     }
-  //   }
-  // }, [call]);
-
-  // const { useMicrophoneState }: any = useCallStateHooks();
-  // console.log(useMicrophoneState);
-
-
-
-  const { useMicrophoneState } = useCallStateHooks();
-  let microphone, isMute;
-
-
-
-  // console.log(`Microphone is ${isMute ? "off" : "on"}`);
-
-  const { user } = useAuth();
+  const { user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    const initializeGuestClient = async (
-      guestUserId: string,
-      username: string
+    const initializeClient = async (
+      guestUserId?: string,
+      username?: string
     ) => {
       try {
-        const response = await axios.get(
-          `${base_url}/token/get-token-guest?guestId=${guestUserId}`
+        const response = await axiosInstance.get(
+          `/token/get-token-${guestUserId ? "guest" : "user"}?${
+            guestUserId ? `guestId=${guestUserId}` : `userId=${user?._id}`
+          }`
         );
-        console.log(response);
 
         const apiKey = process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY;
         if (!apiKey) {
           throw new Error("Stream API key not set");
         }
 
-        const client = new StreamVideoClient({
+        const streamClient = new StreamVideoClient({
           apiKey,
-          user: { id: guestUserId, name: username },
+          user: {
+            id: guestUserId || user?._id,
+            name: username || user?.userName || user?._id,
+          },
           tokenProvider: () => Promise.resolve(response.data.token),
         });
 
-        setClient(client);
+        setClient(streamClient);
       } catch (error) {
-        console.error("Error initializing guest client:", error);
+        console.error("Error initializing client:", error);
       }
     };
 
-    if (!user && username) {
-      const guestUserId = `guest_${Date.now()}`;
-      initializeGuestClient(guestUserId, username);
-    } else if (user) {
-      const initializeClient = async () => {
-        const apiKey = process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY;
-        if (!apiKey) {
-          throw new Error("Stream API key not set");
-        }
-
-        const client = new StreamVideoClient({
-          apiKey,
-          user: {
-            id: user._id,
-            name: user.userName || user._id,
-          },
-          tokenProvider: async () => {
-            const response = await axios.get(
-              `${base_url}/token/get-token-user?userId=${user._id}`
-            );
-            return response.data.token;
-          },
-        });
-
-        setClient(client);
-      };
-
+    if (user) {
       initializeClient();
+    } else if (username) {
+      const guestUserId = `guest_${Date.now()}`;
+      initializeClient(guestUserId, username);
     }
   }, [user, username]);
 
@@ -145,18 +79,23 @@ export default function MeetingPage({ id }: MeetingPageProps) {
 
     setLoading(true);
 
-    const call = client.call("default", id);
-    await call.join();
-    setCall(call);
-    setLoading(false);
+    try {
+      const call = client.call("default", id);
+      await call.join(); // Join the call
+      setCall(call);
+    } catch (error) {
+      console.error("Error joining meeting:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleLeaveMeeting = async () => {
-    await call?.leave({ reject: true });
+  const handleLeaveMeeting = () => {
+    call?.leave({ reject: true });
     router.push("/");
   };
 
-  if (!call) {
+  if (!client || !call) {
     return (
       <div className="flex flex-col items-center justify-center space-y-4">
         {!user && (
@@ -168,27 +107,30 @@ export default function MeetingPage({ id }: MeetingPageProps) {
             className="input-class"
           />
         )}
-
-        {loading ? (
-          <Loader2 className="mx-auto animate-spin" />
-        ) : (
-          <button
-            onClick={handleJoinMeeting}
-            disabled={loading || (!user && !username)}
-          >
-            Join meeting
-          </button>
-        )}
+        <button
+          onClick={handleJoinMeeting}
+          disabled={loading || (!user && !username)}
+        >
+          {loading ? (
+            <Loader2 className="mx-auto animate-spin" />
+          ) : (
+            "Join meeting"
+          )}
+        </button>
       </div>
     );
   }
 
   return (
-    <StreamTheme className="space-y-3 p-4">
-      <StreamCall call={call}>
-        <SpeakerLayout />
-        <CallControls onLeave={() => handleLeaveMeeting()} />
-      </StreamCall>
-    </StreamTheme>
+    <StreamVideo client={client}>
+      <StreamTheme className="space-y-3">
+        <StreamCall call={call}>
+          <MeetingScreen />
+        </StreamCall>
+        <h2>
+          Meeting Link: {`${process.env.NEXT_PUBLIC_BASE_URI}/meeting/${id}`}
+        </h2>
+      </StreamTheme>
+    </StreamVideo>
   );
 }
