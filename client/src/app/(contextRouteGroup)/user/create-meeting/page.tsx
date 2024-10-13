@@ -362,7 +362,7 @@ interface MeetingLinkProps {
 }
 
 function MeetingLink({ call }: MeetingLinkProps) {
-  const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URI}/meeting/${call.id}`;
+  const meetingLink = `http://localhost:3000/user/meeting/${call.id}`;
 
   return (
     <div className="mt-6 bg-gray-800 rounded-md p-4 w-full max-w-md">
