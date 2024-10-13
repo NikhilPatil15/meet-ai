@@ -1,7 +1,8 @@
 
 import { Metadata } from "next";
 import MeetingPage from "./MeetingPage";
-
+import RootLayout from "./layout";
+import { cn } from '@/lib/utils';
 
 interface PageProps {
   params: { id: string };

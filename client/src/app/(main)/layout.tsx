@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "../../styles/globals.css";
 import ClientProvider from "../ClientProvider";
 import { Providers } from "../providers";
+import 'regenerator-runtime/runtime';
 
 const inter = Inter({ subsets: ["latin"] });
 
