@@ -192,6 +192,20 @@ const logoutUser = asyncHandler(async (req: any, res: Response) => {
     .json(new ApiResponse(200, {}, "user loggedout successfully"));
 });
 
+const getSystemUsers = asyncHandler(async (req: any, res: Response) => {
+  const userId = req?.user?.id;
+
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).json(new ApiResponse(400, null, "Invalid user ID"));
+  }
+
+  const users = await User.find({ _id: { $ne: userId } }).select("-password -refreshToken -OauthId -fullName -createdAt -updatedAt -__v");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(201, users, "Users fetched successfully"));
+});
+
 const refreshAccessToken = asyncHandler(async (req: any, res: Response) => {
   const incomingRefreshToken: any =
     req.cookies.refreshToken || req.body.refreshToken;
@@ -200,42 +214,42 @@ const refreshAccessToken = asyncHandler(async (req: any, res: Response) => {
     throw new ApiError(401, "unauthorized request");
   }
 
-    const decodedToken: any = jwt.verify(
-      incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET as string
+  const decodedToken: any = jwt.verify(
+    incomingRefreshToken,
+    process.env.REFRESH_TOKEN_SECRET as string
+  );
+
+  const user = await User.findById(decodedToken?._id);
+
+  if (!user) {
+    throw new ApiError(401, "Invalid refresh token");
+  }
+
+  if (incomingRefreshToken !== user?.refreshToken) {
+    throw new ApiError(401, "Refresh token is expired or used");
+  }
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  const {
+    accessToken,
+    refreshToken: newRefreshToken,
+  } = await generateAccessAndRefreshToken(user._id);
+
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", newRefreshToken, options)
+    .json(
+      new ApiResponse(
+        200,
+        { accessToken, refreshToken: newRefreshToken },
+        "Access token refreshed"
+      )
     );
-
-    const user = await User.findById(decodedToken?._id);
-
-    if (!user) {
-      throw new ApiError(401, "Invalid refresh token");
-    }
-
-    if (incomingRefreshToken !== user?.refreshToken) {
-      throw new ApiError(401, "Refresh token is expired or used");
-    }
-
-    const options = {
-      httpOnly: true,
-      secure: true,
-    };
-
-    const {
-      accessToken,
-      refreshToken: newRefreshToken,
-    } = await generateAccessAndRefreshToken(user._id);
-
-    return res
-      .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", newRefreshToken, options)
-      .json(
-        new ApiResponse(
-          200,
-          { accessToken, refreshToken: newRefreshToken },
-          "Access token refreshed"
-        )
-      );
 });
 
 const getUser = asyncHandler(async (req: any, res: Response) => {
@@ -505,12 +519,10 @@ const getScheduleMeetings = asyncHandler(async (req: any, res: Response) => {
   const userId = req.user._id;
 
   console.log(userId);
-  
 
   const userObjectId = new ObjectId(userId);
 
   console.log(userObjectId);
-  
 
   const meetings = await Meeting.aggregate([
     {
@@ -523,17 +535,18 @@ const getScheduleMeetings = asyncHandler(async (req: any, res: Response) => {
             ],
           },
           {
-            status: "scheduled"
-          }
+            status: "scheduled",
+          },
         ],
       },
-      
     },
   ]);
 
   console.log(meetings);
 
-  return res.status(200).json(new ApiResponse(201, meetings, "Scheduled meetings fetched"))
+  return res
+    .status(200)
+    .json(new ApiResponse(201, meetings, "Scheduled meetings fetched"));
 });
 
 const setOauthCookies = asyncHandler(async (req: any, res: Response) => {
@@ -557,6 +570,7 @@ export {
   registerUser,
   loginUser,
   logoutUser,
+  getSystemUsers,
   getUser,
   refreshAccessToken,
   updatePassword,
@@ -569,5 +583,5 @@ export {
   getMeetingHistory,
   uploadAvatar,
   verifyUser,
-  getScheduleMeetings
+  getScheduleMeetings,
 };

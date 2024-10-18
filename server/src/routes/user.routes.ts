@@ -2,6 +2,7 @@ import { query, Router } from "express";
 import {
   getMeetingHistory,
   getScheduleMeetings,
+  getSystemUsers,
   getUser,
   loginUser,
   logoutUser,
@@ -19,6 +20,7 @@ import {
 import { verifyJWT } from "../middlewares/auth.middleware";
 import passport from "passport";
 import { upload } from "../middlewares/multer.middleware";
+import { getSystemErrorMap } from "util";
 
 const userRouter = Router();
 
@@ -56,6 +58,7 @@ userRouter.use(verifyJWT);
 /* Protected routes */
 userRouter.route("/get-user").get(getUser);
 userRouter.route("/logout").get(logoutUser);
+userRouter.route("/get-all-users").get(getSystemUsers)
 userRouter.route("/update-password").put(updatePassword);
 userRouter
   .route("/upload-avatar")
