@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import "@/styles/globals.css"
 import { Box } from "@mui/material";
@@ -9,16 +8,10 @@ import MeetingTypeList from "@/components/DashBoard/Homepage/MeetingTypeList";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useUserContext } from "@/Context/userContext";
-import CardSkeleton from "@/components/DashBoard/Homepage/CardSkeleton"; // Ensure this import is correct
-import CardSkeleton2 from "@/components/DashBoard/Homepage/CardSkeleton2"; // Import the updated CardSkeleton2
+import CardSkeleton from "@/components/DashBoard/Homepage/CardSkeleton";
+import CardSkeleton2 from "@/components/DashBoard/Homepage/CardSkeleton2";
 import useAuth from "@/hooks/useAuth";
 import ProfileInfo from "./Profile";
-
-interface User {
-  oAuthId: string;
-  fullName: string;
-  userName: string;
-}
 
 const HomePage: React.FC = () => {
   const { token } = useUserContext();
@@ -31,31 +24,8 @@ const HomePage: React.FC = () => {
       setLoading(false);
     };
 
-    loadContent(); // This should be called immediately after the function definition
-  }, []); // Add an empty dependency array to run this effect once
-
-  // useEffect(() => { //  no neeed of this
-  //   async function fetchUserDetails() {
-  //     try {
-  //       const response = await axios.get('http://localhost:5000/api/v1/user/get-user', {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`
-  //         }
-  //       });
-
-  //       console.log("Response: ", response.data.data);
-  //       setUser(response.data.data.FetchedUser);
-  //     } catch (error) {
-  //       console.error("Failed to fetch user details:", error);
-  //     }
-  //   }
-
-  //   if (token) {
-  //     fetchUserDetails();
-  //   }
-  // }, [token]);
-
-  console.log("User: ", user);
+    loadContent();
+  }, []);
 
   return (
     <div className="lg:ml-[190px] p-3 lg:pl-16 md:pl-28 sm:pl-28">
@@ -73,7 +43,9 @@ const HomePage: React.FC = () => {
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <h1 className="mb-6 text-3xl font-bold">Meetings</h1>
       </Box>
-      {loading ? <Skeleton height={100} /> : <ProfileInfo />}
+
+      {/* Pass loading state to ProfileInfo */}
+      <ProfileInfo loading={loading} />
 
       {/* Meeting Types */}
       <MeetingTypeList />
@@ -143,8 +115,7 @@ const HomePage: React.FC = () => {
                 className="bg-gray-800 rounded-xl shadow-md flex flex-col justify-between"
               >
                 <Box display="flex" alignItems="center" gap={3}>
-                  <Image src={meeting.icon} alt="icon" width={28} height={28} />
-
+                <Image src={meeting.icon} alt="icon" width={28} height={28} />
                   <div className="flex flex-col gap-1">
                     <h4 className="text-xl font-bold text-white">
                       {meeting.title}

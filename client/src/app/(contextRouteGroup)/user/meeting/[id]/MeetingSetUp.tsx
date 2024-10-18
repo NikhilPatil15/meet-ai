@@ -1,7 +1,11 @@
-// In `MeetingSetUp.tsx` or `MeetingSetUp.jsx`
 import React, { useEffect, useState } from 'react';
 import { Button } from '@mui/material';
-import { DeviceSettings, useCall, useCallStateHooks, VideoPreview } from '@stream-io/video-react-sdk';
+import {
+  DeviceSettings,
+  useCall,
+  useCallStateHooks,
+  VideoPreview,
+} from '@stream-io/video-react-sdk';
 import AudioVolumeIndicator from '@/components/Meeting/AudioVolumeIndicator'; // Ensure path is correct
 import PermissionPrompt from '@/components/Meeting/PermissionPrompt';
 
@@ -12,29 +16,34 @@ interface SetupUIProps {
 const MeetingSetUp = ({ onSetUpComplete }: SetupUIProps) => {
   const call = useCall();
   const { useMicrophoneState, useCameraState } = useCallStateHooks();
-  const [micCamDisabled, setMicCamDisabled] = useState(false);
+  const [micDisabled, setMicDisabled] = useState(false);
+  const [camDisabled, setCamDisabled] = useState(false);
 
   useEffect(() => {
     const manageDevices = async () => {
       if (call) {
         try {
-          if (micCamDisabled) {
-            // Disable camera and microphone
-            await call.camera.disable();
+          // Manage microphone
+          if (micDisabled) {
             await call.microphone.disable();
           } else {
-            // Enable camera and microphone
-            await call.camera.enable();
             await call.microphone.enable();
           }
+
+          // Manage camera
+          if (camDisabled) {
+            await call.camera.disable();
+          } else {
+            await call.camera.enable();
+          }
         } catch (error) {
-          console.error("Error managing devices: ", error);
+          console.error('Error managing devices: ', error);
         }
       }
     };
 
     manageDevices();
-  }, [micCamDisabled, call]);
+  }, [micDisabled, camDisabled, call]);
 
   const micState = useMicrophoneState();
   const camState = useCameraState();
@@ -53,15 +62,26 @@ const MeetingSetUp = ({ onSetUpComplete }: SetupUIProps) => {
         <DeviceSettings />
       </div>
 
-      {/* Checkbox to disable/enable microphone and camera */}
+      {/* Checkbox to disable/enable microphone */}
       <label className='flex items-center gap-2 font-medium'>
         <input
-          type="checkbox"
-          checked={micCamDisabled}
-          onChange={(e) => setMicCamDisabled(e.target.checked)}
+          type='checkbox'
+          checked={micDisabled}
+          onChange={(e) => setMicDisabled(e.target.checked)}
         />
-        Join with mic and camera off
+        Join with microphone off
       </label>
+
+      {/* Checkbox to disable/enable camera */}
+      <label className='flex items-center gap-2 font-medium'>
+        <input
+          type='checkbox'
+          checked={camDisabled}
+          onChange={(e) => setCamDisabled(e.target.checked)}
+        />
+        Join with camera off
+      </label>
+
       <Button onClick={onSetUpComplete}>Join Meeting</Button>
     </div>
   );
