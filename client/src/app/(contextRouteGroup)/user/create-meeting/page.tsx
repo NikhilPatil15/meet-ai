@@ -102,11 +102,11 @@ export default function CreateMeetingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center py-10 px-4">
+    <div className="min-h-screen bg-blueAccent-1001 flex flex-col items-center py-10 px-4">
       <h1 className="text-center text-3xl font-extrabold text-white mb-8">
         Welcome, {user.userName}!
       </h1>
-      <div className="w-full max-w-md bg-gray-800 rounded-xl shadow-lg p-8 space-y-6">
+      <div className="w-full max-w-md bg-blueAccent-1002 rounded-xl shadow-lg p-8 space-y-6">
         <h2 className="text-2xl font-bold text-white">Create a New Meeting</h2>
         <TitleInput value={titleInput} onChange={setTitleInput} />
         <DescriptionInput
@@ -122,18 +122,22 @@ export default function CreateMeetingPage() {
           setActiveType={setActiveType}
         />
 
-        <button
-          onClick={createMeeting}
-          className="w-full bg-purpleAccent-200 hover:bg-purpleAccent-100 text-white font-semibold py-2 px-4 rounded-md shadow-md transition transform hover:scale-105 duration-300"
-        >
-          Create Meeting
-        </button>
-        <button
-          className="w-full  bg-blue-900 hover:bg-blue-2 text-white font-semibold py-2 px-4 rounded-md shadow-md transition transform hover:scale-105 duration-300"
-          onClick={() => setJoin(true)}
-        >
-          Join a Meeting
-        </button>
+<button
+  onClick={createMeeting}
+  className="w-full bg-purpleAccent-200 hover:bg-purpleAccent-100 text-white font-semibold py-3 px-5 rounded-lg shadow-md transition transform hover:scale-105 duration-300"
+  style={{ padding: '12px 24px', borderRadius: '8px' }} // Adjust padding and border-radius
+>
+  Create Meeting
+</button>
+
+<button
+  className="w-full bg-blue-900 hover:bg-blue-2 text-white font-semibold py-3 px-5 rounded-lg shadow-md transition transform hover:scale-105 duration-300"
+  onClick={() => setJoin(true)}
+  style={{ padding: '12px 24px', borderRadius: '8px' }} // Adjust padding and border-radius
+>
+  Join a Meeting
+</button>
+
         {join && (
           <div className="mt-4">
             <input
