@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { FiEdit } from "react-icons/fi";
 
 export default function CreateMeetingPage() {
   const [titleInput, setTitleInput] = useState("");
@@ -20,10 +21,14 @@ export default function CreateMeetingPage() {
   const [activeType, setActiveType] = useState(false);
   const [participantsInput, setParticipantsInput] = useState("");
   const [call, setCall] = useState<Call>();
-  const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
-  const [allUsers, setAllUsers] = useState<{ email: string; userName: string }[]>([]);
+  const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
+    []
+  );
+  const [allUsers, setAllUsers] = useState<any>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const [join, setJoin] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
   const [input, setInput] = useState<string>("");
 
   const client = useStreamVideoClient();
@@ -35,16 +40,16 @@ export default function CreateMeetingPage() {
   
 
   useEffect(() => {
-    // Fetch all users for participants selection
-    // This is a placeholder. Replace with your actual data fetching logic.
     const fetchUsers = async () => {
-      // Example users
-      const users = [
-        { email: "john.doe@example.com", userName: "John Doe" },
-        { email: "jane.smith@example.com", userName: "Jane Smith" },
-        { email: "alice.wonderland@example.com", userName: "Alice Wonderland" },
-      ];
-      setAllUsers(users);
+      // const users = [
+      //   { email: "john.doe@example.com", userName: "John Doe" },
+      //   { email: "jane.smith@example.com", userName: "Jane Smith" },
+      //   { email: "alice.wonderland@example.com", userName: "Alice Wonderland" },
+      // ];
+
+      const res = await axiosInstance.get("/user/get-all-users");
+      console.log(res.data.data);
+      setAllUsers(res.data.data);
     };
     fetchUsers();
   }, []);
@@ -63,20 +68,17 @@ export default function CreateMeetingPage() {
         },
       });
       setCall(call);
-      if(call){
-        console.log(call);
-        
-        const res = await axiosInstance.post("http://localhost:5000/api/v1/meeting/create-meeting",{
+      if (call) {
+        const res = await axiosInstance.post("meeting/create-meeting", {
           title: titleInput,
           description: descriptionInput,
-          participants: participantsInput,
+          participants: selectedParticipants,
           scheduleTime: startTimeInput,
           status: activeTime ? "scheduled" : "not scheduled",
           roomId: call?.cid,
-          type: activeType ? "private" : "public"
-        })
+          type: activeType ? "private" : "public",
+        });
         console.log(res.data.data);
-        
       }
       // router.push(`meeting/${call?.cid}`);
     } catch (error) {
@@ -92,6 +94,12 @@ export default function CreateMeetingPage() {
       alert("Please enter a valid meeting ID.");
     }
   };
+
+  const filteredUsers = allUsers.filter(
+    (user: any) =>
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.userName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (!client || !user) {
     return (
@@ -120,6 +128,7 @@ export default function CreateMeetingPage() {
           setSelectedParticipants={setSelectedParticipants}
           activeType={activeType}
           setActiveType={setActiveType}
+          setShowModal={setShowModal}
         />
 
 <button
@@ -157,6 +166,59 @@ export default function CreateMeetingPage() {
         )}
       </div>
       {call && <MeetingLink call={call} />}
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-[#313131] p-6 rounded shadow-lg max-h-[80vh] overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4">Invite Participants</h2>
+            <input
+              type="text"
+              placeholder="Search by email or username"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mb-4 w-full p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <div className="flex flex-col">
+              {filteredUsers.map((user: any) => (
+                <label
+                  key={user.email}
+                  className="flex items-center gap-2 mb-2"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedParticipants.includes(user.email)}
+                    onChange={() => {
+                      const newSelected = selectedParticipants.includes(
+                        user.email
+                      )
+                        ? selectedParticipants.filter(
+                            (email) => email !== user.email
+                          )
+                        : [...selectedParticipants, user.email];
+                      setSelectedParticipants(newSelected);
+                    }}
+                  />
+                  {user.userName} ({user.email})
+                </label>
+              ))}
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setShowModal(false)}
+                className="mr-2 px-4 py-2 text-red-600 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-blue-500 text-white rounded"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -290,9 +352,10 @@ function StartTimeInput({ value, onChange, activeTime, setActiveTime }: StartTim
 interface ParticipantsInputProps {
   users: { email: string; userName: string }[];
   selectedParticipants: string[];
-  setSelectedParticipants: (emails: string[]) => void;
+  setSelectedParticipants: (participants: string[]) => void;
   activeType: boolean;
-  setActiveType: (value: boolean)=>void;
+  setActiveType: (value: boolean) => void;
+  setShowModal: (value: boolean) => void;
 }
 
 function ParticipantsInput({
@@ -301,15 +364,9 @@ function ParticipantsInput({
   setSelectedParticipants,
   activeType,
   setActiveType,
+  setShowModal,
 }: ParticipantsInputProps) {
-
-  const toggleSelection = (email: string) => {
-    if (selectedParticipants.includes(email)) {
-      setSelectedParticipants(selectedParticipants.filter((e) => e !== email));
-    } else {
-      setSelectedParticipants([...selectedParticipants, email]);
-    }
-  };
+  console.log(selectedParticipants);
 
   return (
     <div className="block">
@@ -331,29 +388,28 @@ function ParticipantsInput({
           <input
             type="radio"
             checked={activeType}
-            onChange={() => setActiveType(true)}
+            onChange={(e) => {
+              setActiveType(e.target.checked);
+              if (!e.target.checked) {
+                setSelectedParticipants([]);
+              }
+              if (e.target.checked) setShowModal(true);
+            }}
             className="form-radio h-5 w-5 text-indigo-600"
           />
-          <span className="text-gray-300">Invite specific people</span>
+          <span className="text-gray-300">Private Meeting</span>
         </label>
       </div>
       {activeType && (
-        <div className="mt-2">
-          <span className="text-white font-medium mb-2 block">Select Participants</span>
-          <div className="max-h-40 overflow-y-auto p-2 bg-gray-700 rounded-md border border-gray-600">
-            {users.map((user) => (
-              <label key={user.email} className="flex items-center gap-2 mb-2">
-                <input
-                  type="checkbox"
-                  checked={selectedParticipants.includes(user.email)}
-                  onChange={() => toggleSelection(user.email)}
-                  className="form-checkbox h-5 w-5 text-indigo-600"
-                />
-                <span className="text-gray-300">
-                  {user.userName} ({user.email})
-                </span>
-              </label>
-            ))}
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-center">
+            <div className="text-white">
+              Selected Participants: {selectedParticipants?.length}
+            </div>
+            <FiEdit
+              onClick={() => setShowModal(true)}
+              className="text-white cursor-pointer"
+            />
           </div>
         </div>
       )}
