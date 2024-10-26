@@ -142,7 +142,7 @@ const addJoinedParticipant: any = asyncHandler(
   }
 );
 
-const endMeeting = asyncHandler(async (req: any, res: Response) => {
+const endMeeting: any = asyncHandler(async (req: any, res: Response) => {
   const { meetingId } = req.params;
   const meeting = await Meeting.findById(meetingId);
 
@@ -170,4 +170,16 @@ const endMeeting = asyncHandler(async (req: any, res: Response) => {
     .json(new ApiResponse(201, meeting, "Meeting ended successfully"));
 });
 
-export { createMeeting, addJoinedParticipant, endMeeting };
+const getMeeting: any = asyncHandler(async (req: any, res: Response) => {
+  const { id } = req.params;
+  const meeting = await Meeting.findById(id);
+
+  if (!meeting) {
+    throw new ApiError(404, "Meeting not found");
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(201, meeting, "Meeting found successfully"));
+});
+
+export { createMeeting, addJoinedParticipant, endMeeting, getMeeting };
