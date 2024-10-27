@@ -25,6 +25,36 @@ export const UpcomingMeet = [
     icon: icon, // Replace with actual icon path or import
     // Replace with actual link
   },
+  {
+    title: "It Skills",
+    date: "3:00 PM",
+    icon: icon, // Replace with actual icon path or import
+    // Replace with actual link
+  },
+  {
+    title: "It Skills",
+    date: "3:00 PM",
+    icon: icon, // Replace with actual icon path or import
+    // Replace with actual link
+  },
+  {
+    title: "It Skills",
+    date: "3:00 PM",
+    icon: icon, // Replace with actual icon path or import
+    // Replace with actual link
+  },
+  {
+    title: "It Skills",
+    date: "3:00 PM",
+    icon: icon, // Replace with actual icon path or import
+    // Replace with actual link
+  },
+  {
+    title: "It Skills",
+    date: "3:00 PM",
+    icon: icon, // Replace with actual icon path or import
+    // Replace with actual link
+  },
 ];
 export const UpcomingMeet2 = [
   {
