@@ -27,11 +27,11 @@ const MeetingCard = ({
 
   return (
     <section
-      className={`relative flex min-h-[300px] w-full flex-col justify-between rounded-xl px-6 py-8 xl:max-w-[568px] transition-all duration-300 ${
+      className={`relative flex min-h-full max-w-full flex-col justify-between rounded-xl px-6 py-8 xl:max-w-[13rem] transition-all duration-300 ${
         isHovered ? "bg-blue-500 shadow-lg" : "bg-gray-800"
       }`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      // onMouseEnter={() => setIsHovered(true)}
+      // onMouseLeave={() => setIsHovered(false)}
     >
       <Image
         src={icon}
@@ -42,11 +42,11 @@ const MeetingCard = ({
       />
 
       <article className="flex flex-col items-center justify-center text-center gap-2 mt-4">
-        <h1 className="text-2xl font-bold">{title}</h1>
+        <h1 className="text-xl font-bold">{title}</h1>
         <p className="text-base font-normal">{date}</p>
       </article>
 
-      <article className="flex flex-col items-center justify-center mt-6">
+      <article className="flex flex-col items-center justify-center mt-4">
         <div className="relative flex justify-center w-full">
           <div className="flex space-x-4">
             {avatarImages.slice(0, avatarCount).map((img, index) => (
@@ -64,7 +64,7 @@ const MeetingCard = ({
 
         <button
           onClick={handleClick}
-          className={`mt-6 rounded-lg px-8 py-3 text-lg font-semibold transition-all duration-300 ${
+          className={`mt-4 rounded-lg px-4 py-2 text-lg font-semibold transition-all duration-300 ${
             isHovered
               ? "bg-white text-blue-500 shadow-lg"
               : "bg-blue-500 text-white"
