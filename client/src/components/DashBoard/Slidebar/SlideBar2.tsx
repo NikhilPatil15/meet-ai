@@ -30,6 +30,8 @@ const Sidebar = () => {
       {/* Sidebar Navigation */}
       <div className="flex flex-1 flex-col gap-6">
         {sidebarLinks.map(({ route, imgURL, label }) => {
+          console.log(pathname);
+          
           const isActive = pathname === route || pathname.startsWith(`${route}/`);
 
           return (
