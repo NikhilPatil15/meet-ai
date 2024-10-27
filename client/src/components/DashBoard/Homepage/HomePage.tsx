@@ -51,7 +51,7 @@ const HomePage: React.FC = () => {
       <MeetingTypeList />
 
       {/* Upcoming Meetings */}
-      <Box
+      {/* <Box
         id="upcoming"
         display="flex"
         alignItems="center"
@@ -86,7 +86,7 @@ const HomePage: React.FC = () => {
                 />
               </Box>
             ))}
-      </Box>
+      </Box> */}
 
       {/* Meeting History */}
       <Box
