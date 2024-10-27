@@ -9,21 +9,25 @@ export const sidebarLinks = [
     imgURL: home, // Use the imported SVG directly
     route: '/user/dashboard',
     label: 'Home',
+    r: ''
   },
   {
     imgURL: join_meeting, // Use the imported icon directly
     route: '/profile',
     label: 'Profile',
+    r: ''
   },
   {
     imgURL: upcoming, // Use the imported SVG directly
     route: '#upcoming',
     label: 'Upcoming',
+    r: ''
   },
   {
     imgURL: previous, // Use the imported SVG directly
     route: '/user/dashboard/history',
     label: 'Previous',
+    r: ''
   },
 ];
 
