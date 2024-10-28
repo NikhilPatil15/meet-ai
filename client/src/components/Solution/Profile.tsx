@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useState } from 'react';
 
 const ProfileEdit = () => {
@@ -9,9 +8,7 @@ const ProfileEdit = () => {
     city: 'New York',
     state: 'NY',
     profileImage: '/default-profile.png',
-    roles: '',
-    position: 'Web Producer - Web Specialist',
-    education: 'Columbia University - New York',
+    description: 'Developer, Admin',
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -35,7 +32,7 @@ const ProfileEdit = () => {
     const { name, value } = e.target;
     setUser((prevUser) => ({
       ...prevUser,
-      [name as keyof typeof prevUser]: value,
+      [name]: value,
     }));
   };
 
@@ -80,13 +77,13 @@ const ProfileEdit = () => {
   };
 
   return (
-    <main className="flex-1 p-6 min-h-screen flex justify-center items-center">
+    <main className="flex-1 p-6 bg-black min-h-screen flex justify-center items-center">
       <div className="bg-gray-800 p-10 rounded-xl shadow-lg max-w-lg w-full relative text-center">
         {/* Profile Image */}
         <div className="absolute left-1/2 transform -translate-x-1/2 -top-20">
           <div
             className="w-40 h-40 rounded-full bg-cover bg-center border-4 border-white shadow-lg"
-            style={{ backgroundImage: `url(${user.profileImage})` }} // Corrected style syntax
+            style={{ backgroundImage: `url(${user.profileImage})` }}
           ></div>
         </div>
 
@@ -107,7 +104,7 @@ const ProfileEdit = () => {
                       value={user[field as keyof typeof user]}
                       onChange={handleChange}
                       className="mt-1 w-full p-3 bg-gray-700 text-white rounded-md"
-                      placeholder={`Enter ${field.charAt(0).toUpperCase() + field.slice(1)}`} // Fixed placeholder syntax
+                      placeholder={`Enter ${field}`}
                     />
                   </div>
                 ))}
@@ -125,7 +122,7 @@ const ProfileEdit = () => {
                       value={user[field as keyof typeof user]}
                       onChange={handleChange}
                       className="mt-1 w-full p-3 bg-gray-700 text-white rounded-md"
-                      placeholder={`Enter ${field.charAt(0).toUpperCase() + field.slice(1)}`} // Fixed placeholder syntax
+                      placeholder={`Enter ${field}`}
                     />
                   </div>
                 ))}
@@ -145,44 +142,16 @@ const ProfileEdit = () => {
                 />
               </div>
               <div>
-                <label htmlFor="roles" className="block text-sm font-medium text-white">
-                  Roles
+                <label htmlFor="description" className="block text-sm font-medium text-white">
+                  Description
                 </label>
                 <textarea
-                  id="roles"
-                  name="roles"
-                  value={user.roles}
+                  id="description"
+                  name="description"
+                  value={user.description}
                   onChange={handleChange}
                   className="mt-1 w-full p-3 bg-gray-700 text-white rounded-md"
-                  placeholder="Enter roles (comma separated)"
-                />
-              </div>
-              <div>
-                <label htmlFor="position" className="block text-sm font-medium text-white">
-                  Position
-                </label>
-                <input
-                  type="text"
-                  id="position"
-                  name="position"
-                  value={user.position}
-                  onChange={handleChange}
-                  className="mt-1 w-full p-3 bg-gray-700 text-white rounded-md"
-                  placeholder="Enter Position"
-                />
-              </div>
-              <div>
-                <label htmlFor="education" className="block text-sm font-medium text-white">
-                  Education
-                </label>
-                <input
-                  type="text"
-                  id="education"
-                  name="education"
-                  value={user.education}
-                  onChange={handleChange}
-                  className="mt-1 w-full p-3 bg-gray-700 text-white rounded-md"
-                  placeholder="Enter Education"
+                  placeholder="Enter description"
                 />
               </div>
             </div>
@@ -194,8 +163,7 @@ const ProfileEdit = () => {
               <p className="text-gray-400 mb-4">
                 {user.city}, {user.state}
               </p>
-              <p className="text-white">{user.position}</p>
-              <p className="text-gray-400 text-sm mt-1 mb-4">{user.education}</p>
+              <p className="text-white">{user.description}</p>
               {/* Edit Button */}
               <button
                 onClick={handleEditToggle}
@@ -219,7 +187,7 @@ const ProfileEdit = () => {
             </button>
             <button
               onClick={handleSave}
-              className={`px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 ${loading ? 'cursor-not-allowed' : ''}`} // Corrected template literal syntax
+              className={`px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 ${loading ? 'cursor-not-allowed' : ''}`}
               disabled={loading}
             >
               {loading ? 'Saving...' : 'Save'}

@@ -12,7 +12,7 @@ export const sidebarLinks = [
   },
   {
     imgURL: join_meeting, // Use the imported icon directly
-    route: '/profile',
+    route: '/user/dashboard/edit-profile',
     label: 'Profile',
   },
   {
