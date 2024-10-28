@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "@/styles/globals.css"
+import "@/styles/globals.css";
 import { Box } from "@mui/material";
 import Image from "next/image";
 import { UpcomingMeet, UpcomingMeet2 } from "@/constants/UpcomingMeet";
@@ -51,7 +51,7 @@ const HomePage: React.FC = () => {
       <MeetingTypeList />
 
       {/* Upcoming Meetings */}
-      <Box
+      {/* <Box
         id="upcoming"
         display="flex"
         alignItems="center"
@@ -86,10 +86,10 @@ const HomePage: React.FC = () => {
                 />
               </Box>
             ))}
-      </Box>
+      </Box> */}
 
       {/* Meeting History */}
-      <Box
+      {/* <Box
         id="history"
         display="flex"
         alignItems="center"
@@ -128,7 +128,17 @@ const HomePage: React.FC = () => {
                 </p>
               </Box>
             ))}
+      </Box> */}
+
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        className="mt-12"
+      >
+        <h1 className="mb-4 text-3xl font-bold">Last 7 Days</h1>
       </Box>
+      
     </div>
   );
 };

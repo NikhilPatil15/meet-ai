@@ -17,8 +17,9 @@ export const sidebarLinks = [
   },
   {
     imgURL: upcoming, // Use the imported SVG directly
-    route: '#upcoming',
+    route: '/user/dashboard/upcoming',
     label: 'Upcoming',
+    r: ''
   },
   {
     imgURL: previous, // Use the imported SVG directly

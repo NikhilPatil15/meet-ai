@@ -194,7 +194,7 @@ function Navbar() {
       <div
         className={`fixed inset-0 z-40 transition-opacity duration-300 ${
           openNavigation
-            ? "opacity-100 md:opacity-0"
+            ? "opacity-100 lg:opacity-0 md:visible"
             : "opacity-0 pointer-events-none"
         }`}
       >
@@ -207,7 +207,7 @@ function Navbar() {
         <nav
           className={`fixed top-0 left-0 right-0 bottom-0 bg-black/80 flex flex-col items-center justify-center transition-transform duration-500 ease-in-out ${
             openNavigation ? "translate-x-0" : "translate-x-full"
-          } z-50 md:hidden`}
+          } z-50 md:flex lg:hidden`}
         >
           <div className="flex flex-col items-center mt-4">
             {navigation.map(
