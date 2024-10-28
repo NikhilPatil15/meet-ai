@@ -349,8 +349,9 @@ function StartTimeInput({ value, onChange, activeTime, setActiveTime }: StartTim
   );
 }
 
+
 interface ParticipantsInputProps {
-  users: { email: string; userName: string }[];
+  users: { email: string; userName: string; avatar?: string }[];
   selectedParticipants: string[];
   setSelectedParticipants: (participants: string[]) => void;
   activeType: boolean;
@@ -366,13 +367,21 @@ function ParticipantsInput({
   setActiveType,
   setShowModal,
 }: ParticipantsInputProps) {
-  console.log(selectedParticipants);
+  const [showModal, setLocalShowModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  // Filter users based on the search term
+  const filteredUsers = users.filter(
+    (user) =>
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.userName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="block">
-      <div className="text-white font-medium mb-2">Participants:</div>
-      <div className="flex items-center gap-4 mb-2">
-        <label className="flex items-center gap-2">
+      <div className="text-gray-100 font-medium mb-3">Participants:</div>
+      <div className="flex items-center gap-4 mb-4">
+        <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="radio"
             checked={!activeType}
@@ -380,42 +389,136 @@ function ParticipantsInput({
               setActiveType(false);
               setSelectedParticipants([]);
             }}
-            className="form-radio h-5 w-5 text-indigo-600"
+            className="form-radio h-5 w-5 text-green-500 focus:ring-green-400 focus:outline-none transition-transform duration-150 transform hover:scale-105"
           />
           <span className="text-gray-300">Anyone with the link</span>
         </label>
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="radio"
             checked={activeType}
             onChange={(e) => {
               setActiveType(e.target.checked);
-              if (!e.target.checked) {
-                setSelectedParticipants([]);
-              }
               if (e.target.checked) setShowModal(true);
             }}
-            className="form-radio h-5 w-5 text-indigo-600"
+            className="form-radio h-5 w-5 text-blue-500 focus:ring-blue-400 focus:outline-none transition-transform duration-150 transform hover:scale-105"
           />
           <span className="text-gray-300">Private Meeting</span>
         </label>
       </div>
+
       {activeType && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           <div className="flex justify-between items-center">
-            <div className="text-white">
-              Selected Participants: {selectedParticipants?.length}
+            <div className="text-gray-100">
+              Selected Participants: {selectedParticipants.length}
             </div>
             <FiEdit
               onClick={() => setShowModal(true)}
-              className="text-white cursor-pointer"
+              className="text-gray-100 cursor-pointer hover:text-blue-400 transition duration-150 transform hover:scale-105"
+              aria-label="Edit participants"
             />
+          </div>
+        </div>
+      )}
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-h-[80vh] w-full max-w-lg overflow-y-auto transform transition-all duration-200 scale-100 hover:scale-105 shadow-lg">
+            <h2 className="text-xl font-bold text-gray-200 mb-5">Invite Participants</h2>
+
+            {/* Search Bar */}
+            <input
+              type="text"
+              placeholder="Search by email or username"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 mb-4"
+              aria-label="Search participants"
+            />
+
+            {/* Participants List */}
+            <div className="max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((user) => (
+                  <label
+                    key={user.email}
+                    className={`flex items-center gap-2 p-3 rounded-md transition-all duration-150 cursor-pointer ${
+                      selectedParticipants.includes(user.email)
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-700 hover:bg-gray-600"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedParticipants.includes(user.email)}
+                      onChange={() => {
+                        const newSelected = selectedParticipants.includes(user.email)
+                          ? selectedParticipants.filter((email) => email !== user.email)
+                          : [...selectedParticipants, user.email];
+                        setSelectedParticipants(newSelected);
+                      }}
+                      className="form-checkbox h-5 w-5 text-teal-400 rounded-md focus:ring-teal-500"
+                      aria-label={`Select ${user.userName}`}
+                    />
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={user.avatar || "/default-avatar.png"}
+                        alt="User Avatar"
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div>
+                        <span className="font-semibold">{user.userName}</span>
+                        <span className="text-sm text-gray-400 block">{user.email}</span>
+                      </div>
+                    </div>
+                  </label>
+                ))
+              ) : (
+                <p className="text-gray-400 text-sm text-center">No participants found.</p>
+              )}
+            </div>
+
+            {/* Selected Count and Controls */}
+            <div className="mt-5 flex justify-between items-center">
+              <span className="text-gray-100 font-semibold">
+                Selected Participants: {selectedParticipants.length}
+              </span>
+              <button
+                onClick={() => setSelectedParticipants([])}
+                className="text-red-400 text-sm hover:underline focus:outline-none"
+                aria-label="Deselect all participants"
+              >
+                Deselect All
+              </button>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 text-red-400 hover:text-red-300 font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                aria-label="Cancel selection"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                aria-label="Confirm selection"
+              >
+                Confirm
+              </button>
+            </div>
           </div>
         </div>
       )}
     </div>
   );
 }
+
+
+
 
 interface MeetingLinkProps {
   call: Call;

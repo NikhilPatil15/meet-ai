@@ -40,6 +40,8 @@ module.exports = {
           11: "#1B1B2E",
           12: "#2E2A41",
           13: "#6C7275",
+          14:"#A28DFF",
+          15:"#08041A"
         },
         blueAccent: {
           100: "#e1e2fe",
