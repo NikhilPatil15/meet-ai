@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "@/styles/globals.css";
-import { Box } from "@mui/material";
+import { Box, Paper } from "@mui/material";
 import Image from "next/image";
 import { UpcomingMeet, UpcomingMeet2 } from "@/constants/UpcomingMeet";
 import MeetingCard from "@/components/DashBoard/meetingCard";
@@ -12,6 +12,7 @@ import CardSkeleton from "@/components/DashBoard/Homepage/CardSkeleton";
 import CardSkeleton2 from "@/components/DashBoard/Homepage/CardSkeleton2";
 import useAuth from "@/hooks/useAuth";
 import ProfileInfo from "./Profile";
+import { LineChart } from "@/components/specifics/Chart";
 
 const HomePage: React.FC = () => {
   const { token } = useUserContext();
@@ -138,7 +139,26 @@ const HomePage: React.FC = () => {
       >
         <h1 className="mb-4 text-3xl font-bold">Last 7 Days</h1>
       </Box>
-      
+      <Box>
+        <Paper
+          elevation={3}
+          sx={{
+            bgcolor: "transparent",
+            padding: "1rem",
+            borderRadius: "1rem",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: { xs: "100%", sm: "50%", lg:"100%" },
+            position: "relative",
+            maxWidth: "45rem",
+            height: "25rem",
+            margin: "0 !important",
+          }}
+        >
+          <LineChart value={[27, 3, 2, 1, 34, 1]} />
+        </Paper>
+      </Box>
     </div>
   );
 };
