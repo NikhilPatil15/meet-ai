@@ -9,7 +9,6 @@ const getLast7Days = () => {
       const dayDate=currentDate.clone().subtract(i,"days")
       const dayName = dayDate.format("dddd")
       last7Days.unshift(dayName)
-  
     }
     return last7Days
   };
