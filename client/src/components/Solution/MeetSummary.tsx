@@ -14,6 +14,11 @@ const MeetingSummary = () => {
   const [pdfFile, setPdfFile] = useState(null);
   const avatar = [
     "https://www.w3schools.com/howto/img_avatar.png",
+    "https://www.w3schools.com/howto/img_avatar.png",
+    "https://www.w3schools.com/howto/img_avatar.png",
+    "https://www.w3schools.com/howto/img_avatar.png",
+    "https://www.w3schools.com/howto/img_avatar.png",
+    "https://www.w3schools.com/howto/img_avatar.png",
     // Add more avatar URLs as needed
   ];
 
@@ -27,7 +32,7 @@ const MeetingSummary = () => {
   };
 
   return (
-    <div className="bg-gray-900 text-gray-300">
+    <div className="bg-gray-900 text-gray-300 w-full">
       <div className="container mx-auto p-6">
         {/* Hero Section */}
         <header className="text-center mb-8">
