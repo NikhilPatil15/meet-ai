@@ -1,12 +1,10 @@
-import { Avatar, AvatarGroup, Box, Stack, Typography } from "@mui/material";
+import { Avatar, AvatarGroup, Box, Stack } from "@mui/material";
 import React from "react";
 import { transformImage } from "@/lib/features";
 
-const AvatarCard = ({ avatar = [], max = 5 }) => {
-  const displayedAvatars = avatar.slice(0, max); 
-  const remainingCount = Math.max(avatar.length - max, 0); 
-
-  console.log("Remaining count:", remainingCount);
+const AvatarCard = ({ avatar = [], max = 5 }: any) => {
+  const displayedAvatars = avatar.slice(0, max);
+  const remainingCount = Math.max(avatar.length - max, 0);
 
   return (
     <Stack direction={"row"} spacing={0.5} alignItems="center">
@@ -17,7 +15,7 @@ const AvatarCard = ({ avatar = [], max = 5 }) => {
         }}
       >
         <Box height={"3rem"} width={"auto"} display="flex">
-          {displayedAvatars.map((src, index) => (
+          {displayedAvatars.map((src: any, index: any) => (
             <Avatar
               key={index}
               src={transformImage(src)}
@@ -41,15 +39,14 @@ const AvatarCard = ({ avatar = [], max = 5 }) => {
                   marginLeft: `${max + 0.8}rem `,
                   width: "3rem",
                   height: "3rem",
-                  backgroundColor: "#fff", 
+                  backgroundColor: "#fff",
                   color: "black",
                   fontSize: "1rem",
                   alignItems: "center",
-                  paddingLeft: "6px"
+                  paddingLeft: "6px",
                 }}
               >
-                {"     "}
-                +{remainingCount} more
+                {"     "}+{remainingCount} more
               </Avatar>
             </div>
           )}
