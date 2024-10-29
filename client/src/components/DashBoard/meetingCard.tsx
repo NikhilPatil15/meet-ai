@@ -27,52 +27,52 @@ const MeetingCard = ({
 
   return (
     <section
-      className={`relative flex min-h-full max-w-full flex-col justify-between rounded-xl px-6 py-8 xl:max-w-[13rem] transition-all duration-300 ${
-        isHovered ? "bg-blue-500 shadow-lg" : "bg-gray-800"
-      }`}
-      // onMouseEnter={() => setIsHovered(true)}
-      // onMouseLeave={() => setIsHovered(false)}
+      className={`relative flex flex-col items-center justify-center rounded-xl p-6 md:p-8 xl:p-6 transition-all duration-300 overflow-hidden 
+      
+      `}
+      style={{
+        width: "100%",
+        maxWidth: "568px",
+        minHeight: "18rem",
+        margin: "0 auto",
+      }}
     >
-      <Image
-        src={icon}
-        alt="Meeting icon"
-        width={28}
-        height={28}
-        className="absolute top-4 left-4"
-      />
+      {/* Icon */}
+      <div className="absolute top-4 left-4 md:top-6 md:left-6">
+        <Image src={icon} alt="Meeting icon" width={28} height={28} />
+      </div>
 
-      <article className="flex flex-col items-center justify-center text-center gap-2 mt-4">
-        <h1 className="text-xl font-bold">{title}</h1>
-        <p className="text-base font-normal">{date}</p>
+      {/* Title and Date */}
+      <article className="flex flex-col items-center text-center mt-8 md:mt-10">
+        <h1 className="text-xl md:text-2xl font-bold">{title}</h1>
+        <p className="text-base font-normal mt-1 md:mt-2">{date}</p>
       </article>
 
-      <article className="flex flex-col items-center justify-center mt-4">
-        <div className="relative flex justify-center w-full">
-          <div className="flex space-x-4">
-            {avatarImages.slice(0, avatarCount).map((img, index) => (
-              <Image
-                key={index}
-                src={img}
-                alt={`Attendee ${index + 1}`}
-                width={50}
-                height={50}
-                className="rounded-full"
-              />
-            ))}
-          </div>
+      {/* Avatar List */}
+      <div className="flex items-center justify-center mt-4 md:mt-6">
+        <div className="flex -space-x-3">
+          {avatarImages.slice(0, avatarCount).map((img, index) => (
+            <Image
+              key={index}
+              src={img}
+              alt={`Attendee ${index + 1}`}
+              width={40}
+              height={40}
+              className="rounded-full border-2 border-white md:w-12 md:h-12"
+            />
+          ))}
         </div>
+      </div>
 
-        <button
-          onClick={handleClick}
-          className={`mt-4 rounded-lg px-4 py-2 text-lg font-semibold transition-all duration-300 ${
-            isHovered
-              ? "bg-white text-blue-500 shadow-lg"
-              : "bg-blue-500 text-white"
-          }`}
-        >
-          {isHovered ? "Start meet" : buttonText}
-        </button>
-      </article>
+      {/* Action Button */}
+      <button
+        onClick={handleClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="mt-6 md:mt-8 rounded-lg px-6 py-3 text-lg font-semibold transition-all duration-300 bg-blue-500 text-white hover:bg-white hover:text-blue-500 shadow-md"
+      >
+        {isHovered ? "Start meet" : buttonText}
+      </button>
     </section>
   );
 };
