@@ -199,7 +199,9 @@ const getSystemUsers = asyncHandler(async (req: any, res: Response) => {
     return res.status(400).json(new ApiResponse(400, null, "Invalid user ID"));
   }
 
-  const users = await User.find({ _id: { $ne: userId } }).select("-password -refreshToken -OauthId -fullName -createdAt -updatedAt -__v");
+  const users = await User.find({ _id: { $ne: userId } }).select(
+    "-password -refreshToken -OauthId -fullName -createdAt -updatedAt -__v"
+  );
 
   return res
     .status(200)
@@ -566,6 +568,48 @@ const setAccessToken = asyncHandler(async (req: any, res: Response) => {
     .json(new ApiResponse(201, token, "AccessToken fetched successfully!"));
 });
 
+const getLast7DaysMeetingDetails = asyncHandler(
+  async (req: any, res: Response) => {
+    const userId = req?.user?.id;
+
+    const result = await Meeting.aggregate([
+      {
+        $match: {
+          $and: [
+            { status: "completed" },
+            {
+              $or: [
+                { host: new ObjectId(userId) },
+                { "participants.userId": new ObjectId(userId) },
+              ],
+            },
+            {
+              createdAt: {
+                $gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+              },
+            },
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, result, "Meeting details fetched successfully")
+      );
+  }
+);
+
 export {
   registerUser,
   loginUser,
@@ -584,4 +628,5 @@ export {
   uploadAvatar,
   verifyUser,
   getScheduleMeetings,
+  getLast7DaysMeetingDetails
 };
