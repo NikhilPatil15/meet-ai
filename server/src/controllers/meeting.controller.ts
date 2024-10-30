@@ -199,6 +199,8 @@ const getMeeting: any = asyncHandler(async (req: any, res: Response) => {
         createdAt: 1,
         updatedAt: 1,
         enableSummary: 1,
+        fileUrl: 1,
+        fileName: 1,
         dialogues: 1,
         "hostDetails._id": 1,
         "hostDetails.userName": 1,
