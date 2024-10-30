@@ -101,8 +101,8 @@ const addJoinedParticipant: any = asyncHandler(
 
     console.log(user);
 
-    const meeting: IMeeting | any = await Meeting.findById(
-      req?.body?.meetingId
+    const meeting: IMeeting | any = await Meeting.findOne({
+      roomId: req?.body?.roomId}
     );
 
     if (!meeting) {

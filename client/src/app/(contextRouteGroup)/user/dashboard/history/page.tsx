@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import previous from "@/assets/icons/previous.svg";
 import axiosInstance from "@/utils/axios";
 import CardSkeleton from "@/app/(contextRouteGroup)/user/dashboard/history/CardSkeletonHistory"; // Import the CardSkeleton component
+import Link from "next/link";
 
 interface HostDetails {
   _id: string;
@@ -36,11 +37,13 @@ export default function MeetingHistory() {
 
   const fetchMeetingsHistory = async () => {
     try {
-      const response = await axiosInstance.get('http://localhost:5000/api/v1/user/get-meeting-history');
+      const response = await axiosInstance.get(
+        "http://localhost:5000/api/v1/user/get-meeting-history"
+      );
       console.log("API Response: ", response.data); // Log the API response
-      
+
       // Access the meetings array from the response and set it in state
-      
+
       setMeetings(response.data.data);
     } catch (error) {
       console.error("Error fetching meeting history:", error);
@@ -62,42 +65,58 @@ export default function MeetingHistory() {
         </Typography>
       ) : loading ? ( // Show skeleton while loading
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-screen-lg">
-          {Array.from({ length: 6 }).map((_, index) => ( // Adjust length based on your needs
+          {Array.from({ length: 6 }).map((
+            _,
+            index // Adjust length based on your needs
+          ) => (
             <CardSkeleton key={index} />
           ))}
         </div>
       ) : meetings.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-screen-lg">
           {meetings.map((meeting) => (
-            <Card
-              key={meeting._id}
-              className="bg-[#1c1c1c] text-white shadow-lg rounded-lg relative overflow-visible transition-transform hover:scale-105"
-            >
-              <div className="absolute top-[-20px] left-1/2 transform -translate-x-1/2 w-12 h-12 rounded-full flex items-center justify-center bg-[#333] shadow-lg overflow-hidden">
-                <Image src={previous} alt="Previous Meeting Icon" width={30} height={30} />
-              </div>
-
-              <CardContent className="pt-12">
-                <Typography variant="body1" className="mb-6 font-bold text-lg">
-                  {meeting.title}
-                </Typography>
-                <Typography variant="body2" className="text-gray-400 text-sm">
-                  Last Updated: {new Date(meeting.updatedAt).toLocaleString()}
-                </Typography>
-
-                <div className="flex items-center gap-2 mt-4">
-                  <Avatar alt={meeting.hostDetails.fullName} />
-                  <div>
-                    <Typography variant="body2" className="text-sm font-bold">
-                      {meeting.hostDetails.fullName}
-                    </Typography>
-                    <Typography variant="caption" className="text-gray-400 text-xs">
-                      {meeting.hostDetails.email}
-                    </Typography>
-                  </div>
+            <Link href={`/user/dashboard/meet/${meeting?._id}`}>
+              <Card
+                key={meeting._id}
+                className="bg-[#1c1c1c] text-white shadow-lg rounded-lg relative overflow-visible transition-transform hover:scale-105"
+              >
+                <div className="absolute top-[-20px] left-1/2 transform -translate-x-1/2 w-12 h-12 rounded-full flex items-center justify-center bg-[#333] shadow-lg overflow-hidden">
+                  <Image
+                    src={previous}
+                    alt="Previous Meeting Icon"
+                    width={30}
+                    height={30}
+                  />
                 </div>
-              </CardContent>
-            </Card>
+
+                <CardContent className="pt-12">
+                  <Typography
+                    variant="body1"
+                    className="mb-6 font-bold text-lg"
+                  >
+                    {meeting.title}
+                  </Typography>
+                  <Typography variant="body2" className="text-gray-400 text-sm">
+                    Last Updated: {new Date(meeting.updatedAt).toLocaleString()}
+                  </Typography>
+
+                  <div className="flex items-center gap-2 mt-4">
+                    <Avatar alt={meeting.hostDetails.fullName} />
+                    <div>
+                      <Typography variant="body2" className="text-sm font-bold">
+                        {meeting.hostDetails.fullName}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        className="text-gray-400 text-xs"
+                      >
+                        {meeting.hostDetails.email}
+                      </Typography>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       ) : (

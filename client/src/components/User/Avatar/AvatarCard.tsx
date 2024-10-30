@@ -1,4 +1,4 @@
-import { Avatar, AvatarGroup, Box, Stack } from "@mui/material";
+import { Avatar, AvatarGroup, Box, Stack, Tooltip } from "@mui/material";
 import React from "react";
 import { transformImage } from "@/lib/features";
 
@@ -15,21 +15,22 @@ const AvatarCard = ({ avatar = [], max = 5 }: any) => {
         }}
       >
         <Box height={"3rem"} width={"auto"} display="flex">
-          {displayedAvatars.map((src: any, index: any) => (
-            <Avatar
-              key={index}
-              src={transformImage(src)}
-              alt={`Avatar ${index}`}
-              sx={{
-                width: "3rem",
-                height: "3rem",
-                position: "absolute",
-                left: {
-                  xs: `${0.5 + index}rem`,
-                  sm: `${index}rem`,
-                },
-              }}
-            />
+          {displayedAvatars.map((participant: any, index: any) => (
+            <Tooltip key={index} title={participant.name} arrow>
+              <Avatar
+                src={transformImage(participant.avatar)}
+                alt={participant.name}
+                sx={{
+                  width: "3rem",
+                  height: "3rem",
+                  position: "absolute",
+                  left: {
+                    xs: `${0.5 + index}rem`,
+                    sm: `${index}rem`,
+                  },
+                }}
+              />
+            </Tooltip>
           ))}
           {remainingCount > 0 && (
             <div className="pl-20">
@@ -46,7 +47,7 @@ const AvatarCard = ({ avatar = [], max = 5 }: any) => {
                   paddingLeft: "6px",
                 }}
               >
-                {"     "}+{remainingCount} more
+                +{remainingCount} more
               </Avatar>
             </div>
           )}

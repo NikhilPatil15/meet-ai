@@ -1,33 +1,91 @@
 "use client";
-import { Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import AvatarCard from "../User/Avatar/AvatarCard";
 import DocumentPreview from "./FilePreview";
+import axiosInstance from "@/utils/axios";
+import { useEffect, useState } from "react";
+import moment from "moment";
 
-const MeetingSummary = () => {
+const MeetingSummary = ({ id }: any) => {
+  const [meeting, setMeeting] = useState<any>(null);
+  const [participants, setParticipants] = useState<any>([]);
 
-  const avatar = [
-    "https://www.w3schools.com/howto/img_avatar.png",
-    "https://www.w3schools.com/howto/img_avatar.png",
-    "https://www.w3schools.com/howto/img_avatar.png",
-    "https://www.w3schools.com/howto/img_avatar.png",
-    "https://www.w3schools.com/howto/img_avatar.png",
-    "https://www.w3schools.com/howto/img_avatar.png",
-    "https://www.w3schools.com/howto/img_avatar.png",
-    "https://www.w3schools.com/howto/img_avatar.png",
-  ];
+  const fetchDetails = async () => {
+    try {
+      const response = await axiosInstance.get(`/meeting/get-meeting/${id}`);
+      const meetingData = response.data.data;
+      console.log(meetingData);
+      setMeeting(meetingData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDetails();
+  }, [id]);
+
+  useEffect(() => {
+    if (meeting) {
+      const participantAvatars = meeting.participants
+        ?.filter((participant: any) => participant.role === "participant")
+        .map((participant: any) => ({
+          name: participant.userName,
+          avatar:
+            participant.avatar ||
+            "https://www.w3schools.com/howto/img_avatar.png",
+        }));
+
+      console.log(participantAvatars);
+      setParticipants(participantAvatars);
+    }
+  }, [meeting]);
+
+  // const avatar = [
+  //   "https://www.w3schools.com/howto/img_avatar.png",
+  //   "https://www.w3schools.com/howto/img_avatar.png",
+  //   "https://www.w3schools.com/howto/img_avatar.png",
+  //   "https://www.w3schools.com/howto/img_avatar.png",
+  //   "https://www.w3schools.com/howto/img_avatar.png",
+  //   "https://www.w3schools.com/howto/img_avatar.png",
+  //   "https://www.w3schools.com/howto/img_avatar.png",
+  //   "https://www.w3schools.com/howto/img_avatar.png",
+  // ];
 
   return (
     <div className="bg-gray-900 text-gray-300 w-full min-h-screen">
       <div className="container mx-auto p-6">
         {/* Hero Section */}
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white shadow-md">
+        <header className=" mb-8">
+          <h1 className="text-center text-4xl font-bold text-white shadow-md">
             Meeting Summary
           </h1>
-          <p className="text-lg mt-2">
-            Date: October 8, 2024 | Duration: 1 hour
-          </p>
         </header>
+        <Box
+          sx={{
+            marginTop: "1.5rem",
+            bgcolor: "#1f2937",
+            borderRadius: "1rem",
+            padding: "1.5rem",
+            marginBottom: "1.5rem",
+          }}
+        >
+          <h2 className="text-xl font-semibold">Meeting Details</h2>
+          <div>
+            <p className="text-lg">
+              <strong>Title:</strong> {meeting?.title}
+            </p>
+            <p className="text-lg">
+              <strong>Description: </strong>
+              {meeting?.description}
+            </p>
+            <p className="text-lg">
+              <strong>Date: </strong>
+              {moment(meeting?.scheduledAt).format("MMMM Do YYYY")} | Duration:
+              1 hour
+            </p>
+          </div>
+        </Box>
 
         {/* Meeting Overview Card */}
         <div className="bg-gray-800 rounded-lg p-6 shadow-lg mb-6">
@@ -39,7 +97,7 @@ const MeetingSummary = () => {
             <strong>Participants:</strong>
           </p>
 
-          <AvatarCard avatar={avatar} />
+          <AvatarCard avatar={participants} />
         </div>
 
         <DocumentPreview
