@@ -140,6 +140,17 @@ const generateSummaryFile = asyncHandler(async (req: any, res: Response) => {
   }
 });
 
-const enableSummary = asyncHandler(async (req: any, res: Response) => {});
+const enableSummary = asyncHandler(async (req: any, res: Response) => {
+  const { roomId } = req.params;
+  const meeting: IMeeting | any = await Meeting.findOne({ roomId: roomId });
+  if (!meeting) {
+    throw new ApiError(404, "Meeting not found");
+  }
+  meeting.enableSummary = true;
+  meeting.save();
+  return res
+    .status(200)
+    .json(new ApiResponse(201, "Summary enabled successfully"));
+});
 
 export { addDialogue, generateSummaryFile, enableSummary };
