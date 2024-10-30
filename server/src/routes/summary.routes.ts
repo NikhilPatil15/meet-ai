@@ -12,7 +12,9 @@ const router = Router();
 router.use(verifyJWT);
 
 router.route("/add-dialogue").patch(addDialogue);
-router.route("/enable-summary").patch(enableSummary)
-router.route("/summary-file/:roomId").patch(generateSummary, generateSummaryFile);
+router.route("/enable-summary/:roomId").patch(enableSummary);
+router
+  .route("/summary-file/:roomId")
+  .patch(generateSummary, generateSummaryFile);
 
 export default router;

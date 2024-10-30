@@ -1,5 +1,5 @@
 "use client";
-import { Box, Button, IconButton } from "@mui/material";
+import { Box, Button, IconButton, Typography } from "@mui/material";
 import AvatarCard from "../User/Avatar/AvatarCard";
 import DocumentPreview from "./FilePreview";
 import axiosInstance from "@/utils/axios";
@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 const MeetingSummary = ({ id }: any) => {
   const [meeting, setMeeting] = useState<any>(null);
   const [participants, setParticipants] = useState<any>([]);
-  const router = useRouter()
+  const router = useRouter();
 
   const fetchDetails = async () => {
     try {
@@ -25,9 +25,21 @@ const MeetingSummary = ({ id }: any) => {
     }
   };
 
-  const handleBack = ()=>{
-    router.push("/user/dashboard/history")
-  }
+  const handleBack = () => {
+    router.push("/user/dashboard/history");
+  };
+
+  const handleGenerateSummary = async () => {
+    try {
+      const res: any = await axiosInstance.patch(
+        `/summary/summary-file/${meeting?.roomId}`
+      );
+      console.log(res.data.data);
+      setMeeting(res.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     fetchDetails();
@@ -91,7 +103,7 @@ const MeetingSummary = ({ id }: any) => {
         <div className="bg-gray-800 rounded-lg p-6 shadow-lg mb-6">
           <h2 className="text-xl font-semibold">Meeting Overview</h2>
           <p>
-            <strong>Host:</strong> John Doe
+            <strong>Host:</strong> {meeting?.hostDetails?.userName}
           </p>
           <p>
             <strong>Participants:</strong>
@@ -100,10 +112,18 @@ const MeetingSummary = ({ id }: any) => {
           <AvatarCard avatar={participants} />
         </div>
 
-        <DocumentPreview
-          fileUrl="https://res.cloudinary.com/dk9jbxeiw/raw/upload/v1730136588/sad37mjfsnjatpcilwjr.docx"
-          fileName="this is file"
-        />
+        {meeting?.enableSummary && meeting?.fileUrl && meeting.fileName ? (
+          <DocumentPreview
+            fileUrl={meeting?.fileUrl}
+            fileName={meeting?.fileName}
+          />
+        ) : meeting?.enableSummary ? (
+          <Button onClick={handleGenerateSummary}>Generate Summary</Button>
+        ) : (
+          <Typography variant="subtitle2" color="warning">
+            Summarize not enable
+          </Typography>
+        )}
 
         {/* Call to Action */}
         <div className="text-center mt-8">
