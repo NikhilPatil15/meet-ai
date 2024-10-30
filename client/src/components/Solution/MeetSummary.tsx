@@ -1,14 +1,18 @@
 "use client";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, IconButton } from "@mui/material";
 import AvatarCard from "../User/Avatar/AvatarCard";
 import DocumentPreview from "./FilePreview";
 import axiosInstance from "@/utils/axios";
 import { useEffect, useState } from "react";
 import moment from "moment";
+import { CircleArrowLeftIcon, StepBackIcon } from "lucide-react";
+import { ArrowLeftIcon } from "@radix-ui/react-icons";
+import { useRouter } from "next/navigation";
 
 const MeetingSummary = ({ id }: any) => {
   const [meeting, setMeeting] = useState<any>(null);
   const [participants, setParticipants] = useState<any>([]);
+  const router = useRouter()
 
   const fetchDetails = async () => {
     try {
@@ -20,6 +24,10 @@ const MeetingSummary = ({ id }: any) => {
       console.error(error);
     }
   };
+
+  const handleBack = ()=>{
+    router.push("/user/dashboard/history")
+  }
 
   useEffect(() => {
     fetchDetails();
@@ -35,25 +43,17 @@ const MeetingSummary = ({ id }: any) => {
             participant.avatar ||
             "https://www.w3schools.com/howto/img_avatar.png",
         }));
-
-      console.log(participantAvatars);
       setParticipants(participantAvatars);
     }
   }, [meeting]);
 
-  // const avatar = [
-  //   "https://www.w3schools.com/howto/img_avatar.png",
-  //   "https://www.w3schools.com/howto/img_avatar.png",
-  //   "https://www.w3schools.com/howto/img_avatar.png",
-  //   "https://www.w3schools.com/howto/img_avatar.png",
-  //   "https://www.w3schools.com/howto/img_avatar.png",
-  //   "https://www.w3schools.com/howto/img_avatar.png",
-  //   "https://www.w3schools.com/howto/img_avatar.png",
-  //   "https://www.w3schools.com/howto/img_avatar.png",
-  // ];
-
   return (
     <div className="bg-gray-900 text-gray-300 w-full min-h-screen">
+      <div>
+        <IconButton onClick={handleBack} sx={{ color: "white" }}>
+          <CircleArrowLeftIcon height={"3rem"} width={"3rem"} />
+        </IconButton>
+      </div>
       <div className="container mx-auto p-6">
         {/* Hero Section */}
         <header className=" mb-8">
