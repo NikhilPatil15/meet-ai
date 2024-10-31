@@ -1,19 +1,37 @@
-import React, { useEffect, useState } from 'react'
-import MeetingCard from '../meetingCard'
-import { UpcomingMeet } from '@/constants/UpcomingMeet'
-import { Box } from '@mui/material'
-import CardSkeleton from '../Homepage/CardSkeleton'
+import React, { useEffect, useState } from "react";
+import MeetingCard from "../meetingCard";
+import { UpcomingMeet } from "@/constants/UpcomingMeet";
+import { Box } from "@mui/material";
+import CardSkeleton from "../Homepage/CardSkeleton";
+import axiosInstance from "@/utils/axios";
+
 
 const Upcoming = () => {
-    const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [upcoming, setUpcoming] = useState<any>(null);
+
+  const fetchUpcomingMeetings = async() => {
+    try {
+      setLoading(true);
+      const res: any = await axiosInstance.get("/user/get-scheduled-meetings");
+      console.log(res.data.data);
+      setUpcoming(res.data.data);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadContent = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Delay of 1 second
-      setLoading(false);
-    };
+    // const loadContent = async () => {
+    //   await new Promise((resolve) => setTimeout(resolve, 1000)); // Delay of 1 second
+    //   setLoading(false);
+    // };
 
-    loadContent();
+    // loadContent();
+    fetchUpcomingMeetings()
   }, []);
   return (
     <div>
@@ -36,26 +54,32 @@ const Upcoming = () => {
           ? Array.from({ length: 4 }).map((_, index) => (
               <CardSkeleton key={index} />
             ))
-          : UpcomingMeet.map((meeting, index) => (
+          : upcoming.map((meeting, index) => (
               <Box
                 key={index}
                 mb="20px"
                 p="10px"
-                className="bg-gray-800 rounded-xl shadow-lg cursor-pointer flex flex-col justify-between"
+                className="h-full bg-gray-800 rounded-xl shadow-lg flex flex-col justify-between"
               >
                 <MeetingCard
                   title={meeting.title}
-                  date={meeting.date}
-                  icon={meeting.icon}
                   buttonText="Join Meet"
                   handleClick={() => {}}
-                  avatarCount={1}
+                  type={meeting.type}
+                  roomId={meeting.roomId}
+                  description={meeting.description}
+                  participants={meeting.participants}
+                  scheduledTime={meeting.scheduledTime}
+                  // icon={meeting.icon}
+                  // avatarCount={1}
+                  // participants
+                  // buttonIcon1
                 />
               </Box>
             ))}
       </Box>
     </div>
-  )
-}
+  );
+};
 
-export default Upcoming
+export default Upcoming;

@@ -149,7 +149,7 @@ const HomePage: React.FC = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            width: { xs: "100%", sm: "50%", lg:"100%" },
+            width: "100%",
             position: "relative",
             maxWidth: "45rem",
             height: "25rem",
