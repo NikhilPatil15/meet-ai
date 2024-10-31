@@ -34,10 +34,13 @@ const Sidebar = () => {
       <div className="flex flex-1 flex-col gap-6">
         {sidebarLinks.map(({ route, imgURL, label }) => {
           const isActive =
-            pathname === route || 
+            (label === "Home" && pathname === route) || 
+            (label !== "Home" && pathname === route) || 
             (label === "Previous" &&
               (pathname.startsWith("/user/dashboard/meet/") ||
-                pathname === "/user/dashboard/history")); 
+                pathname === "/user/dashboard/history"));
+
+          console.log(label, pathname, route, isActive);
 
           return (
             <Link
