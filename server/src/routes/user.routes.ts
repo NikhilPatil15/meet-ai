@@ -5,6 +5,7 @@ import {
   getNext7DaysMeetingDetails,
   getScheduleMeetings,
   getSystemUsers,
+  getTodaysSchedule,
   getUser,
   loginUser,
   logoutUser,
@@ -71,5 +72,6 @@ userRouter.route("/get-meeting-history").get(getMeetingHistory)
 userRouter.route("/get-scheduled-meetings").get(getScheduleMeetings)
 userRouter.route("/get-last-7-days-meetings-details").get(getLast7DaysMeetingDetails)
 userRouter.route("/get-next-7-days-meetings-details").get(getNext7DaysMeetingDetails)
+userRouter.route("/get-todays-schedule").get(getTodaysSchedule)
 
 export default userRouter;
