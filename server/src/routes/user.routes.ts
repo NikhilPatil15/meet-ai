@@ -2,6 +2,7 @@ import { query, Router } from "express";
 import {
   getLast7DaysMeetingDetails,
   getMeetingHistory,
+  getNext7DaysMeetingDetails,
   getScheduleMeetings,
   getSystemUsers,
   getUser,
@@ -69,5 +70,6 @@ userRouter.route("/update-profile").put(updateAccountDetails);
 userRouter.route("/get-meeting-history").get(getMeetingHistory)
 userRouter.route("/get-scheduled-meetings").get(getScheduleMeetings)
 userRouter.route("/get-last-7-days-meetings-details").get(getLast7DaysMeetingDetails)
+userRouter.route("/get-next-7-days-meetings-details").get(getNext7DaysMeetingDetails)
 
 export default userRouter;
