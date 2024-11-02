@@ -16,9 +16,9 @@ interface Participant {
 interface MeetingCardProps {
   title: string;
   description?: string;
-  scheduledTime: string;
+  scheduledTime?: string;
   icon: string;
-  participants: Participant[];
+  participants?: Participant[];
   status: string;
   roomId: string;
   host: string;
@@ -35,7 +35,7 @@ const MeetingCard = ({
   description,
   type,
   scheduledTime,
-  participants,
+  participants=[],
   // buttonIcon1,
   // handleClick,
   buttonText = "Join meet",
@@ -82,7 +82,7 @@ const MeetingCard = ({
       {/* Avatar List */}
       <div className="flex items-center justify-center mt-4 md:mt-6">
         <div className="flex -space-x-3">
-          {participants.slice(0, 4).map((participant, index) => (
+          {participants?.slice(0, 4)?.map((participant, index) => (
             <Image
               key={participant.userId}
               src={

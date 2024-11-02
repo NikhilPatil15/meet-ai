@@ -73,7 +73,7 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
     host: createdBy,
     description,
     participants: participantsList || [],
-    scheduledTime,
+    scheduledTime: (scheduledTime && status === "scheduled") ? scheduledTime : new Date().toISOString(),
     createdBy: new ObjectId(createdBy),
     roomId: roomId,
     status: status ? status : "not scheduled",

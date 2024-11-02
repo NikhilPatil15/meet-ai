@@ -69,11 +69,13 @@ export default function CreateMeetingPage() {
       });
       setCall(call);
       if (call) {
+        console.log(startTimeInput);
+        
         const res = await axiosInstance.post("meeting/create-meeting", {
           title: titleInput,
           description: descriptionInput,
           participants: selectedParticipants,
-          scheduleTime: startTimeInput,
+          scheduledTime: startTimeInput,
           status: activeTime ? "scheduled" : "not scheduled",
           roomId: call?.cid,
           type: activeType ? "private" : "public",
@@ -297,7 +299,8 @@ interface StartTimeInputProps {
 
 function StartTimeInput({ value, onChange, activeTime, setActiveTime }: StartTimeInputProps) {
   
-
+  console.log(value);
+  
   const dateTimeLocalNow = new Date(
     new Date().getTime() - new Date().getTimezoneOffset() * 60_000
   )
