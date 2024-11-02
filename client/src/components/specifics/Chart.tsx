@@ -1,4 +1,4 @@
-import { Line } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 import {
   CategoryScale,
   Tooltip,
@@ -7,9 +7,10 @@ import {
   PointElement,
   LineElement,
   ArcElement,
+  BarElement,
   Chart as ChartJS,
 } from "chart.js";
-import { getLast7Days } from "@/lib/features";
+import { getLast7Days, getNext7Days } from "@/lib/features";
 
 ChartJS.register(
   CategoryScale,
@@ -18,10 +19,12 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
-  ArcElement
+  ArcElement,
+  BarElement
 );
 
-const labels = getLast7Days();
+const labelsLast = getLast7Days();
+const labelsNext = getNext7Days();
 
 const lineChartOptions = {
   responsive: true,
@@ -33,7 +36,6 @@ const lineChartOptions = {
       display: false,
     },
   },
-
   scales: {
     x: {
       grid: {
@@ -41,7 +43,7 @@ const lineChartOptions = {
       },
     },
     y: {
-      bigInAtZero: true,
+      beginAtZero: true,
       grid: {
         display: true,
       },
@@ -49,9 +51,9 @@ const lineChartOptions = {
   },
 };
 
-const LineChart = ( {value = []}:any ) => {
+const LineChart = ({ value }: any) => {
   const data = {
-    labels,
+    labels: labelsLast,
     datasets: [
       {
         data: value,
@@ -62,7 +64,49 @@ const LineChart = ( {value = []}:any ) => {
       },
     ],
   };
-  return <Line data={data} options={lineChartOptions}></Line>;
+  return <Line data={data} options={lineChartOptions} />;
 };
 
-export { LineChart };
+const barChartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    title: {
+      display: false,
+    },
+  },
+  scales: {
+    x: {
+      grid: {
+        display: true,
+      },
+    },
+    y: {
+      beginAtZero: true,
+      grid: {
+        display: true,
+      },
+    },
+  },
+};
+
+const BarChart = ({ value }: any) => {
+  const data = {
+    labels: labelsNext,
+    datasets: [
+      {
+        data: value,
+        label: "Meetings",
+        backgroundColor: "rgba(75,192,192,1)",
+        borderColor: "rgba(75,192,192,0.3)",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  return <Bar data={data} options={barChartOptions} />;
+};
+
+export { LineChart, BarChart };
