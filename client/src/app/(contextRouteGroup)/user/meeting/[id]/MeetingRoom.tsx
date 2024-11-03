@@ -11,6 +11,8 @@ import {
   SpeakerLayout,
   useCall,
   useCallStateHooks,
+  StreamVideoClient,
+  useStreamVideoClient,
 } from "@stream-io/video-react-sdk";
 import {
   DropdownMenu,
@@ -28,6 +30,8 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import EndCallButton from "@/components/ui/EndCallButton";
 import axiosInstance from "@/utils/axios";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
@@ -46,10 +50,13 @@ const MeetingRoom = () => {
   const [layout, setLayout] = useState<CallLayoutType>("speaker-left");
   const [showParticipants, setShowParticipants] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
+  // const { guest, user } = useSelector((state: RootState) => state.auth);
+  const client = useStreamVideoClient();
+  const user = client?.streamClient.user?.name
 
   const sendSpeech = async (text: string) => {
     try {
-      const textToSend = `user: ${text}`;
+      const textToSend = `${user}: ${text}`;
       const res = await axiosInstance.patch("/summary/add-dialogue", {
         dialogue: textToSend,
         meetingId: call?.cid,
