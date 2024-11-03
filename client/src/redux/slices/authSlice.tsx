@@ -6,13 +6,14 @@ interface AuthState {
   user: any;
   loading: boolean;
   error: string | null;
-
+  guest: any;
 }
 
 const initialState: AuthState = {
   user: null,
   loading: true,
   error: null,
+  guest: null
 };
 
 const authSlice = createSlice({
@@ -34,6 +35,10 @@ const authSlice = createSlice({
       state.user = null;
       state.loading = false;
     },
+    setGuest: (state, action) =>{
+      state.guest = action.payload
+      state.loading = false;
+    }
   },
 });
 
@@ -42,7 +47,7 @@ export const {
   setError,
   setLoading,
   clearUser,
-  
+  setGuest
 } = authSlice.actions;
 
 export const loginUser = (credentials: {
