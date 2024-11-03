@@ -12,13 +12,14 @@ export const sidebarLinks = [
   },
   {
     imgURL: join_meeting, // Use the imported icon directly
-    route: '/profile',
+    route: '/user/dashboard/edit-profile',
     label: 'Profile',
   },
   {
     imgURL: upcoming, // Use the imported SVG directly
-    route: '#upcoming',
+    route: '/user/dashboard/upcoming',
     label: 'Upcoming',
+    r: ''
   },
   {
     imgURL: previous, // Use the imported SVG directly

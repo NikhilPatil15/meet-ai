@@ -1,78 +1,117 @@
 "use client";
 
 import Image from "next/image";
-import { avatarImages } from "@/constants/AvatarData";
 import { useState } from "react";
+import icon from "@/assets/icons/upcoming.svg";
+import { IconSettingsFilled } from "@tabler/icons-react";
+import { CopyPlus } from "lucide-react";
+
+interface Participant {
+  userId: string;
+  userName: string;
+  avatar: string | null;
+  role: string;
+}
 
 interface MeetingCardProps {
   title: string;
-  date: string;
+  description?: string;
+  scheduledTime?: string;
   icon: string;
-  avatarCount: number;
+  participants?: Participant[];
+  status: string;
+  roomId: string;
+  host: string;
+  type: string;
   buttonIcon1?: string;
   buttonText?: string;
   handleClick: () => void;
 }
 
 const MeetingCard = ({
-  icon,
+  roomId,
+  // icon,
   title,
-  date,
-  avatarCount,
-  buttonIcon1,
-  handleClick,
+  description,
+  type,
+  scheduledTime,
+  participants=[],
+  // buttonIcon1,
+  // handleClick,
   buttonText = "Join meet",
-}: MeetingCardProps) => {
+}: any) => {
   const [isHovered, setIsHovered] = useState(false);
+  const url = `${process.env.NEXT_PUBLIC_CLIENT_URL}/user/meeting/${roomId.split(":")[1]}`
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(url).then(() => {});
+  };
+
+  // Format the date
+  const formattedDate = new Date(scheduledTime).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
   return (
     <section
-      className={`relative flex min-h-[300px] w-full flex-col justify-between rounded-xl px-6 py-8 xl:max-w-[568px] transition-all duration-300 ${
-        isHovered ? "bg-blue-500 shadow-lg" : "bg-gray-800"
-      }`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`relative flex flex-col items-center justify-center rounded-xl p-6 md:p-8 xl:p-6 transition-all duration-300 overflow-hidden`}
+      style={{
+        width: "100%",
+        maxWidth: "568px",
+        height: "100%",
+        minHeight: "100%",
+        margin: "0 auto",
+      }}
     >
-      <Image
-        src={icon}
-        alt="Meeting icon"
-        width={28}
-        height={28}
-        className="absolute top-4 left-4"
-      />
+      {/* Icon */}
+      <div className="absolute top-4 left-4 md:top-6 md:left-6">
+        <Image src={icon} alt="Meeting icon" width={28} height={28} />
+      </div>
 
-      <article className="flex flex-col items-center justify-center text-center gap-2 mt-4">
-        <h1 className="text-2xl font-bold">{title}</h1>
-        <p className="text-base font-normal">{date}</p>
+      {/* Title and Date */}
+      <article className="flex flex-col items-center text-center mt-8 md:mt-10">
+        <h1 className="text-xl md:text-2xl font-bold">{title}</h1>
+        <p className="text-base font-normal mt-1 md:mt-2">{description}</p>
+        <p className="text-base font-normal mt-1 md:mt-2">{formattedDate}</p>
       </article>
 
-      <article className="flex flex-col items-center justify-center mt-6">
-        <div className="relative flex justify-center w-full">
-          <div className="flex space-x-4">
-            {avatarImages.slice(0, avatarCount).map((img, index) => (
-              <Image
-                key={index}
-                src={img}
-                alt={`Attendee ${index + 1}`}
-                width={50}
-                height={50}
-                className="rounded-full"
-              />
-            ))}
-          </div>
+      {/* Avatar List */}
+      <div className="flex items-center justify-center mt-4 md:mt-6">
+        <div className="flex -space-x-3">
+          {participants?.slice(0, 4)?.map((participant, index) => (
+            <Image
+              key={participant.userId}
+              src={
+                participant.avatar ||
+                "https://www.w3schools.com/howto/img_avatar.png"
+              } // Use a default avatar if none is provided
+              alt={participant.userName}
+              width={40}
+              height={40}
+              className="rounded-full border-2 border-white md:w-12 md:h-12"
+            />
+          ))}
         </div>
+      </div>
 
-        <button
-          onClick={handleClick}
-          className={`mt-6 rounded-lg px-8 py-3 text-lg font-semibold transition-all duration-300 ${
-            isHovered
-              ? "bg-white text-blue-500 shadow-lg"
-              : "bg-blue-500 text-white"
-          }`}
-        >
-          {isHovered ? "Start meet" : buttonText}
-        </button>
-      </article>
+      {/* Action Button */}
+      <button
+        // onClick={handleClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="mt-6 md:mt-8 rounded-lg px-6 py-3 text-lg font-semibold transition-all duration-300 bg-blue-500 text-white hover:bg-white hover:text-blue-500 shadow-md"
+      >
+        {isHovered ? "Start meet" : buttonText}
+      </button>
+
+      <div className="absolute right-0 bottom-1 flex gap-3">
+        <IconSettingsFilled />
+        <CopyPlus onClick={handleCopy} />
+      </div>
     </section>
   );
 };

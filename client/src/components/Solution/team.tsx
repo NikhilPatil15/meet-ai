@@ -36,9 +36,9 @@ const Team = () => {
         {teamMembers.map((member, index) => (
           <div
             key={index}
-            className="rounded-lg shadow-lg p-6 text-center"
+            className="rounded-lg shadow-lg p-6 text-center bg-n-15"
             style={{
-                background: 'linear-gradient(135deg, #3c003b, #692d80)', // Dark to light purple gradient
+                // Dark to light purple gradient
                 color: 'white',
             }}
           >

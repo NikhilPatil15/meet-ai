@@ -1,7 +1,11 @@
 import { query, Router } from "express";
 import {
+  getLast7DaysMeetingDetails,
   getMeetingHistory,
+  getNext7DaysMeetingDetails,
   getScheduleMeetings,
+  getSystemUsers,
+  getTodaysSchedule,
   getUser,
   loginUser,
   logoutUser,
@@ -19,6 +23,7 @@ import {
 import { verifyJWT } from "../middlewares/auth.middleware";
 import passport from "passport";
 import { upload } from "../middlewares/multer.middleware";
+import { getSystemErrorMap } from "util";
 
 const userRouter = Router();
 
@@ -56,6 +61,7 @@ userRouter.use(verifyJWT);
 /* Protected routes */
 userRouter.route("/get-user").get(getUser);
 userRouter.route("/logout").get(logoutUser);
+userRouter.route("/get-all-users").get(getSystemUsers)
 userRouter.route("/update-password").put(updatePassword);
 userRouter
   .route("/upload-avatar")
@@ -64,5 +70,8 @@ userRouter.route("/refresh-token").post(refreshAccessToken)
 userRouter.route("/update-profile").put(updateAccountDetails);
 userRouter.route("/get-meeting-history").get(getMeetingHistory)
 userRouter.route("/get-scheduled-meetings").get(getScheduleMeetings)
+userRouter.route("/get-last-7-days-meetings-details").get(getLast7DaysMeetingDetails)
+userRouter.route("/get-next-7-days-meetings-details").get(getNext7DaysMeetingDetails)
+userRouter.route("/get-todays-schedule").get(getTodaysSchedule)
 
 export default userRouter;

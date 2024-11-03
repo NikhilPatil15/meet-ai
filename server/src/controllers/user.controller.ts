@@ -14,8 +14,10 @@ import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import uploadOnCloudinary from "../utils/cloudinary";
 import Meeting from "../models/meeting.model";
-import mongoose from "mongoose";
+import mongoose, { AnyBulkWriteOperation } from "mongoose";
 import sendMail from "../utils/sendMail";
+import moment from "moment";
+import { countReset } from "console";
 
 const options: any = {
   httpOnly: false,
@@ -192,6 +194,22 @@ const logoutUser = asyncHandler(async (req: any, res: Response) => {
     .json(new ApiResponse(200, {}, "user loggedout successfully"));
 });
 
+const getSystemUsers = asyncHandler(async (req: any, res: Response) => {
+  const userId = req?.user?.id;
+
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).json(new ApiResponse(400, null, "Invalid user ID"));
+  }
+
+  const users = await User.find({ _id: { $ne: userId } }).select(
+    "-password -refreshToken -OauthId -fullName -createdAt -updatedAt -__v"
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(201, users, "Users fetched successfully"));
+});
+
 const refreshAccessToken = asyncHandler(async (req: any, res: Response) => {
   const incomingRefreshToken: any =
     req.cookies.refreshToken || req.body.refreshToken;
@@ -200,42 +218,42 @@ const refreshAccessToken = asyncHandler(async (req: any, res: Response) => {
     throw new ApiError(401, "unauthorized request");
   }
 
-    const decodedToken: any = jwt.verify(
-      incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET as string
+  const decodedToken: any = jwt.verify(
+    incomingRefreshToken,
+    process.env.REFRESH_TOKEN_SECRET as string
+  );
+
+  const user = await User.findById(decodedToken?._id);
+
+  if (!user) {
+    throw new ApiError(401, "Invalid refresh token");
+  }
+
+  if (incomingRefreshToken !== user?.refreshToken) {
+    throw new ApiError(401, "Refresh token is expired or used");
+  }
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  const {
+    accessToken,
+    refreshToken: newRefreshToken,
+  } = await generateAccessAndRefreshToken(user._id);
+
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", newRefreshToken, options)
+    .json(
+      new ApiResponse(
+        200,
+        { accessToken, refreshToken: newRefreshToken },
+        "Access token refreshed"
+      )
     );
-
-    const user = await User.findById(decodedToken?._id);
-
-    if (!user) {
-      throw new ApiError(401, "Invalid refresh token");
-    }
-
-    if (incomingRefreshToken !== user?.refreshToken) {
-      throw new ApiError(401, "Refresh token is expired or used");
-    }
-
-    const options = {
-      httpOnly: true,
-      secure: true,
-    };
-
-    const {
-      accessToken,
-      refreshToken: newRefreshToken,
-    } = await generateAccessAndRefreshToken(user._id);
-
-    return res
-      .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", newRefreshToken, options)
-      .json(
-        new ApiResponse(
-          200,
-          { accessToken, refreshToken: newRefreshToken },
-          "Access token refreshed"
-        )
-      );
 });
 
 const getUser = asyncHandler(async (req: any, res: Response) => {
@@ -505,12 +523,10 @@ const getScheduleMeetings = asyncHandler(async (req: any, res: Response) => {
   const userId = req.user._id;
 
   console.log(userId);
-  
 
   const userObjectId = new ObjectId(userId);
 
   console.log(userObjectId);
-  
 
   const meetings = await Meeting.aggregate([
     {
@@ -523,17 +539,18 @@ const getScheduleMeetings = asyncHandler(async (req: any, res: Response) => {
             ],
           },
           {
-            status: "scheduled"
-          }
+            status: "scheduled",
+          },
         ],
       },
-      
     },
   ]);
 
   console.log(meetings);
 
-  return res.status(200).json(new ApiResponse(201, meetings, "Scheduled meetings fetched"))
+  return res
+    .status(200)
+    .json(new ApiResponse(201, meetings, "Scheduled meetings fetched"));
 });
 
 const setOauthCookies = asyncHandler(async (req: any, res: Response) => {
@@ -553,10 +570,116 @@ const setAccessToken = asyncHandler(async (req: any, res: Response) => {
     .json(new ApiResponse(201, token, "AccessToken fetched successfully!"));
 });
 
+const getLast7DaysMeetingDetails = asyncHandler(
+  async (req: any, res: Response) => {
+    const userId = req?.user?.id;
+
+    const result = await Meeting.aggregate([
+      {
+        $match: {
+          $and: [
+            { status: "completed" },
+            {
+              $or: [
+                { host: new ObjectId(userId) },
+                { "participants.userId": new ObjectId(userId) },
+              ],
+            },
+            {
+              createdAt: {
+                $gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+              },
+            },
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, result, "Meeting details fetched successfully")
+      );
+  }
+);
+
+const getNext7DaysMeetingDetails = asyncHandler(
+  async (req: any, res: Response) => {
+    const userId = new ObjectId(req.user.id);
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+
+    const meetingCounts = await Meeting.aggregate([
+      {
+        $match: {
+          scheduledTime: { $gte: today, $lt: nextWeek },
+          $or: [{ host: userId }, { "participants.userId": userId }],
+        },
+      },
+      {
+        $project: {
+          date: {
+            $dateToString: { format: "%Y-%m-%d", date: "$scheduledTime" },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$date",
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    console.log(meetingCounts);
+
+    const response = meetingCounts.map((meeting) => ({
+      date: meeting._id,
+      count: meeting.count,
+    }));
+
+    return res.status(200).json(new ApiResponse(201, response));
+  }
+);
+
+const getTodaysSchedule = asyncHandler(async (req: any, res: Response) => {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const userId = new ObjectId(req.user.id);
+
+  const meetings = await Meeting.find({
+    scheduledTime: { $gte: startOfDay, $lte: endOfDay },
+    $or: [{ host: userId }, { "participants.userId": userId }],
+  });
+
+  if (!meetings || meetings.length === 0) {
+    throw new ApiError(404, "No meetings scheduled for today.");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(201, meetings, "Today's meetings"));
+});
+
 export {
   registerUser,
   loginUser,
   logoutUser,
+  getSystemUsers,
   getUser,
   refreshAccessToken,
   updatePassword,
@@ -569,5 +692,8 @@ export {
   getMeetingHistory,
   uploadAvatar,
   verifyUser,
-  getScheduleMeetings
+  getScheduleMeetings,
+  getLast7DaysMeetingDetails,
+  getNext7DaysMeetingDetails,
+  getTodaysSchedule,
 };

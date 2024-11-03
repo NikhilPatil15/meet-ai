@@ -1,122 +1,205 @@
-"use client";
+import React, { useEffect, useState } from 'react';
 
-import { useState, useEffect } from 'react';
-
-const EditProfile = () => {
-  // States for form fields
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    city: '',
-    state: '',
-    password: '',
+const ProfileEdit = () => {
+  const [user, setUser] = useState({
+    firstName: 'ARYAN',
+    lastName: 'PATEL',
+    email: 'aryan.patel@example.com',
+    city: 'New York',
+    state: 'NY',
+    profileImage: '/default-profile.png',
+    description: 'Developer, Admin',
   });
 
-  // Handle image upload and preview
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    const reader = new FileReader();
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    reader.onload = (e) => {
-      const image = e.target?.result as string;
-      setProfileImage(image);
-      localStorage.setItem('profileImage', image);
-    };
-
-    if (file) reader.readAsDataURL(file);
-  };
-
-  // Load saved profile image from localStorage
   useEffect(() => {
     const savedImage = localStorage.getItem('profileImage');
-    if (savedImage) setProfileImage(savedImage);
+    if (savedImage) {
+      setUser((prevUser) => ({
+        ...prevUser,
+        profileImage: savedImage,
+      }));
+    }
   }, []);
 
-  // Handle form input changes
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({ ...prevState, [name]: value }));
+  const handleEditToggle = () => {
+    setIsEditing((prev) => !prev);
   };
 
-  // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Add your form submission logic here
-    console.log("Form submitted:", formData);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setUser((prevUser) => ({
+      ...prevUser,
+      [name]: value,
+    }));
+  };
+
+  const previewImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setUser((prevUser) => ({
+          ...prevUser,
+          profileImage: e.target?.result as string,
+        }));
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert('Please upload a valid image file.');
+    }
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/users/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(user),
+      });
+      if (response.ok) {
+        console.log('User data saved successfully!');
+        localStorage.setItem('profileImage', user.profileImage);
+      } else {
+        console.error('Error saving user data:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error saving user data:', error);
+    } finally {
+      setLoading(false);
+      setIsEditing(false);
+    }
   };
 
   return (
-    <div className="flex lg:ml-[240px] p-6 bg-gray-900 min-h-screen">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-5xl mx-auto">
-        {/* Header Section */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-semibold text-white">Edit Profile</h2>
-          <div className="relative">
-            <div
-              className="w-28 h-28 rounded-full bg-cover bg-center border-4 border-gray-600"
-              style={{ backgroundImage: `url(${profileImage || ''})` }}
-            ></div>
-            <label htmlFor="profile-photo" className="absolute bottom-0 right-0 bg-gray-700 p-2 rounded-full cursor-pointer">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.75 9V5.25m0 0l5.25 5.25M15.75 5.25H9.75A2.25 2.25 0 007.5 7.5v9A2.25 2.25 0 009.75 18.75h4.5A2.25 2.25 0 0016.5 16.5V15m0 0H18" />
-              </svg>
-            </label>
-            <input id="profile-photo" type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
-          </div>
+    <main className="flex flex-1 min-h-screen">
+       <div className="sm:w-[130px] md:w-[130px] lg:w-[264px]"></div>
+       <div className="flex-1 flex justify-center items-center p-6">
+      <div className="bg-blueAccent-1001 p-10 rounded-xl shadow-lg max-w-lg w-full relative text-center">
+        {/* Profile Image */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 -top-20">
+          <div
+            className="w-40 h-40 rounded-full bg-cover bg-center border-4 border-white shadow-lg"
+            style={{ backgroundImage: `url(${user.profileImage})` }}
+          ></div>
         </div>
 
-        {/* Profile Form */}
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {/* First Name */}
-            <div>
-              <label htmlFor="first-name" className="block text-sm font-medium text-gray-300">First Name</label>
-              <input type="text" id="first-name" name="firstName" value={formData.firstName} onChange={handleInputChange} className="mt-1 block w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:border-gray-500 focus:ring-gray-500" required />
+        {/* User Info */}
+        <div className="mt-24">
+          {isEditing ? (
+            <div className="space-y-4">
+              <div className="flex flex-col md:flex-row justify-between space-x-0 md:space-x-4">
+                {['firstName', 'lastName'].map((field, index) => (
+                  <div className="flex-1 mb-4 md:mb-0" key={index}>
+                    <label htmlFor={field} className="block text-sm font-medium text-white">
+                      {field.charAt(0).toUpperCase() + field.slice(1)}
+                    </label>
+                    <input
+                      type="text"
+                      id={field}
+                      name={field}
+                      value={user[field as keyof typeof user]}
+                      onChange={handleChange}
+                      className="mt-1 w-full p-3 bg-gray-700 text-white rounded-md"
+                      placeholder={`Enter ${field}`}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col md:flex-row justify-between space-x-0 md:space-x-4">
+                {['city', 'state'].map((field, index) => (
+                  <div className="flex-1 mb-4 md:mb-0" key={index}>
+                    <label htmlFor={field} className="block text-sm font-medium text-white">
+                      {field.charAt(0).toUpperCase() + field.slice(1)}
+                    </label>
+                    <input
+                      type="text"
+                      id={field}
+                      name={field}
+                      value={user[field as keyof typeof user]}
+                      onChange={handleChange}
+                      className="mt-1 w-full p-3 bg-gray-700 text-white rounded-md"
+                      placeholder={`Enter ${field}`}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-white">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={user.email}
+                  onChange={handleChange}
+                  className="mt-1 w-full p-3 bg-gray-700 text-white rounded-md"
+                  placeholder="Enter Email"
+                />
+              </div>
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium text-white">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={user.description}
+                  onChange={handleChange}
+                  className="mt-1 w-full p-3 bg-gray-700 text-white rounded-md"
+                  placeholder="Enter description"
+                />
+              </div>
             </div>
-            {/* Last Name */}
-            <div>
-              <label htmlFor="last-name" className="block text-sm font-medium text-gray-300">Last Name</label>
-              <input type="text" id="last-name" name="lastName" value={formData.lastName} onChange={handleInputChange} className="mt-1 block w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:border-gray-500 focus:ring-gray-500" required />
-            </div>
-          </div>
+          ) : (
+            <>
+              <h2 className="text-3xl font-bold text-white mb-1">
+                {user.firstName} {user.lastName}
+              </h2>
+              <p className="text-gray-400 mb-4">
+                {user.city}, {user.state}
+              </p>
+              <p className="text-white">{user.description}</p>
+              {/* Edit Button */}
+              <button
+                onClick={handleEditToggle}
+                className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition-colors"
+              >
+                Edit Profile
+              </button>
+            </>
+          )}
+        </div>
 
-          {/* Email */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email</label>
-            <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} className="mt-1 block w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:border-gray-500 focus:ring-gray-500" required />
+        {/* Save/Cancel Buttons */}
+        {isEditing && (
+          <div className="flex justify-center space-x-4 mt-6">
+            <button
+              type="button"
+              onClick={handleEditToggle}
+              className="px-6 py-2 bg-red-600 text-white rounded-full hover:bg-red-700"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className={`px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 ${loading ? 'cursor-not-allowed' : ''}`}
+              disabled={loading}
+            >
+              {loading ? 'Saving...' : 'Save'}
+            </button>
           </div>
-
-          {/* City and State */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {/* City */}
-            <div>
-              <label htmlFor="city" className="block text-sm font-medium text-gray-300">City</label>
-              <input type="text" id="city" name="city" value={formData.city} onChange={handleInputChange} className="mt-1 block w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:border-gray-500 focus:ring-gray-500" required />
-            </div>
-            {/* State */}
-            <div>
-              <label htmlFor="state" className="block text-sm font-medium text-gray-300">State</label>
-              <input type="text" id="state" name="state" value={formData.state} onChange={handleInputChange} className="mt-1 block w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:border-gray-500 focus:ring-gray-500" required />
-            </div>
-          </div>
-
-          {/* Password */}
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300">Change Password</label>
-            <input type="password" id="password" name="password" value={formData.password} onChange={handleInputChange} className="mt-1 block w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:border-gray-500 focus:ring-gray-500" required />
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3">
-            <button type="button" className="px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700">Cancel</button>
-            <button type="submit" className="px-6 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600">Save</button>
-          </div>
-        </form>
+        )}
       </div>
-    </div>
+      </div>
+    </main>
   );
 };
 
-export default EditProfile;
+export default ProfileEdit;

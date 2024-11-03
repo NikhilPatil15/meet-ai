@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import { usePathname, useRouter } from 'next/navigation';
-import { sidebarLinks } from '@/constants/index';
-import { cn } from '@/lib/utils';
-import axios from 'axios';
-import { useUserContext } from '@/Context/userContext';
+import Image from "next/image";
+import Link from "next/link";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import { usePathname, useRouter } from "next/navigation";
+import { sidebarLinks } from "@/constants/index";
+import { cn } from "@/lib/utils";
+import axios from "axios";
+import { useUserContext } from "@/Context/userContext";
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -15,30 +15,40 @@ const Sidebar = () => {
   const { token, setToken } = useUserContext();
 
   const logout = async () => {
-    const response = await axios.get('http://localhost:5000/api/v1/user/logout', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      withCredentials: true,
-    });
-    console.log('Response: ', response.data);
-    router.push('/');
+    const response = await axios.get(
+      "http://localhost:5000/api/v1/user/logout",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      }
+    );
+    console.log("Response: ", response.data);
+    router.push("/");
   };
 
   return (
-    <section className="fixed top-0 left-0 h-screen bg-black p-6 pt-28 text-white hidden  sm:flex flex-col justify-between z-40 sm:w-[130px] md:w-[130px] lg:w-[264px]">
+    <section className="fixed top-0 left-0 h-screen bg-black p-6 pt-28 text-white hidden sm:flex flex-col justify-between z-40 sm:w-[130px] md:w-[130px] lg:w-[264px]">
       {/* Sidebar Navigation */}
       <div className="flex flex-1 flex-col gap-6">
         {sidebarLinks.map(({ route, imgURL, label }) => {
-          const isActive = pathname === route || pathname.startsWith(`${route}/`);
+          const isActive =
+            (label === "Home" && pathname === route) || 
+            (label !== "Home" && pathname === route) || 
+            (label === "Previous" &&
+              (pathname.startsWith("/user/dashboard/meet/") ||
+                pathname === "/user/dashboard/history"));
+
+          console.log(label, pathname, route, isActive);
 
           return (
             <Link
               key={label}
               href={route}
               className={cn(
-                'flex items-center gap-4 p-4 rounded-lg transition-colors duration-200',
-                isActive ? 'bg-blue-1' : 'hover:bg-blue-1'
+                "flex items-center gap-4 p-4 rounded-lg transition-colors duration-200",
+                isActive ? "bg-blue-500" : "hover:bg-blue-400" // Adjusted active and hover colors
               )}
             >
               <Image
@@ -55,23 +65,21 @@ const Sidebar = () => {
             </Link>
           );
         })}
-          {/* Logout Button */}
-      <button
+        {/* Logout Button */}
+        <button
           onClick={logout}
-          className="flex items-center gap-4 p-4 rounded-lg hover:bg-blue-1 transition-colors duration-200 "
+          className="flex items-center gap-4 p-4 rounded-lg transition-colors duration-200"
         >
-          <i className="fa-solid fa-arrow-right-from-bracket" style={{ fontSize: '24px' }}></i>
-          <span className="text-lg font-semibold hidden lg:block">
-            Logout
-          </span>
+          <i
+            className="fa-solid fa-arrow-right-from-bracket"
+            style={{ fontSize: "24px" }}
+          ></i>
+          <span className="text-lg font-semibold hidden lg:block">Logout</span>
         </button>
       </div>
 
-    
-      
-
       {/* Sidebar Footer */}
-      <footer className="mt-auto pt-6 border-t border-gray-700  lg:block">
+      <footer className="mt-auto pt-6 border-t border-gray-700 lg:block">
         <p className="text-sm text-gray-400">
           © 2024 MeetAi. All rights reserved.
         </p>

@@ -1,96 +1,135 @@
-import React from 'react';
+"use client";
+import { Box, Button, IconButton, Typography } from "@mui/material";
+import AvatarCard from "../User/Avatar/AvatarCard";
+import DocumentPreview from "./FilePreview";
+import axiosInstance from "@/utils/axios";
+import { useEffect, useState } from "react";
+import moment from "moment";
+import { CircleArrowLeftIcon, StepBackIcon } from "lucide-react";
+import { ArrowLeftIcon } from "@radix-ui/react-icons";
+import { useRouter } from "next/navigation";
 
-const MeetingSummary = () => {
+const MeetingSummary = ({ id }: any) => {
+  const [meeting, setMeeting] = useState<any>(null);
+  const [participants, setParticipants] = useState<any>([]);
+  const router = useRouter();
+
+  const fetchDetails = async () => {
+    try {
+      const response = await axiosInstance.get(`/meeting/get-meeting/${id}`);
+      const meetingData = response.data.data;
+      console.log(meetingData);
+      setMeeting(meetingData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleBack = () => {
+    router.push("/user/dashboard/history");
+  };
+
+  const handleGenerateSummary = async () => {
+    try {
+      const res: any = await axiosInstance.patch(
+        `/summary/summary-file/${meeting?.roomId}`
+      );
+      console.log(res.data.data);
+      setMeeting(res.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDetails();
+  }, [id]);
+
+  useEffect(() => {
+    if (meeting) {
+      const participantAvatars = meeting.participants
+        ?.filter((participant: any) => participant.role === "participant")
+        .map((participant: any) => ({
+          name: participant.userName,
+          avatar:
+            participant.avatar ||
+            "https://www.w3schools.com/howto/img_avatar.png",
+        }));
+      setParticipants(participantAvatars);
+    }
+  }, [meeting]);
+
   return (
-    <div className="bg-gray-900 text-gray-300">
+    <div className="bg-gray-900 text-gray-300 w-full min-h-screen">
+      <div>
+        <IconButton onClick={handleBack} sx={{ color: "white" }}>
+          <CircleArrowLeftIcon height={"3rem"} width={"3rem"} />
+        </IconButton>
+      </div>
       <div className="container mx-auto p-6">
         {/* Hero Section */}
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white shadow-md">Meeting Summary</h1>
-          <p className="text-lg mt-2">Date: October 8, 2024 | Duration: 1 hour</p>
+        <header className=" mb-8">
+          <h1 className="text-center text-4xl font-bold text-white shadow-md">
+            Meeting Summary
+          </h1>
         </header>
+        <Box
+          sx={{
+            marginTop: "1.5rem",
+            bgcolor: "#1f2937",
+            borderRadius: "1rem",
+            padding: "1.5rem",
+            marginBottom: "1.5rem",
+          }}
+        >
+          <h2 className="text-xl font-semibold">Meeting Details</h2>
+          <div>
+            <p className="text-lg">
+              <strong>Title:</strong> {meeting?.title}
+            </p>
+            <p className="text-lg">
+              <strong>Description: </strong>
+              {meeting?.description}
+            </p>
+            <p className="text-lg">
+              <strong>Date: </strong>
+              {moment(meeting?.scheduledAt).format("MMMM Do YYYY")} | Duration:
+              1 hour
+            </p>
+          </div>
+        </Box>
 
         {/* Meeting Overview Card */}
         <div className="bg-gray-800 rounded-lg p-6 shadow-lg mb-6">
           <h2 className="text-xl font-semibold">Meeting Overview</h2>
-          <p><strong>Host:</strong> John Doe</p>
-          <p><strong>Participants:</strong></p>
-          <div className="flex space-x-2 mt-2">
-            <img src="participant1.jpg" alt="Participant 1" className="w-8 h-8 rounded-full" />
-            <img src="participant2.jpg" alt="Participant 2" className="w-8 h-8 rounded-full" />
-            <img src="participant3.jpg" alt="Participant 3" className="w-8 h-8 rounded-full" />
-            <span>+2 more</span>
-          </div>
+          <p>
+            <strong>Host:</strong> {meeting?.hostDetails?.userName}
+          </p>
+          <p>
+            <strong>Participants:</strong>
+          </p>
+
+          <AvatarCard avatar={participants} />
         </div>
 
-        {/* Agenda and Key Highlights */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Agenda */}
-          <section className="bg-gray-800 p-4 rounded-lg">
-            <h2 className="text-xl font-semibold">Agenda</h2>
-            <ul className="space-y-2">
-              <li className="cursor-pointer">Project Updates <span className="text-gray-400">(Click for details)</span></li>
-              <li className="cursor-pointer">Budget Review <span className="text-gray-400">(Click for details)</span></li>
-              <li className="cursor-pointer">Next Steps <span className="text-gray-400">(Click for details)</span></li>
-            </ul>
-          </section>
-
-          {/* Key Highlights */}
-          <section className="bg-gray-800 p-4 rounded-lg">
-            <h2 className="text-xl font-semibold">Key Highlights</h2>
-            <ul className="list-disc list-inside space-y-2">
-              <li>Increased project efficiency by 20% 🚀</li>
-              <li>Secured additional funding 💰</li>
-              <li>Completed Phase 1 on schedule ✅</li>
-            </ul>
-          </section>
-        </div>
-
-        {/* Action Items */}
-        <section className="bg-gray-800 p-4 rounded-lg mt-6">
-          <h2 className="text-xl font-semibold">Action Items</h2>
-          <table className="min-w-full mt-2">
-            <thead>
-              <tr className="bg-gray-700">
-                <th className="py-2 text-left">Task Description</th>
-                <th className="py-2 text-left">Responsible</th>
-                <th className="py-2 text-left">Due Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-700">
-              <tr>
-                <td className="py-2">Finalize the project plan</td>
-                <td className="py-2">Alice</td>
-                <td className="py-2">Oct 15, 2024</td>
-              </tr>
-              <tr>
-                <td className="py-2">Send budget report</td>
-                <td className="py-2">Bob</td>
-                <td className="py-2">Oct 20, 2024</td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
-
-        {/* Additional Resources */}
-        <section className="bg-gray-800 p-4 rounded-lg mt-6">
-          <h2 className="text-xl font-semibold">Additional Resources</h2>
-          <ul className="list-disc list-inside mt-2">
-            <li><a href="#" className="text-blue-400">Meeting Recording</a></li>
-            <li><a href="#" className="text-blue-400">Project Documents</a></li>
-          </ul>
-        </section>
-
-        {/* Feedback Section */}
-        <section className="bg-gray-800 p-4 rounded-lg mt-6">
-          <h2 className="text-xl font-semibold">Feedback</h2>
-          <textarea className="w-full h-24 p-2 bg-gray-700 rounded-md mt-2" placeholder="Leave your feedback..."></textarea>
-          <button className="mt-2 px-4 py-2 bg-blue-600 rounded-md">Submit Feedback</button>
-        </section>
+        {meeting?.enableSummary && meeting?.fileUrl && meeting.fileName ? (
+          <DocumentPreview
+            fileUrl={meeting?.fileUrl}
+            fileName={meeting?.fileName}
+          />
+        ) : meeting?.enableSummary ? (
+          <Button onClick={handleGenerateSummary}>Generate Summary</Button>
+        ) : (
+          <Typography variant="subtitle2" color="warning">
+            Summarize not enable
+          </Typography>
+        )}
 
         {/* Call to Action */}
         <div className="text-center mt-8">
-          <button className="px-6 py-3 bg-green-500 rounded-md hover:bg-green-600">Schedule Next Meeting</button>
+          <Button variant="contained" color="success">
+            Schedule Next Meeting
+          </Button>
         </div>
       </div>
     </div>

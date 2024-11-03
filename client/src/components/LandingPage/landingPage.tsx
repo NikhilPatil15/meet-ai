@@ -21,6 +21,7 @@ import MeetaiHeroSection from '../Solution/MeetingHero';
 import MeetingSummary from '../Solution/MeetSummary';
 import Team from '../Solution/team';
 import ProfileEdit from '../Solution/Profile';
+import Contact from '../Solution/contact';
 export default function LandingPage() {
   const [loading, setLoading] = useState(true);
 
@@ -86,7 +87,9 @@ export default function LandingPage() {
           {/* <MeetCandidatesPage></MeetCandidatesPage>
           <MeetaiHeroSection></MeetaiHeroSection> */}
        <Team></Team>
+      <Contact></Contact>
        <ProfileEdit></ProfileEdit>
+   
         </div>
       )}
     </>

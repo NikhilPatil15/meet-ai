@@ -16,6 +16,8 @@ export interface IMeeting extends Document {
   enableSummary: boolean; // To check if the user wants the summary of the meeting
   dialogues: string;
   summary: string;
+  fileUrl: string | any;
+  fileName: string;
 }
 
 const MeetingSchema = new Schema<IMeeting>(
@@ -33,7 +35,7 @@ const MeetingSchema = new Schema<IMeeting>(
       default: Date.now(),
     },
     endTime: {
-      type: Date
+      type: Date,
     },
     createdBy: {
       type: Schema.Types.ObjectId,
@@ -58,15 +60,21 @@ const MeetingSchema = new Schema<IMeeting>(
       type: String,
       enum: ["public", "private"],
     },
-    enableSummary:{
-      type:Boolean,
-      required:true,
-      default:false
+    enableSummary: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
     dialogues: {
       type: String,
     },
     summary: {
+      type: String,
+    },
+    fileUrl: {
+      type: String,
+    },
+    fileName: {
       type: String
     }
   },
