@@ -9,9 +9,9 @@ import { generateSummary } from "../middlewares/generateSummary";
 
 const router = Router();
 
+router.route("/add-dialogue").patch(addDialogue);
 router.use(verifyJWT);
 
-router.route("/add-dialogue").patch(addDialogue);
 router.route("/enable-summary/:roomId").patch(enableSummary);
 router
   .route("/summary-file/:roomId")

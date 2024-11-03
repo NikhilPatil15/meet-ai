@@ -16,11 +16,11 @@ const addDialogue = asyncHandler(async (req: any, res: Response) => {
   if (!dialogue || !meetingId) {
     throw new ApiError(400, "Dialogue or meeting id is missing!");
   }
-  if (!isValidObjectId(meetingId)) {
-    throw new ApiError(400, "Invalid meeting id!");
-  }
+  // if (!isValidObjectId(meetingId)) {
+  //   throw new ApiError(400, "Invalid meeting id!");
+  // }
 
-  const meeting: any = await Meeting.findById(meetingId);
+  const meeting: any = await Meeting.findOne({ roomId: meetingId });
   if (!meeting) {
     return res
       .status(404)
