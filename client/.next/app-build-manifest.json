@@ -51,6 +51,34 @@
       "static/css/app/(contextRouteGroup)/user/dashboard/layout.css",
       "static/chunks/app/(contextRouteGroup)/user/dashboard/layout.js"
     ],
+    "/(contextRouteGroup)/user/create-meeting/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(contextRouteGroup)/user/create-meeting/page.js"
+    ],
+    "/(contextRouteGroup)/user/create-meeting/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/(contextRouteGroup)/user/create-meeting/layout.css",
+      "static/chunks/app/(contextRouteGroup)/user/create-meeting/layout.js"
+    ],
+    "/(contextRouteGroup)/user/meeting/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/(contextRouteGroup)/user/meeting/[id]/page.css",
+      "static/chunks/app/(contextRouteGroup)/user/meeting/[id]/page.js"
+    ],
+    "/(contextRouteGroup)/user/meeting/[id]/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/(contextRouteGroup)/user/meeting/[id]/layout.css",
+      "static/chunks/app/(contextRouteGroup)/user/meeting/[id]/layout.js"
+    ],
+    "/(contextRouteGroup)/user/dashboard/history/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(contextRouteGroup)/user/dashboard/history/page.js"
+    ],
     "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
