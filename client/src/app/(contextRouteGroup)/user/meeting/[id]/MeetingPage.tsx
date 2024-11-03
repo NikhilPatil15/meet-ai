@@ -7,7 +7,6 @@ import {
   StreamTheme,
   StreamVideoClient,
   StreamVideo,
-  useCallStateHooks,
 } from "@stream-io/video-react-sdk";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -29,27 +28,20 @@ export default function MeetingPage({ id }: MeetingPageProps) {
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [client, setClient] = useState<StreamVideoClient | null>(null);
-  // const { useMicrophoneState } = useCallStateHooks();
-  // const { microphone, isMute } = useMicrophoneState();
 
   const { user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    const initializeClient = async (
-      guestUserId?: string,
-      username?: string
-    ) => {
+    const initializeClient = async (guestUserId?: string, username?: string) => {
       try {
-        const response = await axiosInstance.get(
-          `/token/get-token-${guestUserId ? "guest" : "user"}?${
-            guestUserId ? `guestId=${guestUserId}` : `userId=${user?._id}`
-          }`
-        );
-
         const apiKey = process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY;
-        if (!apiKey) {
-          throw new Error("Stream API key not set");
-        }
+        if (!apiKey) throw new Error("Stream API key not set");
+
+        const tokenRequestConfig = user
+          ? { method: "get", url: `/token/get-token-user?userId=${user._id}` }
+          : { method: "post", url: "/token/get-token-guest", data: { guestId: guestUserId, guestName: username } };
+
+        const response = await axiosInstance(tokenRequestConfig);
 
         const streamClient = new StreamVideoClient({
           apiKey,
@@ -78,7 +70,6 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     if (!client) return;
 
     setLoading(true);
-
     try {
       const call = client.call("default", id);
       await call.join(); // Join the call
