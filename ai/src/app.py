@@ -1,23 +1,47 @@
 from flask import Flask, request, jsonify
 import os
+from pathlib import Path
 from transformers import pipeline
+from transformers import AutoTokenizer
+from transformers import AutoModelForSeq2SeqLM
 
 app = Flask(__name__)
 
+# Define constant paths - matching your folder structure
+BASE_DIR = Path(__file__).parent
+MODEL_DIR = BASE_DIR / "summaryModel"
+MODEL_NAME = "Qiliang/bart-large-cnn-samsum-ChatGPT_v3"  # your specific model
 
-def load_summary_model():
+def load_or_download_model():
     try:
-        model_path = os.path.join(os.path.dirname(__file__), "../summaryModel")
-        summarizer = pipeline("summarization", model=model_path)
+        # Create model directory if it doesn't exist
+        MODEL_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # Check if model files exist locally
+        if not (MODEL_DIR / "config.json").exists():
+            print(f"Downloading model {MODEL_NAME} for first time...")
+            # Download model and tokenizer
+            tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+            model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME)
+            
+            # Save model and tokenizer to summaryModel folder
+            model.save_pretrained(MODEL_DIR)
+            tokenizer.save_pretrained(MODEL_DIR)
+            print("Model downloaded and saved to summaryModel successfully!")
+        else:
+            print("Loading cached model from summaryModel folder...")
+        
+        # Create pipeline using local model
+        summarizer = pipeline("summarization", model=str(MODEL_DIR))
         return summarizer
+    
     except Exception as e:
-        print(f"Error loading model: {e}")
+        print(f"Error loading/downloading model: {e}")
         return None
 
-
-summarizer = load_summary_model()
-
-print("Model: ", summarizer)
+# Load model when app starts
+summarizer = load_or_download_model()
+print("Model status:", "Successfully loaded" if summarizer else "Failed to load")
 
 
 @app.route("/")
