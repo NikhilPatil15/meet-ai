@@ -9,7 +9,7 @@
 /.pnp
 .pnp.js
 
-.next/
+client/.next/
 /out/
 
 # production

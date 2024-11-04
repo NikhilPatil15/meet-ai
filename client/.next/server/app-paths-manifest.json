@@ -1,9 +1,0 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/(main)/page": "app/(main)/page.js",
-  "/(contextRouteGroup)/user/dashboard/page": "app/(contextRouteGroup)/user/dashboard/page.js",
-  "/(contextRouteGroup)/user/meeting/[id]/page": "app/(contextRouteGroup)/user/meeting/[id]/page.js",
-  "/(contextRouteGroup)/user/dashboard/history/page": "app/(contextRouteGroup)/user/dashboard/history/page.js",
-  "/(contextRouteGroup)/auth/setaccesstoken/page": "app/(contextRouteGroup)/auth/setaccesstoken/page.js",
-  "/(contextRouteGroup)/user/create-meeting/page": "app/(contextRouteGroup)/user/create-meeting/page.js"
-}
