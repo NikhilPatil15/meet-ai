@@ -7,10 +7,11 @@ from transformers import AutoModelForSeq2SeqLM
 
 app = Flask(__name__)
 
-# Define constant paths - matching your folder structure
+
 BASE_DIR = Path(__file__).parent
 MODEL_DIR = BASE_DIR / "summaryModel"
-MODEL_NAME = "Qiliang/bart-large-cnn-samsum-ChatGPT_v3"  # your specific model
+MODEL_NAME = "Qiliang/bart-large-cnn-samsum-ChatGPT_v3"  
+
 
 def load_or_download_model():
     try:
@@ -19,7 +20,8 @@ def load_or_download_model():
         
         # Check if model files exist locally
         if not (MODEL_DIR / "config.json").exists():
-            print(f"Downloading model {MODEL_NAME} for first time...")
+            print(f"Downloading model {MODEL_NAME} for  the first time...")
+            
             # Download model and tokenizer
             tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
             model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME)
@@ -27,6 +29,7 @@ def load_or_download_model():
             # Save model and tokenizer to summaryModel folder
             model.save_pretrained(MODEL_DIR)
             tokenizer.save_pretrained(MODEL_DIR)
+            
             print("Model downloaded and saved to summaryModel successfully!")
         else:
             print("Loading cached model from summaryModel folder...")
