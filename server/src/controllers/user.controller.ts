@@ -502,6 +502,8 @@ const getMeetingHistory = asyncHandler(async (req: any, res: Response) => {
         "hostDetails.fullName": 1,
         "hostDetails.email": 1,
         guestDetails: 1,
+        scheduledTime: 1,
+        endTime: 1,
         title: 1,
         description: 1,
         status: 1,

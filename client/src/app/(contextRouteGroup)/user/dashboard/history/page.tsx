@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Image from "next/image";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -28,6 +27,15 @@ interface Meeting {
   guestDetails: Array<unknown>;
   userDetails: Array<unknown>;
   updatedAt: string;
+  scheduledTime: Date;
+  endTime: Date;
+}
+
+interface Participant {
+  userId?: string;
+  userName?: string;
+  guestId?: string;
+  guestName?: string;
 }
 
 export default function MeetingHistory() {
@@ -57,8 +65,100 @@ export default function MeetingHistory() {
     fetchMeetingsHistory();
   }, []);
 
+  const totalMeetings = meetings.length;
+
+  const averageDuration = (() => {
+    console.log(totalMeetings);
+
+    if (totalMeetings === 0) return "N/A";
+
+    const totalDuration = meetings.reduce((acc, meeting) => {
+      // console.log(acc, meeting);
+
+      const startTime = new Date(meeting.scheduledTime).getTime();
+      const endTime = new Date(meeting.endTime).getTime();
+      const duration = endTime - startTime;
+      return acc + duration;
+    }, 0);
+
+    // console.log(totalDuration, totalMeetings);
+
+    const average = totalDuration / totalMeetings;
+    // console.log(average);
+
+    const minutes = Math.floor(average / 1000 / 60);
+    // console.log(minutes);
+
+    return `${minutes} min`;
+  })();
+
+  // console.log(averageDuration);
+
+  const topCollaborators = (() => {
+    const participantCount: { [id: string]: { count: number; name: string } } = {};
+  
+    meetings.forEach((meeting) => {
+      console.log(meeting);
+      
+      const participants: Participant[] = [
+        ...(meeting.guestDetails as Participant[]),
+        ...(meeting.userDetails as Participant[]),
+      ];
+
+      // console.log(participants);
+      
+  
+      participants.forEach((participant: any) => {
+        const id = participant._id || participant.guestId;
+        // console.log(id);
+        
+        const name = participant.userName || participant.guestName;
+        // console.log(name);
+        
+  
+        if (id && name) {
+          if (participantCount[id]) {
+            participantCount[id].count += 1;
+          } else {
+            participantCount[id] = { count: 1, name };
+          }
+        }
+      });
+    });
+  
+    const sortedCollaborators = Object.values(participantCount)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+  
+    return (
+      sortedCollaborators.map((c) => c.name).join(", ") ||
+      "No frequent collaborators"
+    );
+  })();
+
   return (
     <div className="flex flex-col items-center pt-4 sm:pt-11 pl-5 sm:pl-28 xs:pl-30 md:pl-32 lg:pl-56 min-h-screen px-4 w-full">
+      {/* Summary Section */}
+      <div className="w-full max-w-screen-lg p-4 mb-6 bg-[#1c1c1c] rounded-lg shadow-md text-white">
+        <Typography variant="h6" className="font-bold mb-2">
+          Meeting Summary
+        </Typography>
+        <div className="flex flex-col sm:flex-row justify-between">
+          <div className="mb-2 sm:mb-0">
+            <Typography variant="body1">Total Meetings:</Typography>
+            <Typography variant="h6">{totalMeetings}</Typography>
+          </div>
+          <div className="mb-2 sm:mb-0">
+            <Typography variant="body1">Average Meeting Duration:</Typography>
+            <Typography variant="h6">{averageDuration}</Typography>
+          </div>
+          <div>
+            <Typography variant="body1">Top Collaborators:</Typography>
+            <Typography variant="h6">{topCollaborators}</Typography>
+          </div>
+        </div>
+      </div>
+
       {error ? (
         <Typography variant="body1" className="text-white">
           {error}
