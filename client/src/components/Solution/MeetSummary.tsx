@@ -1,18 +1,62 @@
 "use client";
+
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import AvatarCard from "../User/Avatar/AvatarCard";
 import DocumentPreview from "./FilePreview";
 import axiosInstance from "@/utils/axios";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import moment from "moment";
-import { CircleArrowLeftIcon, StepBackIcon } from "lucide-react";
-import { ArrowLeftIcon } from "@radix-ui/react-icons";
+import { CircleArrowLeftIcon, LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const MeetingSummary = ({ id }: any) => {
   const [meeting, setMeeting] = useState<any>(null);
   const [participants, setParticipants] = useState<any>([]);
+  const [showModal, setShowModal] = useState<Boolean>(false);
+  const [loading, setLoading] = useState<Boolean>(false);
   const router = useRouter();
+
+  const fileIcons: { [key: string]: string } = {
+    pdf: "📄",
+    docx: "📝",
+    txt: "📄",
+  };
+
+  const [selectedFileType, setSelectedFileType] = React.useState("");
+  const [error, setError] = useState("");
+
+  const handleGenerateSummary = async () => {
+    try {
+      setLoading(true);
+      const res: any = await axiosInstance.patch(
+        `/summary/summary-file/${meeting?.roomId}`,
+        {
+          type: selectedFileType,
+        }
+      );
+      console.log(res.data.data);
+      setMeeting(res.data.data);
+      setLoading(false);
+      setShowModal(false);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (event) => {
+    setSelectedFileType(event.target.value);
+    setError("");
+  };
+
+  const handleGenerate = () => {
+    if (!selectedFileType) {
+      setError("Please select a file type before generating.");
+    } else {
+      handleGenerateSummary();
+    }
+  };
 
   const fetchDetails = async () => {
     try {
@@ -27,18 +71,6 @@ const MeetingSummary = ({ id }: any) => {
 
   const handleBack = () => {
     router.push("/user/dashboard/history");
-  };
-
-  const handleGenerateSummary = async () => {
-    try {
-      const res: any = await axiosInstance.patch(
-        `/summary/summary-file/${meeting?.roomId}`
-      );
-      console.log(res.data.data);
-      setMeeting(res.data.data);
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   useEffect(() => {
@@ -118,7 +150,7 @@ const MeetingSummary = ({ id }: any) => {
             fileName={meeting?.fileName}
           />
         ) : meeting?.enableSummary ? (
-          <Button onClick={handleGenerateSummary}>Generate Summary</Button>
+          <Button onClick={() => setShowModal(true)}>Generate Summary</Button>
         ) : (
           <Typography variant="subtitle2" color="warning">
             Summarize not enable
@@ -131,6 +163,71 @@ const MeetingSummary = ({ id }: any) => {
             Schedule Next Meeting
           </Button>
         </div>
+
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-gray-900 p-6 rounded-lg shadow-lg max-h-[80vh] overflow-y-auto relative">
+              {/* Close Button */}
+              <button
+                onClick={() => setShowModal(false)}
+                className="absolute top-3 right-3 text-gray-300 hover:text-white"
+              >
+                ✖
+              </button>
+
+              <h2 className="text-xl font-bold text-white mb-4">
+                Select File Type
+              </h2>
+              <div className="relative mb-4">
+                <select
+                  value={selectedFileType}
+                  onChange={handleChange}
+                  className="bg-gray-700 text-white p-3 pr-7 w-full rounded-lg appearance-none cursor-pointer focus:outline-none border border-gray-700 hover:border-gray-500 focus:border-white"
+                >
+                  <option
+                    className="w-full pr-4 bg-gray-700 text-white"
+                    value=""
+                    disabled
+                  >
+                    Select a file type...
+                  </option>
+                  {Object.keys(fileIcons).map((type) => (
+                    <option
+                      key={type}
+                      value={type}
+                      className="bg-gray-700 text-white"
+                    >
+                      {fileIcons[type]} {type.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none text-white">
+                  ▼
+                </div>
+              </div>
+
+              {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
+              <button
+                onClick={handleGenerate}
+                className={`w-full p-3 rounded-lg font-semibold ${
+                  selectedFileType
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-600 text-gray-300 cursor-not-allowed"
+                }`}
+                disabled={!selectedFileType}
+              >
+                {loading ? (
+                  <div className="flex justify-center items-center">
+                    <LoaderCircle className="animate-spin text-white" size={24} />
+                  </div>
+                ) : (
+                  "Generate"
+                )}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
