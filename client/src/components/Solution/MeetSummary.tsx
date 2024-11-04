@@ -1,26 +1,29 @@
-"use client";
-import React, { useState } from "react";
-import "@react-pdf-viewer/core/lib/styles/index.css";
-import { Viewer, Worker } from "@react-pdf-viewer/core";
-import { Button } from "@mui/material";
 
-// AvatarCard Component (Placeholder)
-// Uncomment this if you have your custom AvatarCard component
-// import AvatarCard from "../User/Avatar/AvatarCard";
+"use client"
+import React, { useState } from "react";
+import AvatarCard from "../User/Avatar/AvatarCard";
+import { Button } from "@mui/material";
+import { Worker, Viewer } from "@react-pdf-viewer/core";
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import { pdfjs } from "react-pdf";
+
+// Set the worker path using a CDN
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js`;
 
 const MeetingSummary = () => {
-  const [pdfFile, setPdfFile] = useState<string | null>(null);
-
-  // Array of avatar URLs
+  const [pdfFile, setPdfFile] = useState(null);
   const avatar = [
     "https://www.w3schools.com/howto/img_avatar.png",
     "https://www.w3schools.com/howto/img_avatar.png",
-    // Add more URLs if needed
-  ];
+    "https://www.w3schools.com/howto/img_avatar.png",
+    "https://www.w3schools.com/howto/img_avatar.png",
+    "https://www.w3schools.com/howto/img_avatar.png",
+    "https://www.w3schools.com/howto/img_avatar.png",
+    // Add more avatar URLs as needed
+  ];``
 
-  // Handles PDF Uploads
-  const handlePdfUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handlePdfUpload = (event) => {
+    const file = event.target.files[0];
     if (file && file.type === "application/pdf") {
       setPdfFile(URL.createObjectURL(file));
     } else {
@@ -29,7 +32,7 @@ const MeetingSummary = () => {
   };
 
   return (
-    <div className="bg-gray-900 text-gray-300 w-full min-h-screen">
+    <div className="bg-gray-900 text-gray-300 w-full">
       <div className="container mx-auto p-6">
         {/* Hero Section */}
         <header className="text-center mb-8">
@@ -42,16 +45,7 @@ const MeetingSummary = () => {
           <h2 className="text-xl font-semibold">Meeting Overview</h2>
           <p><strong>Host:</strong> John Doe</p>
           <p><strong>Participants:</strong></p>
-          <div className="flex space-x-4 mt-4">
-            {avatar.map((url, index) => (
-              <img
-                key={index}
-                src={url}
-                alt={`Participant ${index + 1}`}
-                className="w-10 h-10 rounded-full border-2 border-white"
-              />
-            ))}
-          </div>
+          <AvatarCard avatar={avatar} />
         </div>
 
         {/* PDF Preview Section */}
@@ -68,7 +62,7 @@ const MeetingSummary = () => {
           <div className="mt-4">
             {pdfFile ? (
               <div className="w-full h-96 bg-gray-600 rounded-md">
-                <Worker workerUrl={`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js`}>
+                <Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js">
                   <Viewer fileUrl={pdfFile} />
                 </Worker>
               </div>
@@ -80,9 +74,9 @@ const MeetingSummary = () => {
 
         {/* Call to Action */}
         <div className="text-center mt-8">
-          <Button variant="contained" color="success">
+          <button className="px-6 py-3 bg-green-500 rounded-md hover:bg-green-600">
             Schedule Next Meeting
-          </Button>
+          </button>
         </div>
       </div>
     </div>
