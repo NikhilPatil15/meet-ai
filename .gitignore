@@ -12,6 +12,9 @@
 client/.next/
 /out/
 
+ai/summaryModel
+
+ai/src/summaryModel
 # production
 /build
 
