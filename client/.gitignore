@@ -9,7 +9,11 @@
 /.pnp
 .pnp.js
 
+<<<<<<< HEAD
 .next
+=======
+/.next/
+>>>>>>> bd67bda5c7573aa0a023d7b3e7505aa5dbdcb611
 /out/
 
 # production

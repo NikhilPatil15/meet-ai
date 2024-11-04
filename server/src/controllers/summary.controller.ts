@@ -41,11 +41,14 @@ const addDialogue = asyncHandler(async (req: any, res: Response) => {
 const generateSummaryFile = asyncHandler(async (req: any, res: Response) => {
   console.log(req?.summary);
 
+<<<<<<< HEAD
   // if(req.summary){
   //   console.log("Summary in the generate summary file function: ", req?.summary);
   //   return res.json(new ApiResponse(200,"Summary fetched successfully!"))
   // }
 
+=======
+>>>>>>> bd67bda5c7573aa0a023d7b3e7505aa5dbdcb611
   const { roomId } = req.params;
   const meeting: IMeeting | any = await Meeting.findOne({ roomId: roomId });
 
