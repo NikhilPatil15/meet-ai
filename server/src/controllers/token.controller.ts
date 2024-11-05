@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
 import { streamClient } from "../config/getStream";
+import { serverClient } from "../config/chatConfig";
 
 const getTokenUser = asyncHandler(async (req: any, res: Response) => {
   console.log("Api Key", process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY);
@@ -25,4 +26,12 @@ const getTokenGuest = asyncHandler(async (req: any, res: Response) => {
   res.json({ guestId, guestName, token });
 });
 
-export { getTokenUser, getTokenGuest };
+const getTokenChat = asyncHandler(async (req: any, res: Response) => {
+  const { userId } = req.body;
+  console.log(userId);
+  
+  const token = serverClient.createToken(userId);
+  res.json({ token });
+});
+
+export { getTokenUser, getTokenGuest, getTokenChat };
