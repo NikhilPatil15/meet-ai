@@ -169,7 +169,7 @@ body {
   }
 }
 .loader-container {
-   /* Full viewport width */
+   
    height: 100%;
    width:100%;
   position: fixed;
@@ -321,16 +321,242 @@ body {
 .skeleton-bg {
   background-color: #1c1c1c;
 }
+.rd__layout {
+  display: flex;
+  height: calc(100vh - 140px);
+  height: calc(100dvh - 140px);
+  padding: 14px;
+  gap: 1rem; /* Adjust as needed for spacing */
+  align-items: center;
+  justify-content: center;
+}
+
+.rd__sidebar.rd__sidebar--open {
+  z-index: 2;
+  right: 0; /* Positioning from the right side */
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: var(--str-video__base-color7); /* Ensure background color is set */
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(0);
+}
+
+/* Sidebar when closed */
+.rd__sidebar {
+  position: fixed; /* Changed to fixed for better overlay behavior */
+  top: 0; /* Position from the top */
+  right: -100%; /* Initially position off-screen to the right */
+  border-radius: var(--str-video__border-radius-md);
+  height: calc(100vh - 60px); /* Full height minus the header */
+  width: 300px;
+  background-color: var(--str-video__base-color7);
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(100%); 
+  overflow-y: auto;
+  z-index: 2;
+}
 
 
+.rd__sidebar.rd__sidebar--open {
+  transform: translateX(0);
+}
+.fixedd {
+  z-index: 3; 
+}
+
+.rd__sidebar__container {
+  flex-grow: 1;
+  padding: var(--str-video__spacing-lg) 0;
+}
+
+.rd__participants {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--str-video__base-color7);
+  border-radius: var(--str-video__border-radius-md);
+  padding: var(--str-video__spacing-lg);
+  height: 100%;
+  width: 100%;
+}
+
+
+.rd__sidebar .str-video__participant-list {
+  flex-grow: 1;
+}
+
+@media (max-width: 600px) {
+  .rd__sidebar {
+    width: 100%; 
+    height: 100%;
+    border-radius: 0; 
+  }
+
+  .rd__sidebar.rd__sidebar--open {
+    width: 100%; 
+  }
+
+  .rd__sidebar .str-video__participant-list {
+    height: calc(100vh - 150px);
+  }
+}
+
+@media (min-width: 601px) {
+  .rd__sidebar {
+    width: 300px;
+    height: 100%;
+    position: fixed;
+    overflow-y: auto;
+  }
+
+  .rd__sidebar.rd__sidebar--open {
+    width: 300px; 
+  }
+
+  .rd__sidebar__container {
+    max-width: 300px;
+    display: flex;
+    gap: var(--str-video__spacing-md);
+    height: 100%;
+    padding: 0;
+  }
+
+  .rd__participants {
+    overflow-y: auto;
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
+  }
+
+  .rd__participants::-webkit-scrollbar {
+    display: none;
+  }
+
+  .str-video__participant-list {
+    height: calc(100vh - 150px); 
+  }
+}
+
+
+.rd__layout .rd__layout__stage-container{
+  display: flex;
+  flex-direction: column;
+  flex:1 1;
+  min-width:0;
+}
+.rd__layout .str-video__paginated-grid-layout__wrapper, .rd__layout .str-video__speaker-layout__wrapper {
+  flex: 1 1;
+}
+.str-video__speaker-layout__wrapper {
+  flex-grow: 1;
+  overflow-y: hidden;
+}
+.str-video__speaker-layout .str-video__speaker-layout__participants-bar-buttons-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.str-video__speaker-layout--variant-bottom .str-video__speaker-layout__participants-bar-wrapper, .str-video__speaker-layout--variant-top .str-video__speaker-layout__participants-bar-wrapper {
+  overflow-x: auto;
+}
+.str-video__speaker-layout .str-video__speaker-layout__participants-bar-wrapper .str-video__speaker-layout__participants-bar {
+  display: flex;
+
+  align-items: center;
+}
+.str-video__speaker-layout--variant-bottom .str-video__speaker-layout__participants-bar, .str-video__speaker-layout--variant-top .str-video__speaker-layout__participants-bar {
+  flex-direction: row;
+}
 .rotate-45 {
   @apply rotate-[45deg];
 }
+.str-video__icon {
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: #eff0f1;
+}
 
+
+.str-video__call-stats {
+  max-width: 500px;
+}
+.str-video__speaker-layout--variant-right {
+  flex-direction: row;
+}
+.str-video *, .str-video :after, .str-video :before {
+  box-sizing: border-box;
+}
+.str-video, body {
+  background-color: #000;
+  color: #fff;
+}
 .rotate-90 {
   @apply rotate-[90deg];
 }
+.str-video {
+  --str-video__video-preview-container--color: #fff;
+  --str-video__video-preview-container--background-color: #1d2938;
+  --str-video__video-preview-container--border-radius: 8px;
+  --str-video__video-preview-container--border-block-start: 4px solid #005fff;
+  --str-video__video-preview-container--border-block-end: 4px solid #005fff;
+  --str-video__video-preview-container--border-inline-start: 4px solid #005fff;
+  --str-video__video-preview-container--border-inline-end: 4px solid #005fff;
+}
 
+@media (max-width: 768px) {
+  .str-video__speaker-layout {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    width:100%;
+    gap: 1rem;
+    padding-inline: 2px;
+    padding: 2px;
+  }
+  .str-video__speaker-layout .str-video__speaker-layout__participants-bar-wrapper .str-video__speaker-layout__participants-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  .str-video__speaker-layout--variant-bottom .str-video__speaker-layout__participants-bar-wrapper, .str-video__speaker-layout--variant-top .str-video__speaker-layout__participants-bar-wrapper {
+    overflow-x: auto;
+}
+.str-video__speaker-layout .str-video__speaker-layout__participants-bar-wrapper {
+  scrollbar-width: none;
+}
+}
+@media (min-width: 1024px) {
+  .str-video__speaker-layout {
+    display: flex;
+    height: calc(100vh - 140px);
+    height: calc(100dvh - 140px);
+    gap:12px ;
+    padding: 12px;
+    position: relative;
+  }
+}
+.str-video__speaker-layout .str-video__speaker-layout__participants-bar-buttons-wrapper .str-video__speaker-layout__participants-bar--button-right {
+  position: absolute;
+  right: .5rem;
+}
+
+.str-video__participant-list {
+  background-color: #1c1f2e;
+  padding: 10px;
+  border-radius: 10px;
+  color: white;
+}
+@media (min-width: 600px) {
+  .str-video__speaker-layout .str-video__speaker-layout__spotlight {
+      align-items: center;
+      height: auto;
+  }
+}
 .rotate-135 {
   @apply rotate-[135deg];
 }
