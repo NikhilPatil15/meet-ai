@@ -73,7 +73,7 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
     host: createdBy,
     description,
     participants: participantsList || [],
-    scheduledTime,
+    scheduledTime: (scheduledTime && status === "scheduled") ? scheduledTime : new Date().toISOString(),
     createdBy: new ObjectId(createdBy),
     roomId: roomId,
     status: status ? status : "not scheduled",
@@ -101,8 +101,8 @@ const addJoinedParticipant: any = asyncHandler(
 
     console.log(user);
 
-    const meeting: IMeeting | any = await Meeting.findById(
-      req?.body?.meetingId
+    const meeting: IMeeting | any = await Meeting.findOne({
+      roomId: req?.body?.roomId}
     );
 
     if (!meeting) {
@@ -172,14 +172,49 @@ const endMeeting: any = asyncHandler(async (req: any, res: Response) => {
 
 const getMeeting: any = asyncHandler(async (req: any, res: Response) => {
   const { id } = req.params;
-  const meeting = await Meeting.findById(id);
+  const meeting = await Meeting.aggregate([
+    { $match: { _id: new ObjectId(id) } },
+    {
+      $lookup: {
+        from: "users", 
+        localField: "host",
+        foreignField: "_id",
+        as: "hostDetails"
+      }
+    },
+    {
+      $unwind: "$hostDetails"
+    },
+    {
+      $project: {
+        _id: 1,
+        title: 1,
+        description: 1,
+        participants: 1,
+        scheduledTime: 1,
+        createdBy: 1,
+        status: 1,
+        host: 1,
+        roomId: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        enableSummary: 1,
+        fileUrl: 1,
+        fileName: 1,
+        dialogues: 1,
+        "hostDetails._id": 1,
+        "hostDetails.userName": 1,
+        "hostDetails.email": 1 
+      }
+    }
+  ]);
 
   if (!meeting) {
     throw new ApiError(404, "Meeting not found");
   }
   return res
     .status(200)
-    .json(new ApiResponse(201, meeting, "Meeting found successfully"));
+    .json(new ApiResponse(201, meeting[0], "Meeting found successfully"));
 });
 
 export { createMeeting, addJoinedParticipant, endMeeting, getMeeting };

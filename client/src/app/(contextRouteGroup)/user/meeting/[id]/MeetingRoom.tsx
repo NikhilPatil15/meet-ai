@@ -1,20 +1,18 @@
 "use client";
+import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import "regenerator-runtime/runtime";
 import "@/styles/globals.css";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
-import SpeechRecognition, {
-  useSpeechRecognition,
-} from "react-speech-recognition";
 import {
   CallControls,
   CallingState,
   CallParticipantsList,
   PaginatedGridLayout,
   SpeakerLayout,
+  useCall,
   useCallStateHooks,
+  useStreamVideoClient,
 } from "@stream-io/video-react-sdk";
-import React, { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +28,7 @@ import {
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import EndCallButton from "@/components/ui/EndCallButton";
+import axiosInstance from "@/utils/axios";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
@@ -37,61 +36,93 @@ const MeetingRoom = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isPersonalRoom = !!searchParams.get("personal");
-  const { useCallCallingState } = useCallStateHooks();
+  const { useCallCallingState, useMicrophoneState } = useCallStateHooks();
   const callingState = useCallCallingState();
-  console.log(callingState);
+  const { isMute } = useMicrophoneState();
 
-  const { useMicrophoneState } = useCallStateHooks();
-  const { microphone, isMute } = useMicrophoneState();
+  const call = useCall();
+  console.log(call?.cid);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const micState = async () => {
-    console.log(`Microphone is ${isMute ? "off" : "on"}`);
-  };
+  const [transcript, setTranscript] = useState("");
+  const [layout, setLayout] = useState<CallLayoutType>("speaker-left");
+  const [showParticipants, setShowParticipants] = useState(false);
+  const [recognition, setRecognition] = useState<any>(null);
+  const [participantCount, setParticipantCount] = useState(0);
+  const client = useStreamVideoClient();
+  const user = client?.streamClient.user?.name;
 
-  const {
-    transcript,
-    browserSupportsSpeechRecognition,
-    resetTranscript,
-  } = useSpeechRecognition();
-
-  const getText = async () => {
+  const sendSpeech = async (text: string) => {
     try {
-      const startListening = () =>
-        SpeechRecognition.startListening({
-          continuous: true,
-          language: "en-IN",
-        });
-      if (!browserSupportsSpeechRecognition) {
-        return null;
-      }
-      if (isMute) {
-        startListening();
-        resetTranscript();
-      }
+      const textToSend = `${user}: ${text}`;
+      const res = await axiosInstance.patch("/summary/add-dialogue", {
+        dialogue: textToSend,
+        meetingId: call?.cid,
+      });
+      console.log("Speech sent:", res.data);
     } catch (error) {
-      console.log(error);
+      console.error("Error sending speech:", error);
     }
-    console.log(`A:` + transcript);
   };
 
   useEffect(() => {
-    micState();
-    try {
-      if (isMute) {
-        getText();
-      } else {
-        SpeechRecognition.stopListening;
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      resetTranscript();
-    }
-  }, [microphone, isMute]);
+    if ("webkitSpeechRecognition" in window) {
+      const speechRecognition = new window.webkitSpeechRecognition();
+      speechRecognition.continuous = true;
+      speechRecognition.interimResults = true;
+      speechRecognition.lang = "en-IN";
 
-  const [layout, setLayout] = useState<CallLayoutType>("speaker-left");
-  const [showParticipants, setShowParticipants] = useState(false);
+      speechRecognition.onresult = (event) => {
+        const updatedTranscript = Array.from(event.results)
+          .map((result) => result[0].transcript)
+          .join("");
+        setTranscript(updatedTranscript);
+        console.log("Updated Transcript:", updatedTranscript);
+        sendSpeech(updatedTranscript);
+      };
+
+      speechRecognition.onerror = (event) => {
+        console.error("Speech recognition error detected:", event.error);
+      };
+
+      setRecognition(speechRecognition);
+    } else {
+      alert("Browser does not support speech recognition. Please use Chrome.");
+    }
+  }, []);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && layout === 'speaker-right') { 
+        setLayout('speaker-right');
+      } else if (window.innerWidth >= 768 && layout === 'speaker-left') {
+        setLayout('speaker-left');
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); 
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [layout]);
+
+  useEffect(() => {
+    if (recognition) {
+      if (!isMute) {
+        recognition.start();
+        console.log("Started listening...");
+      } else {
+        recognition.stop();
+        console.log("Stopped listening...");
+      }
+    }
+    return () => {
+      if (recognition) {
+        recognition.stop();
+      }
+    };
+  }, [isMute, recognition]);
 
   const CallLayout = () => {
     switch (layout) {
@@ -107,30 +138,51 @@ const MeetingRoom = () => {
   };
 
   if (callingState !== CallingState.JOINED) {
-    return <div className="mx-auto animate-spin">Loading...</div>;
+    return <div className="mx-auto ">Loading...</div>;
   }
+
+  // Generate the meeting URL for QR code and invite link
+  const meetingUrl = `https://yourapp.com/meeting/${call?.cid}`;
+
+  const copyInviteLink = () => {
+    navigator.clipboard.writeText(meetingUrl)
+      .then(() => {
+        alert("Invite link copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+      });
+  };
 
   return (
     <section className="relative h-screen w-full overflow-hidden text-white">
-      <div className="relative flex size-full items-center justify-center">
+      <div className="rd__layout relative flex size-full items-center justify-center">
         <div className="flex size-full max-w-[1000px]">
           <CallLayout />
         </div>
 
+        {/* Participants Sidebar */}
         <div
           className={cn(
-            "h-[calc(100vh-86px)] ml-2 p-5 transition-all duration-300",
-            showParticipants ? "block" : "hidden"
+            "rd__sidebar",
+            showParticipants ? "rd__sidebar--open" : ""
           )}
         >
-          <CallParticipantsList onClose={() => setShowParticipants(false)} />
+          <div className="rd__sidebar__container">
+            <div className="rd__participants">
+              <div className="str-video__participant-list">
+                {/* Participant List */}
+                <CallParticipantsList onClose={() => setShowParticipants(false)} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="fixed bottom-0 flex w-full items-center justify-center gap-5 flex-wrap">
+      {/* Call Controls and Buttons */}
+      <div className="fixed bottom-0 flex w-full items-center justify-center gap-5 flex-wrap bg-transparent px-4 py-2 z-30">
         <CallControls onLeave={() => router.push("/")} />
-
-        {/* Dropdown for Layout Selection */}
+        <div className="hidden md:block">
         <DropdownMenu>
           <DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
             <LayoutList size={20} className="text-white" />
@@ -162,8 +214,7 @@ const MeetingRoom = () => {
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {/* Button to show/hide participants list */}
+        </div>
         <button onClick={() => setShowParticipants((prev) => !prev)}>
           <div className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
             <User size={20} className="text-white" />
@@ -171,6 +222,9 @@ const MeetingRoom = () => {
         </button>
         {!isPersonalRoom && <EndCallButton />}
       </div>
+
+     
+      
     </section>
   );
 };

@@ -69,11 +69,13 @@ export default function CreateMeetingPage() {
       });
       setCall(call);
       if (call) {
+        console.log(startTimeInput);
+        
         const res = await axiosInstance.post("meeting/create-meeting", {
           title: titleInput,
           description: descriptionInput,
           participants: selectedParticipants,
-          scheduleTime: startTimeInput,
+          scheduledTime: startTimeInput,
           status: activeTime ? "scheduled" : "not scheduled",
           roomId: call?.cid,
           type: activeType ? "private" : "public",
@@ -297,7 +299,8 @@ interface StartTimeInputProps {
 
 function StartTimeInput({ value, onChange, activeTime, setActiveTime }: StartTimeInputProps) {
   
-
+  console.log(value);
+  
   const dateTimeLocalNow = new Date(
     new Date().getTime() - new Date().getTimezoneOffset() * 60_000
   )
@@ -424,7 +427,7 @@ function ParticipantsInput({
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-h-[80vh] w-full max-w-lg overflow-y-auto transform transition-all duration-200 scale-100 hover:scale-105 shadow-lg">
+          <div className="bg-gray-800 p-6 rounded-lg max-h-[80vh] w-full max-w-lg overflow-y-auto transform transition-all duration-200 scale-100 hover:scale-105 shadow-lg">
             <h2 className="text-xl font-bold text-gray-200 mb-5">Invite Participants</h2>
 
             {/* Search Bar */}

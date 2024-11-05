@@ -14,8 +14,10 @@ import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import uploadOnCloudinary from "../utils/cloudinary";
 import Meeting from "../models/meeting.model";
-import mongoose from "mongoose";
+import mongoose, { AnyBulkWriteOperation } from "mongoose";
 import sendMail from "../utils/sendMail";
+import moment from "moment";
+import { countReset } from "console";
 
 const options: any = {
   httpOnly: false,
@@ -500,6 +502,8 @@ const getMeetingHistory = asyncHandler(async (req: any, res: Response) => {
         "hostDetails.fullName": 1,
         "hostDetails.email": 1,
         guestDetails: 1,
+        scheduledTime: 1,
+        endTime: 1,
         title: 1,
         description: 1,
         status: 1,
@@ -610,6 +614,69 @@ const getLast7DaysMeetingDetails = asyncHandler(
   }
 );
 
+const getNext7DaysMeetingDetails = asyncHandler(
+  async (req: any, res: Response) => {
+    const userId = new ObjectId(req.user.id);
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+
+    const meetingCounts = await Meeting.aggregate([
+      {
+        $match: {
+          scheduledTime: { $gte: today, $lt: nextWeek },
+          $or: [{ host: userId }, { "participants.userId": userId }],
+        },
+      },
+      {
+        $project: {
+          date: {
+            $dateToString: { format: "%Y-%m-%d", date: "$scheduledTime" },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$date",
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    console.log(meetingCounts);
+
+    const response = meetingCounts.map((meeting) => ({
+      date: meeting._id,
+      count: meeting.count,
+    }));
+
+    return res.status(200).json(new ApiResponse(201, response));
+  }
+);
+
+const getTodaysSchedule = asyncHandler(async (req: any, res: Response) => {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const userId = new ObjectId(req.user.id);
+
+  const meetings = await Meeting.find({
+    scheduledTime: { $gte: startOfDay, $lte: endOfDay },
+    $or: [{ host: userId }, { "participants.userId": userId }],
+  });
+
+  if (!meetings || meetings.length === 0) {
+    throw new ApiError(404, "No meetings scheduled for today.");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(201, meetings, "Today's meetings"));
+});
+
 export {
   registerUser,
   loginUser,
@@ -628,5 +695,7 @@ export {
   uploadAvatar,
   verifyUser,
   getScheduleMeetings,
-  getLast7DaysMeetingDetails
+  getLast7DaysMeetingDetails,
+  getNext7DaysMeetingDetails,
+  getTodaysSchedule,
 };

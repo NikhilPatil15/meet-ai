@@ -5,7 +5,7 @@ import { ApiResponse } from "../utils/apiResponse";
 import { isValidObjectId } from "mongoose";
 import { ApiError } from "../utils/apiError";
 // import { promises as fs } from "fs";
-import fs from "fs"
+import fs from "fs";
 import { writeFile } from "fs/promises";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import path from "path";
@@ -16,11 +16,11 @@ const addDialogue = asyncHandler(async (req: any, res: Response) => {
   if (!dialogue || !meetingId) {
     throw new ApiError(400, "Dialogue or meeting id is missing!");
   }
-  if (!isValidObjectId(meetingId)) {
-    throw new ApiError(400, "Invalid meeting id!");
-  }
+  // if (!isValidObjectId(meetingId)) {
+  //   throw new ApiError(400, "Invalid meeting id!");
+  // }
 
-  const meeting: any = await Meeting.findById(meetingId);
+  const meeting: any = await Meeting.findOne({ roomId: meetingId });
   if (!meeting) {
     return res
       .status(404)
@@ -41,79 +41,116 @@ const addDialogue = asyncHandler(async (req: any, res: Response) => {
 const generateSummaryFile = asyncHandler(async (req: any, res: Response) => {
   console.log(req?.summary);
 
-  const dirPath = path.join(__dirname, "../../public/temp");
-  const filePath = path.join(dirPath, `${new Date().getTime()}.docx`);
-  // const content = "This is the content of the file.";
+  const { roomId } = req.params;
+  const meeting: IMeeting | any = await Meeting.findOne({ roomId: roomId });
 
-  const doc = new Document({
-    sections: [
-      {
-        properties: {},
-        children: [
-          //Title
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "Title",
-                bold: true,
-                size: 28,
-              }),
-            ],
-          }),
+  if (!meeting) {
+    throw new ApiError(404, "Meeting not found");
+  }
 
-          new Paragraph({ text: "This is title" }),
+  if (meeting?.enableSummary) {
+    const dirPath = path.join(__dirname, "../../public/temp");
+    const filePath = path.join(
+      dirPath,
+      `${meeting?.title} ${new Date().getTime()}.docx`
+    );
+    // const content = "This is the content of the file.";
 
-          // description:
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "Description: ",
-                bold: true,
-                size: 24,
-              }),
-            ],
-          }),
-          new Paragraph({ text: "this is description" }),
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: [
+            //Title
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "Title",
+                  bold: true,
+                  size: 28,
+                }),
+              ],
+            }),
 
-          //summary:
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "Summary: ",
-                bold: true,
-                size: 24,
-              }),
-            ],
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "Something",
-                size: 22,
-              }),
-            ],
-            indent: { left: 720 }, // 720 twips = 0.5 inch indentation
-          }),
-        ],
-      },
-    ],
-  });
+            new Paragraph({ text: "This is title" }),
 
-  // await fs.mkdir(dirPath, { recursive: true });
+            // description:
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "Description: ",
+                  bold: true,
+                  size: 24,
+                }),
+              ],
+            }),
+            new Paragraph({ text: "this is description" }),
 
-  // await fs.writeFile(filePath, content, "utf-8");
+            //summary:
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "Summary: ",
+                  bold: true,
+                  size: 24,
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "Something",
+                  size: 22,
+                }),
+              ],
+              indent: { left: 720 }, // 720 twips = 0.5 inch indentation
+            }),
+          ],
+        },
+      ],
+    });
 
-  const buffer = await Packer.toBuffer(doc);
-  const file = fs.writeFileSync(filePath, buffer);
-  console.log(file);
-  
-  try {
-    const cloudinaryResult = await uploadOnCloudinary(filePath);
-    console.log(cloudinaryResult?.format);
-    res.status(200).json({ message: "File created and uploaded successfully", cloudinaryResult });
-  } catch (error) {
-    res.status(500).json({ message: "File upload failed", error });
+    // await fs.mkdir(dirPath, { recursive: true });
+
+    // await fs.writeFile(filePath, content, "utf-8");
+
+    const buffer = await Packer.toBuffer(doc);
+    fs.writeFileSync(filePath, buffer);
+
+    try {
+      const cloudinaryResult = await uploadOnCloudinary(filePath);
+      meeting.fileUrl = cloudinaryResult?.url;
+      meeting.fileName = cloudinaryResult?.public_id;
+      await meeting?.save();
+
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            201,
+            meeting,
+            "File created and uploaded successfully"
+          )
+        );
+    } catch (error) {
+      throw new ApiError(500, "File upload failed");
+    }
+  } else {
+    throw new ApiError(404, "Summarize meeting not enabled");
   }
 });
 
-export { addDialogue, generateSummaryFile };
+const enableSummary = asyncHandler(async (req: any, res: Response) => {
+  const { roomId } = req.params;
+  const meeting: IMeeting | any = await Meeting.findOne({ roomId: roomId });
+  if (!meeting) {
+    throw new ApiError(404, "Meeting not found");
+  }
+  meeting.enableSummary = true;
+  meeting.save();
+  return res
+    .status(200)
+    .json(new ApiResponse(201, "Summary enabled successfully"));
+});
+
+export { addDialogue, generateSummaryFile, enableSummary };

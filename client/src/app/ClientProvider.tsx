@@ -10,7 +10,7 @@ import { base_url } from "@/config/config";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
-import { fetchUser } from "@/redux/slices/authSlice";
+import { fetchUser, setGuest } from "@/redux/slices/authSlice";
 
 interface ClientProviderProps {
   children: React.ReactElement;
@@ -27,7 +27,9 @@ export default function ClientProvider({ children }: ClientProviderProps) {
 }
 
 function useInitializeVideoClient() {
-  const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(null);
+  const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(
+    null
+  );
   const [loading, setLoading] = useState<boolean>(true);
 
   const dispatch: AppDispatch = useDispatch();
@@ -67,6 +69,7 @@ function useInitializeVideoClient() {
         if (!response.data?.token) {
           throw new Error("Failed to retrieve token for the user");
         }
+        dispatch(setGuest(response.data.guestName));
 
         const client = new StreamVideoClient({
           apiKey,
@@ -88,10 +91,10 @@ function useInitializeVideoClient() {
 
     return () => {
       if (videoClient) {
-        videoClient.disconnectUser(); 
+        videoClient.disconnectUser();
       }
     };
-  }, [user]); 
+  }, [user]);
 
   return loading ? null : videoClient;
 }
