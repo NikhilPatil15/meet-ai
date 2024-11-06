@@ -1,5 +1,4 @@
-"use client";
-
+'use client'
 import React, { Suspense, lazy } from "react";
 import '../../styles/globals.css';
 import Loading from "@/app/(main)/loading"

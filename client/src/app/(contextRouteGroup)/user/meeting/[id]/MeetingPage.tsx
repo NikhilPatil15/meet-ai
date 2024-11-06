@@ -118,9 +118,7 @@ export default function MeetingPage({ id }: MeetingPageProps) {
         <StreamCall call={call}>
           <MeetingScreen />
         </StreamCall>
-        <h2>
-          Meeting Link: {`${process.env.NEXT_PUBLIC_BASE_URI}/meeting/${id}`}
-        </h2>
+
       </StreamTheme>
     </StreamVideo>
   );

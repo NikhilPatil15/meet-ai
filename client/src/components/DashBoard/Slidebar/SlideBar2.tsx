@@ -3,11 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname,useRouter } from "next/navigation";
 import { sidebarLinks } from "@/constants/index";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { useUserContext } from "@/Context/userContext";
+
 
 const Sidebar = () => {
   const pathname = usePathname();

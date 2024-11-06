@@ -26,6 +26,7 @@ import {
   BetweenHorizonalEnd,
   BetweenVerticalEnd,
   User,
+  Loader2,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import EndCallButton from "@/components/ui/EndCallButton";
@@ -124,7 +125,7 @@ const MeetingRoom = () => {
   };
 
   if (callingState !== CallingState.JOINED) {
-    return <div className="mx-auto animate-spin">Loading...</div>;
+    return <Loader2 className="mx-auto animate-spin"/>;
   }
 
   return (
