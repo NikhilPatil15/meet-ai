@@ -45,7 +45,7 @@ const MeetingSummary = ({ id }: any) => {
     }
   };
 
-  const handleChange = (event) => {
+  const handleChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
     setSelectedFileType(event.target.value);
     setError("");
   };
@@ -159,9 +159,9 @@ const MeetingSummary = ({ id }: any) => {
 
         {/* Call to Action */}
         <div className="text-center mt-8">
-          <Button variant="contained" color="success">
+          <button className="px-6 py-3 bg-green-500 rounded-md hover:bg-green-600">
             Schedule Next Meeting
-          </Button>
+          </button>
         </div>
 
         {showModal && (

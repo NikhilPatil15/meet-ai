@@ -11,7 +11,6 @@ import {
   SpeakerLayout,
   useCall,
   useCallStateHooks,
-  StreamVideoClient,
   useStreamVideoClient,
 } from "@stream-io/video-react-sdk";
 import {
@@ -31,8 +30,6 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import EndCallButton from "@/components/ui/EndCallButton";
 import axiosInstance from "@/utils/axios";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
@@ -51,9 +48,9 @@ const MeetingRoom = () => {
   const [layout, setLayout] = useState<CallLayoutType>("speaker-left");
   const [showParticipants, setShowParticipants] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
-  // const { guest, user } = useSelector((state: RootState) => state.auth);
+  const [participantCount, setParticipantCount] = useState(0);
   const client = useStreamVideoClient();
-  const user = client?.streamClient.user?.name
+  const user = client?.streamClient.user?.name;
 
   const sendSpeech = async (text: string) => {
     try {
@@ -93,6 +90,23 @@ const MeetingRoom = () => {
       alert("Browser does not support speech recognition. Please use Chrome.");
     }
   }, []);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && layout === 'speaker-right') { 
+        setLayout('speaker-right');
+      } else if (window.innerWidth >= 768 && layout === 'speaker-left') {
+        setLayout('speaker-left');
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); 
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [layout]);
 
   useEffect(() => {
     if (recognition) {
@@ -125,29 +139,53 @@ const MeetingRoom = () => {
   };
 
   if (callingState !== CallingState.JOINED) {
+    return <div className="mx-auto ">Loading...</div>;
+  }
+
+  // Generate the meeting URL for QR code and invite link
+  const meetingUrl = `https://yourapp.com/meeting/${call?.cid}`;
+
+  const copyInviteLink = () => {
+    navigator.clipboard.writeText(meetingUrl)
+      .then(() => {
+        alert("Invite link copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+      });
+  };
     return <Loader2 className="mx-auto animate-spin"/>;
   }
 
   return (
     <section className="relative h-screen w-full overflow-hidden text-white">
-      <div className="relative flex size-full items-center justify-center">
+      <div className="rd__layout relative flex size-full items-center justify-center">
         <div className="flex size-full max-w-[1000px]">
           <CallLayout />
         </div>
 
+        {/* Participants Sidebar */}
         <div
           className={cn(
-            "h-[calc(100vh-86px)] ml-2 p-5 transition-all duration-300",
-            showParticipants ? "block" : "hidden"
+            "rd__sidebar",
+            showParticipants ? "rd__sidebar--open" : ""
           )}
         >
-          <CallParticipantsList onClose={() => setShowParticipants(false)} />
+          <div className="rd__sidebar__container">
+            <div className="rd__participants">
+              <div className="str-video__participant-list">
+                {/* Participant List */}
+                <CallParticipantsList onClose={() => setShowParticipants(false)} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="fixed bottom-0 flex w-full items-center justify-center gap-5 flex-wrap">
+      {/* Call Controls and Buttons */}
+      <div className="fixed bottom-0 flex w-full items-center justify-center gap-5 flex-wrap bg-transparent px-4 py-2 z-30">
         <CallControls onLeave={() => router.push("/")} />
-
+        <div className="hidden md:block">
         <DropdownMenu>
           <DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
             <LayoutList size={20} className="text-white" />
@@ -179,7 +217,7 @@ const MeetingRoom = () => {
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-
+        </div>
         <button onClick={() => setShowParticipants((prev) => !prev)}>
           <div className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
             <User size={20} className="text-white" />
@@ -187,6 +225,9 @@ const MeetingRoom = () => {
         </button>
         {!isPersonalRoom && <EndCallButton />}
       </div>
+
+     
+      
     </section>
   );
 };
