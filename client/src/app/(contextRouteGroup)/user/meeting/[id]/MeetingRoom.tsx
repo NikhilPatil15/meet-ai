@@ -139,7 +139,7 @@ const MeetingRoom = () => {
   };
 
   if (callingState !== CallingState.JOINED) {
-    return <div className="mx-auto ">Loading...</div>;
+    return <Loader2 className="mx-auto animate-spin"/>;
   }
 
   // Generate the meeting URL for QR code and invite link
@@ -154,8 +154,7 @@ const MeetingRoom = () => {
         console.error("Failed to copy: ", err);
       });
   };
-    return <Loader2 className="mx-auto animate-spin"/>;
-  }
+
 
   return (
     <section className="relative h-screen w-full overflow-hidden text-white">

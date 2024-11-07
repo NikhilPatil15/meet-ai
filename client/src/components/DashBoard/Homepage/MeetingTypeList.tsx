@@ -29,6 +29,7 @@ const MeetingTypeList = () => {
     } else if (state === 'isJoiningMeeting') {
       // Open modal to join meeting
       handleOpen();
+      
     } else if (state === 'isPrivateMeeting') {
       router.push('/user/create-meeting');
     }
@@ -36,7 +37,7 @@ const MeetingTypeList = () => {
 
   const handleJoinMeeting = () => {
     if (roomId) {
-      router.push(`/user/join-meeting/${roomId}`);
+      router.push(`/user/meeting/${roomId}`);
       handleClose(); 
     } else {
       alert('Please enter a valid Room ID');

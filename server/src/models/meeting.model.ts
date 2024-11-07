@@ -18,6 +18,7 @@ export interface IMeeting extends Document {
   summary: string;
   fileUrl: string | any;
   fileName: string;
+  meetingLink: string
 }
 
 const MeetingSchema = new Schema<IMeeting>(
@@ -76,6 +77,9 @@ const MeetingSchema = new Schema<IMeeting>(
     },
     fileName: {
       type: String
+    },
+    meetingLink: {
+      type:String
     }
   },
   { timestamps: true }

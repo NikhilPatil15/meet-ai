@@ -21,7 +21,7 @@ export default function CreateMeetingPage() {
   const [activeType, setActiveType] = useState(false);
   const [participantsInput, setParticipantsInput] = useState("");
   const [call, setCall] = useState<Call>();
-  const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
+  const [selectedParticipants, setSelectedParticipants] = useState<[]>(
     []
   );
   const [allUsers, setAllUsers] = useState<any>([]);
@@ -29,7 +29,7 @@ export default function CreateMeetingPage() {
 
   const [join, setJoin] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [input, setInput] = useState<string>("");
+  const [roomId, setRoomId] = useState<string>("");
 
   const client = useStreamVideoClient();
   const router = useRouter();
@@ -62,6 +62,9 @@ export default function CreateMeetingPage() {
     try {
       const id = crypto.randomUUID();
       const call = client.call("default", id);
+
+      console.log("Call id: ", call?.cid.length);
+      
       const response = await call.getOrCreate({
         data: {
           custom: { description: descriptionInput && descriptionInput },
@@ -82,7 +85,7 @@ export default function CreateMeetingPage() {
         });
         console.log(res.data.data);
       }
-      // router.push(`meeting/${call?.cid}`);
+      router.push(`meeting/${call?.cid}`);
     } catch (error) {
       console.error("Error creating meeting:", error);
       alert("Something went wrong. Please try again later.");
@@ -90,12 +93,63 @@ export default function CreateMeetingPage() {
   }
 
   const joinMeeting = async () => {
-    if (input.trim()) {
-      router.push(`/meeting/${input.trim()}`);
+    if (roomId.trim().length === 44) {
+      router.push(`meeting/${roomId.trim()}`);
     } else {
       alert("Please enter a valid meeting ID.");
     }
   };
+
+  const scheduleMeeting = async() => {
+
+    /* Api request for the schedule meeting */
+
+    if (!client || !user) {
+      return;
+    }
+
+    try {
+      const id = crypto.randomUUID();
+      const call = client.call("default", id);
+
+      // console.log("Call id: ", call?.cid.length);
+      if(activeType){
+        const response = await call.getOrCreate({
+          data: {
+            custom: { description: descriptionInput && descriptionInput },
+            members:selectedParticipants
+          },
+        });
+      }else{
+
+        const response = await call.getOrCreate({
+          data: {
+            custom: { description: descriptionInput && descriptionInput },
+          },
+        });
+      }
+      setCall(call);
+      if (call) {
+        console.log(startTimeInput);
+        
+        const res = await axiosInstance.post("meeting/create-meeting", {
+          title: titleInput,
+          description: descriptionInput,
+          participants: selectedParticipants,
+          scheduledTime: startTimeInput,
+          status: activeTime ? "scheduled" : "not scheduled",
+          roomId: call?.cid,
+          type: activeType ? "private" : "public",
+          meetingLink:`http://localhost:3000/user/meeting/${call?.c}`
+        });
+        console.log(res.data.data);
+      }
+    } catch (error) {
+      console.error("Error creating meeting:", error);
+      alert("Something went wrong. Please try again later.");
+    }
+  }
+  
 
   const filteredUsers = allUsers.filter(
     (user: any) =>
@@ -133,7 +187,16 @@ export default function CreateMeetingPage() {
           setShowModal={setShowModal}
         />
 
-<button
+{activeTime ? (
+  <button
+  onClick={createMeeting}
+  className="w-full bg-purpleAccent-200 hover:bg-purpleAccent-100 text-white font-semibold py-3 px-5 rounded-lg shadow-md transition transform hover:scale-105 duration-300"
+  style={{ padding: '12px 24px', borderRadius: '8px' }} // Adjust padding and border-radius
+>
+ Schedule Meeting
+</button>
+): (
+  <div className="flex gap-5 flex-col"><button
   onClick={createMeeting}
   className="w-full bg-purpleAccent-200 hover:bg-purpleAccent-100 text-white font-semibold py-3 px-5 rounded-lg shadow-md transition transform hover:scale-105 duration-300"
   style={{ padding: '12px 24px', borderRadius: '8px' }} // Adjust padding and border-radius
@@ -148,14 +211,15 @@ export default function CreateMeetingPage() {
 >
   Join a Meeting
 </button>
+</div>)}
 
         {join && (
           <div className="mt-4">
             <input
               type="text"
               placeholder="Enter Meeting ID"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+              value={roomId}
+              onChange={(e) => setRoomId(e.target.value)}
               className="w-full p-3 rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <button
