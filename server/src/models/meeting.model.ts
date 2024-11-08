@@ -18,6 +18,9 @@ export interface IMeeting extends Document {
   summary: string;
   fileUrl: string | any;
   fileName: string;
+  chatChannelId?: string | any; 
+  chatCreatedAt?: Date; 
+  chatMembers: Schema.Types.ObjectId[] | any;
 }
 
 const MeetingSchema = new Schema<IMeeting>(
@@ -76,7 +79,19 @@ const MeetingSchema = new Schema<IMeeting>(
     },
     fileName: {
       type: String
-    }
+    },
+    chatChannelId: {
+      type: String,
+      unique: true, 
+    },
+    chatCreatedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    chatMembers: {
+      type: [Schema.Types.ObjectId],
+      ref: "User", 
+    },
   },
   { timestamps: true }
 );
