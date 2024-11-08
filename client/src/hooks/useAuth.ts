@@ -16,6 +16,8 @@ const useAuth = () => {
     }
   }, [dispatch, user]);
 
+  console.log(user)
+
   
   useEffect(() => {
     if (!loading && !user) {
