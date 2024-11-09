@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import Meeting, { IMeeting } from "../models/meeting.model";
 import { Request, Response } from "express";
 import { ApiError } from "../utils/apiError";
-import mongoose, { ObjectId, Types } from "mongoose";
+import mongoose, { isValidObjectId, ObjectId, Types } from "mongoose";
 import { IUser, User } from "../models/user.model";
 import { ApiResponse } from "../utils/apiResponse";
 import { streamClient } from "../config/getStream";
@@ -129,14 +129,15 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
 
 const addJoinedParticipant: any = asyncHandler(
   async (req: any, res: Response) => {
-    console.log(req?.user);
+    console.log(req?.body?.roomId);
+    
+
     const user = {
       userId: req?.body.user?._id,
       userName: req?.body.user?.userName,
       avatar: req?.body.user?.avatar,
       role: "user",
     };
-
     console.log(user);
 
     const meeting: IMeeting | any = await Meeting.findOne({
@@ -217,8 +218,10 @@ const endMeeting: any = asyncHandler(async (req: any, res: Response) => {
 
 const getMeeting: any = asyncHandler(async (req: any, res: Response) => {
   const { id } = req.params;
+  console.log(id);
+
   const meeting = await Meeting.aggregate([
-    { $match: { $or: [{roomId: id}, {_id: new ObjectId(id)}] } },
+    { $match: { roomId: id } },
     {
       $lookup: {
         from: "users",
@@ -283,7 +286,6 @@ const sendEmailAtScheduledTime = asyncHandler(
       throw new ApiError(404, "Meeting not found!");
     }
     try {
-
       /* Sending the notification to only host for public meeting  */
       const hostMeetingData = {
         email: user?.email,
@@ -294,7 +296,7 @@ const sendEmailAtScheduledTime = asyncHandler(
         subject: meeting?.title,
       };
 
-       scheduleMeetingNotification(hostMeetingData);
+      scheduleMeetingNotification(hostMeetingData);
 
       if (
         meeting?.type === "private" &&
@@ -302,17 +304,17 @@ const sendEmailAtScheduledTime = asyncHandler(
         meeting?.participants.length > 0
       ) {
         /* Sending the notification to all the pariticipants of the meeting  */
-        meeting?.participants.forEach((participant:IUser) => {
+        meeting?.participants.forEach((participant: IUser) => {
           const pariticipantMeetingData = {
             email: participant?.email,
             name: participant?.userName,
-            meetingTitle:meeting?.title,
-            meetingTime:meeting?.scheduledTime,
-            roomId:meeting?.roomId,
-            subject:meeting?.title
+            meetingTitle: meeting?.title,
+            meetingTime: meeting?.scheduledTime,
+            roomId: meeting?.roomId,
+            subject: meeting?.title,
           };
 
-          scheduleMeetingNotification(pariticipantMeetingData)
+          scheduleMeetingNotification(pariticipantMeetingData);
         });
       }
     } catch (error) {
@@ -323,9 +325,15 @@ const sendEmailAtScheduledTime = asyncHandler(
     }
 
     return res.json(
-      new ApiResponse(200,"Meeting Notification sent successfully!")
-    )
+      new ApiResponse(200, "Meeting Notification sent successfully!")
+    );
   }
 );
 
-export { createMeeting, addJoinedParticipant, endMeeting, getMeeting, sendEmailAtScheduledTime };
+export {
+  createMeeting,
+  addJoinedParticipant,
+  endMeeting,
+  getMeeting,
+  sendEmailAtScheduledTime,
+};

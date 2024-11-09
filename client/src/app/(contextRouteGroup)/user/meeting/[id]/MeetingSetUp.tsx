@@ -9,6 +9,8 @@ import {
 import AudioVolumeIndicator from "@/components/Meeting/AudioVolumeIndicator"; // Ensure path is correct
 import PermissionPrompt from "@/components/Meeting/PermissionPrompt";
 import useAuth from "@/hooks/useAuth";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 interface SetupUIProps {
   onSetUpComplete: () => void;
@@ -19,8 +21,8 @@ const MeetingSetUp = ({ onSetUpComplete }: SetupUIProps) => {
   const { useMicrophoneState, useCameraState } = useCallStateHooks();
   const [micDisabled, setMicDisabled] = useState(false);
   const [camDisabled, setCamDisabled] = useState(false);
-  // const { user } = useAuth();
-  // console.log(user);
+  console.log(useSelector((state: RootState)=>state));
+  
   
 
   useEffect(() => {

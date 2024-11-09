@@ -11,4 +11,4 @@ router.route("/add-participant").put(addJoinedParticipant)
 router.route("/end-meeting/:meetingId").put(endMeeting)
 router.route("/get-meeting/:id").get(getMeeting)
 router.route("/send-meeting-notification/:roomId").get(sendEmailAtScheduledTime)
-export default router;
+export default router;  

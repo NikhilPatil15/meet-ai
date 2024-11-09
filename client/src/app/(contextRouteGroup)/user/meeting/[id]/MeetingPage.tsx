@@ -28,20 +28,20 @@ export default function MeetingPage({ id }: MeetingPageProps) {
   const [client, setClient] = useState<StreamVideoClient | null>(null);
   const [meeting, setMeeting] = useState<any>();
 
-  const { user } = useSelector((state: RootState) => state?.auth);
+  // console.log(useSelector((state: RootState) => state));
 
-  useEffect(() => {
-    const fetchMeeting = async () => {
-      try {
-        const res = await axiosInstance.get(`/meeting/get-meeting/default:${id}`);
-        console.log(res.data.data);
-        setMeeting(res.data.data.roomId)
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchMeeting();
-  }, [id]);
+  const { user } = useSelector((state: RootState) => state?.auth);
+  // console.log(user);
+
+  const fetchMeeting = async (id) => {
+    try {
+      const res = await axiosInstance.get(`/meeting/get-meeting/${id}`);
+      console.log(res.data.data);
+      setMeeting(res.data.data.roomId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     const initializeClient = async (
@@ -95,18 +95,18 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     setLoading(true);
     try {
       const call = client.call("default", id);
+      // await fetchMeeting(call?.cid);
       await call.join();
       setCall(call);
       const participantData = {
-        roomId: id,
-        userId: user ? user._id : Date.now(),
+        userId: user ? user?._id : Date.now(),
         userName: user ? user.userName : username,
         avatar: user ? user.avatar : "",
       };
 
       const res = await axiosInstance.put("/meeting/add-participant", {
         user: participantData,
-        roomId: meeting
+        roomId: call?.cid,
       });
       console.log("Participant added:", res.data.data);
     } catch (error) {
@@ -153,7 +153,6 @@ export default function MeetingPage({ id }: MeetingPageProps) {
         <StreamCall call={call}>
           <MeetingScreen />
         </StreamCall>
-
       </StreamTheme>
     </StreamVideo>
   );
