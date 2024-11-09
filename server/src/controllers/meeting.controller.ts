@@ -218,7 +218,7 @@ const endMeeting: any = asyncHandler(async (req: any, res: Response) => {
 const getMeeting: any = asyncHandler(async (req: any, res: Response) => {
   const { id } = req.params;
   const meeting = await Meeting.aggregate([
-    { $match: { roomId: id } },
+    { $match: { $or: [{roomId: id}, {_id: new ObjectId(id)}] } },
     {
       $lookup: {
         from: "users",

@@ -61,6 +61,8 @@ const MeetingSummary = ({ id }: any) => {
   const fetchDetails = async () => {
     try {
       const response = await axiosInstance.get(`/meeting/get-meeting/${id}`);
+      console.log(response);
+      
       const meetingData = response.data.data;
       console.log(meetingData);
       setMeeting(meetingData);
