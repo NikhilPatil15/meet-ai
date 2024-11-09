@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     role: {
       type: String,
-      enum: ["host", "participant", "guest"],
+      enum: ["host", "user", "guest"],
     },
     avatar: {
       type: String

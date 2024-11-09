@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Button } from '@mui/material';
+import React, { useEffect, useState } from "react";
+import { Button } from "@mui/material";
 import {
   DeviceSettings,
   useCall,
   useCallStateHooks,
   VideoPreview,
-} from '@stream-io/video-react-sdk';
-import AudioVolumeIndicator from '@/components/Meeting/AudioVolumeIndicator'; // Ensure path is correct
-import PermissionPrompt from '@/components/Meeting/PermissionPrompt';
+} from "@stream-io/video-react-sdk";
+import AudioVolumeIndicator from "@/components/Meeting/AudioVolumeIndicator"; // Ensure path is correct
+import PermissionPrompt from "@/components/Meeting/PermissionPrompt";
+import useAuth from "@/hooks/useAuth";
 
 interface SetupUIProps {
   onSetUpComplete: () => void;
@@ -18,6 +19,9 @@ const MeetingSetUp = ({ onSetUpComplete }: SetupUIProps) => {
   const { useMicrophoneState, useCameraState } = useCallStateHooks();
   const [micDisabled, setMicDisabled] = useState(false);
   const [camDisabled, setCamDisabled] = useState(false);
+  // const { user } = useAuth();
+  // console.log(user);
+  
 
   useEffect(() => {
     const manageDevices = async () => {
@@ -37,7 +41,7 @@ const MeetingSetUp = ({ onSetUpComplete }: SetupUIProps) => {
             await call.camera.enable();
           }
         } catch (error) {
-          console.error('Error managing devices: ', error);
+          console.error("Error managing devices: ", error);
         }
       }
     };
@@ -54,20 +58,27 @@ const MeetingSetUp = ({ onSetUpComplete }: SetupUIProps) => {
   }
 
   return (
+<<<<<<< HEAD
     <div className='flex flex-col items-center gap-3'>
       <h1 className='text-center text-2xl font-bold max-w-20'>SetUp</h1>
       <div className='min-w-[200px] min-h-[200px]'>
       <VideoPreview />
       </div>
       <div className='flex h-16 items-center gap-3'>
+=======
+    <div className="flex flex-col items-center gap-3">
+      <h1 className="text-center text-2xl font-bold">SetUp</h1>
+      <VideoPreview />
+      <div className="flex h-16 items-center gap-3">
+>>>>>>> 678a6c40539781353dcde8e9b5c88ee3143f82eb
         <AudioVolumeIndicator />
         <DeviceSettings />
       </div>
 
       {/* Checkbox to disable/enable microphone */}
-      <label className='flex items-center gap-2 font-medium'>
+      <label className="flex items-center gap-2 font-medium">
         <input
-          type='checkbox'
+          type="checkbox"
           checked={micDisabled}
           onChange={(e) => setMicDisabled(e.target.checked)}
         />
@@ -75,9 +86,9 @@ const MeetingSetUp = ({ onSetUpComplete }: SetupUIProps) => {
       </label>
 
       {/* Checkbox to disable/enable camera */}
-      <label className='flex items-center gap-2 font-medium'>
+      <label className="flex items-center gap-2 font-medium">
         <input
-          type='checkbox'
+          type="checkbox"
           checked={camDisabled}
           onChange={(e) => setCamDisabled(e.target.checked)}
         />
