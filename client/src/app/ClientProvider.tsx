@@ -71,7 +71,7 @@ function useInitializeVideoClient() {
         }
         dispatch(setGuest(response.data.guestName));
 
-        const client = new StreamVideoClient({
+        const client = StreamVideoClient.getOrCreateInstance({
           apiKey,
           user: streamUser,
           tokenProvider: () => Promise.resolve(response.data.token),
