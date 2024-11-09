@@ -72,7 +72,7 @@ const generateSummaryFile = asyncHandler(async (req: any, res: Response) => {
               ],
             }),
 
-            new Paragraph({ text: "This is title" }),
+            new Paragraph({ text: meeting?.title }),
 
             // description:
             new Paragraph({
@@ -84,7 +84,7 @@ const generateSummaryFile = asyncHandler(async (req: any, res: Response) => {
                 }),
               ],
             }),
-            new Paragraph({ text: "this is description" }),
+            new Paragraph({ text: meeting?.description }),
 
             //summary:
             new Paragraph({
@@ -96,6 +96,7 @@ const generateSummaryFile = asyncHandler(async (req: any, res: Response) => {
                 }),
               ],
             }),
+            new Paragraph({ text: req?.summary}),
             new Paragraph({
               children: [
                 new TextRun({

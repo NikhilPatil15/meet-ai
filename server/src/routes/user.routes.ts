@@ -67,7 +67,7 @@ userRouter
   .route("/upload-avatar")
   .put(upload.single("avatar"), uploadAvatar);
 userRouter.route("/refresh-token").post(refreshAccessToken)
-userRouter.route("/update-profile").put(updateAccountDetails);
+userRouter.route("/update-profile").put(upload.single("avatar"),updateAccountDetails);
 userRouter.route("/get-meeting-history").get(getMeetingHistory)
 userRouter.route("/get-scheduled-meetings").get(getScheduleMeetings)
 userRouter.route("/get-last-7-days-meetings-details").get(getLast7DaysMeetingDetails)

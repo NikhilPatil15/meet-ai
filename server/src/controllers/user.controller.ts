@@ -383,15 +383,46 @@ const uploadAvatar = asyncHandler(async (req: Request | any, res: Response) => {
 });
 
 const updateAccountDetails = asyncHandler(async (req: any, res: Response) => {
-  const { userName, email, fullName } = req.body;
+  const { userName, fullName } = req.body;
+  let avatarLocalPath: string | undefined;
+  const user: IUser | any = req?.user;
 
-  const user = await User.findByIdAndUpdate(
-    req.user?._id,
+  console.log(req?.file);
+
+  if (req?.file) {
+    avatarLocalPath = req?.file?.path;
+    console.log(avatarLocalPath);
+  }
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar file is required");
+  }
+
+  // Upload avatar to Cloudinary
+  const avatarImg = await uploadOnCloudinary(avatarLocalPath);
+  if (!avatarImg) {
+    throw new ApiError(500, "Something went wrong while uploading avatar");
+  }
+
+  // Update user with the new avatar URL
+  // const updatedUser = await User.findByIdAndUpdate(
+  //   user._id,
+  //   { avatar: avatarImg?.secure_url },
+  //   { new: true } // Return the updated document
+  // ).select("-password -refreshToken");
+
+  // if (!updatedUser) {
+  //   throw new ApiError(404, "User not found");
+  // }
+
+
+  const updatedUser = await User.findByIdAndUpdate(
+    user?._id,
     {
       $set: {
         userName: userName ? userName : req.user.userName,
-        email: email ? email : req.user.email,
         fullName: fullName ? fullName : req.user.fullName,
+        avatar:avatarImg?.secure_url
       },
     },
     { new: true }
@@ -402,7 +433,7 @@ const updateAccountDetails = asyncHandler(async (req: any, res: Response) => {
     .json(
       new ApiResponse(
         200,
-        { UpdatedUser: user },
+        { updatedUser: updatedUser },
         "Account details updated successfully"
       )
     );
