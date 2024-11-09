@@ -58,19 +58,10 @@ const MeetingSetUp = ({ onSetUpComplete }: SetupUIProps) => {
   }
 
   return (
-<<<<<<< HEAD
-    <div className='flex flex-col items-center gap-3'>
-      <h1 className='text-center text-2xl font-bold max-w-20'>SetUp</h1>
-      <div className='min-w-[200px] min-h-[200px]'>
-      <VideoPreview />
-      </div>
-      <div className='flex h-16 items-center gap-3'>
-=======
     <div className="flex flex-col items-center gap-3">
       <h1 className="text-center text-2xl font-bold">SetUp</h1>
       <VideoPreview />
       <div className="flex h-16 items-center gap-3">
->>>>>>> 678a6c40539781353dcde8e9b5c88ee3143f82eb
         <AudioVolumeIndicator />
         <DeviceSettings />
       </div>

@@ -10,7 +10,7 @@ const ProfileEdit = () => {
   const [loading, setLoading] = useState(false);
   const dispatch: AppDispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
-
+  
   // Initialize local state with user data from Redux store
   const [localUser, setLocalUser] = useState({
     userName: user?.userName || 'Test',
@@ -100,7 +100,7 @@ const ProfileEdit = () => {
                       reader.onload = () => {
                         setLocalUser((prevUser) => ({
                           ...prevUser,
-                          avatar: reader.result as string,
+                          avatar: file,
                         }));
                       };
                       reader.readAsDataURL(file);

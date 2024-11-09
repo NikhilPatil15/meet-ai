@@ -2,12 +2,13 @@ import { asyncHandler } from "../utils/asyncHandler";
 import Meeting, { IMeeting } from "../models/meeting.model";
 import { Request, Response } from "express";
 import { ApiError } from "../utils/apiError";
-import mongoose, { ObjectId } from "mongoose";
+import mongoose, { ObjectId, Types } from "mongoose";
 import { IUser, User } from "../models/user.model";
 import { ApiResponse } from "../utils/apiResponse";
 import { streamClient } from "../config/getStream";
 import { useStreamVideoClient } from "@stream-io/video-react-sdk";
 import { serverClient } from "../config/chatConfig";
+import { scheduleMeetingNotification } from "../utils/sendMail";
 
 const { ObjectId } = mongoose.Types;
 const expirationTime = Math.floor(Date.now() / 1000) + 60 * 60;
@@ -25,6 +26,14 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
   } = req?.body;
   const createdBy = req?.user?.id;
 
+  // while (!uniqueRoomId) {
+  //   roomId = generateRoomId();
+
+  //   const existingMeeting = await Meeting.findOne({ roomId });
+  //   if (!existingMeeting) {
+  //     uniqueRoomId = true;
+  //   }
+  // }
   let participantsList: any[] = [
     {
       userId: createdBy,
@@ -49,6 +58,7 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
               userId: user.id.toString(),
               role: "participant",
               userName: user.userName,
+              email: user.email,
             };
           } else {
             throw new ApiError(
@@ -67,9 +77,6 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
           throw new ApiError(400, "Invalid participant details");
         }
       })
-    );
-    participantsList = participantsList.concat(
-      otherParticipants.filter(Boolean)
     );
   }
 
@@ -95,23 +102,18 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
     throw new ApiError(500, "Something went wrong");
   }
   let createdChannel;
-
   try {
     await serverClient.upsertUser({
       id: "system_bot",
       name: "System Bot",
     });
-
     const channel = serverClient.channel("messaging", {
       name: `Chat for Meeting: ${newMeeting.title}`,
       members: [...newMeeting?.chatMembers, "system_bot"],
       created_by: { id: createdBy },
     });
-
     // console.log(channel);
-
     createdChannel = await channel.create();
-
     newMeeting.chatChannelId = createdChannel.channel.cid;
     newMeeting.save();
   } catch (error) {
@@ -154,7 +156,7 @@ const addJoinedParticipant: any = asyncHandler(
     }
 
     if (meeting?.host?.toString() === req?.user?.id) {
-      throw new ApiError(401, "You are the host");
+      throw new ApiError(401, "You are the host!");
     }
 
     const isParticipantExists = meeting?.participants?.some(
@@ -167,13 +169,12 @@ const addJoinedParticipant: any = asyncHandler(
         message: "Participant already exists in the meeting",
       });
     }
+
     meeting.participants.push(user);
     await meeting.save();
-
     try {
       const channel = serverClient.channel("messaging", meeting.chatChannelId);
       console.log(channel);
-
       const createdChannel = await channel.addMembers([user.userId]);
       console.log("createdChannel", createdChannel);
     } catch (error) {
@@ -187,8 +188,8 @@ const addJoinedParticipant: any = asyncHandler(
 );
 
 const endMeeting: any = asyncHandler(async (req: any, res: Response) => {
-  const { meetingId } = req.params;
-  const meeting = await Meeting.findById(meetingId);
+  const { roomId } = req.params;
+  const meeting = await Meeting.findOne({ roomId: roomId });
 
   if (!meeting) {
     throw new ApiError(404, "Meeting not found");
@@ -238,6 +239,8 @@ const getMeeting: any = asyncHandler(async (req: any, res: Response) => {
         scheduledTime: 1,
         createdBy: 1,
         status: 1,
+        chatChannelId: 1,
+        chatMembers: 1,
         host: 1,
         roomId: 1,
         createdAt: 1,
@@ -246,8 +249,6 @@ const getMeeting: any = asyncHandler(async (req: any, res: Response) => {
         fileUrl: 1,
         fileName: 1,
         dialogues: 1,
-        chatChannelId: 1,
-        chatMembers: 1,
         "hostDetails._id": 1,
         "hostDetails.userName": 1,
         "hostDetails.email": 1,
@@ -263,4 +264,68 @@ const getMeeting: any = asyncHandler(async (req: any, res: Response) => {
     .json(new ApiResponse(201, meeting[0], "Meeting found successfully"));
 });
 
-export { createMeeting, addJoinedParticipant, endMeeting, getMeeting };
+const sendEmailAtScheduledTime = asyncHandler(
+  async (req: any, res: Response) => {
+    /*Short algo 
+  1. First check if the meeting exists or not in the db 
+  2. check the type of meeting private or public
+  3. if public then send the meeting link to only host 
+  4. if private then get the participants from the db  and send the link to all the particiapants
+  */
+
+    const { roomId } = req.params;
+
+    const meeting: IMeeting | null = await Meeting.findOne({ roomId: roomId });
+
+    const user = req?.user;
+
+    if (!meeting) {
+      throw new ApiError(404, "Meeting not found!");
+    }
+    try {
+
+      /* Sending the notification to only host for public meeting  */
+      const hostMeetingData = {
+        email: user?.email,
+        name: user?.userName,
+        meetingTitle: meeting?.title,
+        meetingTime: meeting?.scheduledTime,
+        roomId: meeting?.roomId,
+        subject: meeting?.title,
+      };
+
+       scheduleMeetingNotification(hostMeetingData);
+
+      if (
+        meeting?.type === "private" &&
+        meeting?.participants &&
+        meeting?.participants.length > 0
+      ) {
+        /* Sending the notification to all the pariticipants of the meeting  */
+        meeting?.participants.forEach((participant) => {
+          const pariticipantMeetingData = {
+            email: participant?.email,
+            name: participant?.userName,
+            meetingTitle:meeting?.title,
+            meetingTime:meeting?.scheduledTime,
+            roomId:meeting?.roomId,
+            subject:meeting?.title
+          };
+
+          scheduleMeetingNotification(pariticipantMeetingData)
+        });
+      }
+    } catch (error) {
+      console.error(
+        "Something went wrong while sending notification in the sendEmail controller: ",
+        error
+      );
+    }
+
+    return res.json(
+      new ApiResponse(200,"Meeting Notification sent successfully!")
+    )
+  }
+);
+
+export { createMeeting, addJoinedParticipant, endMeeting, getMeeting, sendEmailAtScheduledTime };

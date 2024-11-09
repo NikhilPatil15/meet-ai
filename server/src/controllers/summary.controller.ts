@@ -44,6 +44,7 @@ const generateSummaryFile = asyncHandler(async (req: any, res: Response) => {
   const { roomId } = req.params;
   const meeting: IMeeting | any = await Meeting.findOne({ roomId: roomId });
 
+  
   if (!meeting) {
     throw new ApiError(404, "Meeting not found");
   }
@@ -122,6 +123,7 @@ const generateSummaryFile = asyncHandler(async (req: any, res: Response) => {
       const cloudinaryResult = await uploadOnCloudinary(filePath);
       meeting.fileUrl = cloudinaryResult?.url;
       meeting.fileName = cloudinaryResult?.public_id;
+      meeting.summary = req?.summary
       await meeting?.save();
 
       return res

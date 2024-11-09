@@ -155,7 +155,7 @@ const MeetingRoom = () => {
   };
 
   if (callingState !== CallingState.JOINED) {
-    return <Loader2 className="mx-auto animate-spin"/>;
+    return <Loader2 className="mx-auto animate-spin" />;
   }
 
   // Generate the meeting URL for QR code and invite link
@@ -225,6 +225,19 @@ const MeetingRoom = () => {
     initChat();
   }, [token, userInfo]);
 
+  const handleLeaveMeeting = async () => {
+    try {
+      const response = await axiosInstance.put(
+        `/meeting/end-meeting/${call?.cid}`
+      );
+
+      alert(response.data)
+      
+      router.push("/");
+    } catch (error) {
+      console.error("Something went wrong while ending the meeting: ", error);
+    }
+  };
   return (
     <section className="relative h-screen w-full overflow-hidden text-white">
       <div className="rd__layout relative flex size-full items-center justify-center">
@@ -265,7 +278,7 @@ const MeetingRoom = () => {
 
       {/* Call Controls and Buttons */}
       <div className="fixed bottom-0 flex w-full items-center justify-center gap-5 flex-wrap bg-transparent px-4 py-2 z-30">
-        <CallControls onLeave={() => router.push("/")} />
+        <CallControls onLeave={handleLeaveMeeting} />
         <div className="hidden md:block">
           <DropdownMenu>
             <DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">

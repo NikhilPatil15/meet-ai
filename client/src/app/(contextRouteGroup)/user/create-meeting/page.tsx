@@ -130,20 +130,22 @@ export default function CreateMeetingPage() {
       if (call) {
         console.log(startTimeInput);
 
-        const res = await axiosInstance.post("meeting/create-meeting", {
+        const res = await axiosInstance.post("/meeting/create-meeting", {
           title: titleInput,
           description: descriptionInput,
           participants: selectedParticipants,
-          scheduledTime: startTimeInput,
+          scheduledTime: startTimeIST,
           status: activeTime ? "scheduled" : "not scheduled",
           roomId: call?.cid,
           type: activeType ? "private" : "public",
-          meetingLink: `http://localhost:3000/user/meeting/${call?.cid}`,
         });
         console.log(res.data.data);
 
         /* request of send email of scheduled meeting */
-        // const sendNotificationOFScheduledMeeting = await axiosInstance
+        const sendNotificationOFScheduledMeeting = await axiosInstance.get(`/meeting/send-meeting-notification/${call?.cid}`)
+
+        console.log("Response of the send Notification request: ", sendNotificationOFScheduledMeeting.data);
+        
       }
     } catch (error) {
       console.error("Error creating meeting:", error);
