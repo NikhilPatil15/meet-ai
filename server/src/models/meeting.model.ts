@@ -1,9 +1,10 @@
 import mongoose, { Schema, Document, ObjectId, model } from "mongoose";
+import { IUser } from "./user.model";
 
 export interface IMeeting extends Document {
   _id: ObjectId;
   title: string;
-  participants: [];
+  participants: IUser[];
   description?: string;
   scheduledTime: Date;
   duration: number;

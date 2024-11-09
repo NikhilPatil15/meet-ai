@@ -302,7 +302,7 @@ const sendEmailAtScheduledTime = asyncHandler(
         meeting?.participants.length > 0
       ) {
         /* Sending the notification to all the pariticipants of the meeting  */
-        meeting?.participants.forEach((participant) => {
+        meeting?.participants.forEach((participant:IUser) => {
           const pariticipantMeetingData = {
             email: participant?.email,
             name: participant?.userName,
