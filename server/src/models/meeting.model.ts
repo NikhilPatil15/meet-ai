@@ -1,9 +1,10 @@
 import mongoose, { Schema, Document, ObjectId, model } from "mongoose";
+import { IUser } from "./user.model";
 
 export interface IMeeting extends Document {
   _id: ObjectId;
   title: string;
-  participants: [];
+  participants: IUser[];
   description?: string;
   scheduledTime: Date;
   duration: number;
@@ -18,6 +19,9 @@ export interface IMeeting extends Document {
   summary: string;
   fileUrl: string | any;
   fileName: string;
+  chatChannelId?: string | any; 
+  chatCreatedAt?: Date; 
+  chatMembers: Schema.Types.ObjectId[] | any;
 }
 
 const MeetingSchema = new Schema<IMeeting>(
@@ -76,7 +80,19 @@ const MeetingSchema = new Schema<IMeeting>(
     },
     fileName: {
       type: String
-    }
+    },
+    chatChannelId: {
+      type: String,
+      unique: true, 
+    },
+    chatCreatedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    chatMembers: {
+      type: [Schema.Types.ObjectId],
+      ref: "User", 
+    },
   },
   { timestamps: true }
 );

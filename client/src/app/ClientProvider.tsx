@@ -6,11 +6,11 @@ import {
   User,
 } from "@stream-io/video-react-sdk";
 import { useEffect, useState } from "react";
-import { base_url } from "@/config/config";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { fetchUser, setGuest } from "@/redux/slices/authSlice";
+import axiosInstance from "@/utils/axios";
 
 interface ClientProviderProps {
   children: React.ReactElement;
@@ -62,8 +62,8 @@ function useInitializeVideoClient() {
       }
 
       try {
-        const response = await axios.get(
-          `${base_url}/token/get-token-user?userId=${user._id}`
+        const response = await axiosInstance.get(
+          `/token/get-token-user?userId=${user._id}`
         );
 
         if (!response.data?.token) {
@@ -71,7 +71,7 @@ function useInitializeVideoClient() {
         }
         dispatch(setGuest(response.data.guestName));
 
-        const client = new StreamVideoClient({
+        const client = StreamVideoClient.getOrCreateInstance({
           apiKey,
           user: streamUser,
           tokenProvider: () => Promise.resolve(response.data.token),

@@ -35,6 +35,7 @@ userRouter.post("/verify", verifyUser);
 userRouter.route("/login").post(loginUser);
 userRouter.route("/forgot-password").post(sendEmail);
 userRouter.route("/reset-password").put(resetPassword);
+userRouter.route("/refresh-token").post(refreshAccessToken)
 
 /* Oauth routes */
 userRouter.route("/oauth/google").get(
@@ -66,8 +67,7 @@ userRouter.route("/update-password").put(updatePassword);
 userRouter
   .route("/upload-avatar")
   .put(upload.single("avatar"), uploadAvatar);
-userRouter.route("/refresh-token").post(refreshAccessToken)
-userRouter.route("/update-profile").put(updateAccountDetails);
+userRouter.route("/update-profile").put(upload.single("avatar"),updateAccountDetails);
 userRouter.route("/get-meeting-history").get(getMeetingHistory)
 userRouter.route("/get-scheduled-meetings").get(getScheduleMeetings)
 userRouter.route("/get-last-7-days-meetings-details").get(getLast7DaysMeetingDetails)

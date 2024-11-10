@@ -25,6 +25,9 @@ app.use(express.static("public"));
 /* Connected the database */
 connectDatabase().then(() => {
   console.log("Database connected successfully!");
+}).catch((error)=>{
+  console.log(error);
+  
 });
 
 /* Parse Cookie header and populate req.cookies with an object keyed by the cookie names*/

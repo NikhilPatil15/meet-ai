@@ -61,6 +61,8 @@ const MeetingSummary = ({ id }: any) => {
   const fetchDetails = async () => {
     try {
       const response = await axiosInstance.get(`/meeting/get-meeting/${id}`);
+      console.log(response);
+      
       const meetingData = response.data.data;
       console.log(meetingData);
       setMeeting(meetingData);
@@ -94,7 +96,7 @@ const MeetingSummary = ({ id }: any) => {
   return (
     <div className="bg-gray-900 text-gray-300 w-full min-h-screen">
       <div>
-        <IconButton onClick={handleBack} sx={{ color: "white" }}>
+        <IconButton onClick={handleBack} sx={{ color: "white", cursor: "pointer", zIndex: 30 }}>
           <CircleArrowLeftIcon height={"3rem"} width={"3rem"} />
         </IconButton>
       </div>

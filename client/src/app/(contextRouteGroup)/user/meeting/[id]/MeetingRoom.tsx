@@ -3,6 +3,14 @@ import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
+import chatClient from "@/lib/streamChatConfig";
+import {
+  Chat,
+  Channel,
+  ChannelHeader,
+  MessageList,
+  MessageInput,
+} from "stream-chat-react";
 import {
   CallControls,
   CallingState,
@@ -25,12 +33,14 @@ import {
   BetweenHorizonalEnd,
   BetweenVerticalEnd,
   User,
+  Loader2,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import EndCallButton from "@/components/ui/EndCallButton";
 import axiosInstance from "@/utils/axios";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import useAuth from "@/hooks/useAuth";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
@@ -49,13 +59,18 @@ const MeetingRoom = () => {
   const [layout, setLayout] = useState<CallLayoutType>("speaker-left");
   const [showParticipants, setShowParticipants] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
-  // const { guest, user } = useSelector((state: RootState) => state.auth);
+  const [participantCount, setParticipantCount] = useState(0);
+  const [chatId, setChatId] = useState<any>();
+  const [token, setToken] = useState<string | null>(null);
+  const [channel, setChannel] = useState<any>(null);
   const client = useStreamVideoClient();
-  const user = client?.streamClient.user?.name;
+  const { user: userInfo } = useAuth();
+  const userInfo2 = client?.streamClient?.user;
+  console.log(userInfo2);
 
   const sendSpeech = async (text: string) => {
     try {
-      const textToSend = `${user}: ${text}`;
+      const textToSend = `${userInfo2?.name}: ${text}`;
       const res = await axiosInstance.patch("/summary/add-dialogue", {
         dialogue: textToSend,
         meetingId: call?.cid,
@@ -91,21 +106,21 @@ const MeetingRoom = () => {
       alert("Browser does not support speech recognition. Please use Chrome.");
     }
   }, []);
-  
+
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768 && layout === 'speaker-right') { 
-        setLayout('speaker-right');
-      } else if (window.innerWidth >= 768 && layout === 'speaker-left') {
-        setLayout('speaker-left');
+      if (window.innerWidth >= 768 && layout === "speaker-right") {
+        setLayout("speaker-right");
+      } else if (window.innerWidth >= 768 && layout === "speaker-left") {
+        setLayout("speaker-left");
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    handleResize(); 
+    window.addEventListener("resize", handleResize);
+    handleResize();
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, [layout]);
 
@@ -140,14 +155,15 @@ const MeetingRoom = () => {
   };
 
   if (callingState !== CallingState.JOINED) {
-    return <div className="mx-auto ">Loading...</div>;
+    return <Loader2 className="mx-auto animate-spin" />;
   }
 
   // Generate the meeting URL for QR code and invite link
   const meetingUrl = `https://yourapp.com/meeting/${call?.cid}`;
 
   const copyInviteLink = () => {
-    navigator.clipboard.writeText(meetingUrl)
+    navigator.clipboard
+      .writeText(meetingUrl)
       .then(() => {
         alert("Invite link copied to clipboard!");
       })
@@ -156,6 +172,72 @@ const MeetingRoom = () => {
       });
   };
 
+  const fetchMeeting = async () => {
+    try {
+      const res = await axiosInstance.get(`/meeting/get-meeting/${call?.cid}`);
+      console.log(res.data.data);
+      console.log(res.data.data.chatChannelId);
+      setChatId(res.data.data.chatChannelId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMeeting();
+  }, [call?.cid]);
+
+  useEffect(() => {
+    const userId = userInfo._Id;
+    const getToken = async () => {
+      const res = await axiosInstance.post(`/token/get-token-chat`, { userId });
+      setToken(res.data.token);
+    };
+
+    getToken();
+  }, [userInfo]);
+
+  useEffect(() => {
+    const initChat = async () => {
+      if (token && userInfo) {
+        console.log("Token and user info ready. Connecting user...");
+        console.log("UserInfo:", userInfo);
+        console.log("Token:", token);
+
+        try {
+          await chatClient.connectUser(
+            {
+              id: userInfo._id,
+              name: userInfo.userName || userInfo?.guestName,
+            },
+            token
+          );
+
+          const chatChannel = chatClient.channel("messaging", chatId);
+          await chatChannel.watch();
+          setChannel(chatChannel);
+          console.log("User connected and channel set.");
+        } catch (error) {
+          console.error("Error connecting user or initializing chat:", error);
+        }
+      }
+    };
+    initChat();
+  }, [token, userInfo]);
+
+  const handleLeaveMeeting = async () => {
+    try {
+      const response = await axiosInstance.put(
+        `/meeting/end-meeting/${call?.cid}`
+      );
+
+      alert(response.data)
+      
+      router.push("/");
+    } catch (error) {
+      console.error("Something went wrong while ending the meeting: ", error);
+    }
+  };
   return (
     <section className="relative h-screen w-full overflow-hidden text-white">
       <div className="rd__layout relative flex size-full items-center justify-center">
@@ -163,6 +245,7 @@ const MeetingRoom = () => {
           <CallLayout />
         </div>
 
+        {/* Participants Sidebar */}
         <div
           className={cn(
             "rd__sidebar",
@@ -172,47 +255,64 @@ const MeetingRoom = () => {
           <div className="rd__sidebar__container">
             <div className="rd__participants">
               <div className="str-video__participant-list">
-                <CallParticipantsList onClose={() => setShowParticipants(false)} />
+                {/* Participant List */}
+                <CallParticipantsList
+                  onClose={() => setShowParticipants(false)}
+                />
+              </div>
+              <div className="str-video__participant-list">
+                {!channel && <p>Loading...</p>}
+                {channel && (
+                  <Chat client={chatClient} theme="messaging dark">
+                    <Channel channel={channel}>
+                      <MessageList />
+                      <MessageInput />
+                    </Channel>
+                  </Chat>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Call Controls and Buttons */}
       <div className="fixed bottom-0 flex w-full items-center justify-center gap-5 flex-wrap bg-transparent px-4 py-2 z-30">
-        <CallControls onLeave={() => router.push("/")} />
+        <CallControls onLeave={handleLeaveMeeting} />
         <div className="hidden md:block">
-        <DropdownMenu>
-          <DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
-            <LayoutList size={20} className="text-white" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="border-dark-1 bg-dark-1 text-white">
-            {[
-              { label: "Grid", icon: <LayoutGrid size={16} /> },
-              {
-                label: "Speaker-Left",
-                icon: <BetweenHorizonalEnd size={16} />,
-              },
-              {
-                label: "Speaker-Right",
-                icon: <BetweenVerticalEnd size={16} />,
-              },
-            ].map((item, index) => (
-              <DropdownMenuItem
-                key={index}
-                className="cursor-pointer flex items-center gap-2"
-                onClick={() =>
-                  setLayout(
-                    item.label.toLowerCase().replace(" ", "-") as CallLayoutType
-                  )
-                }
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
+              <LayoutList size={20} className="text-white" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="border-dark-1 bg-dark-1 text-white">
+              {[
+                { label: "Grid", icon: <LayoutGrid size={16} /> },
+                {
+                  label: "Speaker-Left",
+                  icon: <BetweenHorizonalEnd size={16} />,
+                },
+                {
+                  label: "Speaker-Right",
+                  icon: <BetweenVerticalEnd size={16} />,
+                },
+              ].map((item, index) => (
+                <DropdownMenuItem
+                  key={index}
+                  className="cursor-pointer flex items-center gap-2"
+                  onClick={() =>
+                    setLayout(
+                      item.label
+                        .toLowerCase()
+                        .replace(" ", "-") as CallLayoutType
+                    )
+                  }
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <button onClick={() => setShowParticipants((prev) => !prev)}>
           <div className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">

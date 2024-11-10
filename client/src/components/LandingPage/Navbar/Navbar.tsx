@@ -26,6 +26,9 @@ function Navbar() {
     dispatch(fetchUser());
   }, [dispatch]);
 
+  // console.log("Avatar: ", user.avatar);
+  
+
   const [openNavigation, setOpenNavigation] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
@@ -88,7 +91,7 @@ const handleOptionClick=(url:string)=>{
                 <Box display="flex" alignItems="center">
                   <Avatar
                     src={
-                      user?.avatar ||
+                      user.avatar ||
                       "https://www.w3schools.com/howto/img_avatar.png"
                     }
                   />
