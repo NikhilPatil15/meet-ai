@@ -83,7 +83,7 @@ const MeetingSchema = new Schema<IMeeting>(
     },
     chatChannelId: {
       type: String,
-      unique: true, 
+      // unique: true, 
     },
     chatCreatedAt: {
       type: Date,

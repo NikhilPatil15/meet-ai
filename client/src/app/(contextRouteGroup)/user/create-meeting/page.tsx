@@ -77,7 +77,7 @@ export default function CreateMeetingPage() {
         });
         console.log(res.data.data);
       }
-      router.push(`meeting/${call?.cid}`);
+      // router.push(`meeting/${call?.id}`);
     } catch (error) {
       console.error("Error creating meeting:", error);
       alert("Something went wrong. Please try again later.");

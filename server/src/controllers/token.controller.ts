@@ -27,11 +27,13 @@ const getTokenGuest = asyncHandler(async (req: any, res: Response) => {
 });
 
 const getTokenChat = asyncHandler(async (req: any, res: Response) => {
-  const { userId } = req.body;
+  console.log(req.body);
+  
+  const { userId } = req?.body;
   console.log(userId);
   
   const token = serverClient.createToken(userId);
-  res.json({ token });
+  res.json({ token, userId });
 });
 
 export { getTokenUser, getTokenGuest, getTokenChat };
