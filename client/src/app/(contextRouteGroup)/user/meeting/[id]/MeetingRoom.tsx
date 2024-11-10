@@ -29,6 +29,8 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import EndCallButton from "@/components/ui/EndCallButton";
 import axiosInstance from "@/utils/axios";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
@@ -47,7 +49,7 @@ const MeetingRoom = () => {
   const [layout, setLayout] = useState<CallLayoutType>("speaker-left");
   const [showParticipants, setShowParticipants] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
-  const [participantCount, setParticipantCount] = useState(0);
+  // const { guest, user } = useSelector((state: RootState) => state.auth);
   const client = useStreamVideoClient();
   const user = client?.streamClient.user?.name;
 
@@ -161,7 +163,6 @@ const MeetingRoom = () => {
           <CallLayout />
         </div>
 
-        {/* Participants Sidebar */}
         <div
           className={cn(
             "rd__sidebar",
@@ -171,7 +172,6 @@ const MeetingRoom = () => {
           <div className="rd__sidebar__container">
             <div className="rd__participants">
               <div className="str-video__participant-list">
-                {/* Participant List */}
                 <CallParticipantsList onClose={() => setShowParticipants(false)} />
               </div>
             </div>
@@ -179,7 +179,6 @@ const MeetingRoom = () => {
         </div>
       </div>
 
-      {/* Call Controls and Buttons */}
       <div className="fixed bottom-0 flex w-full items-center justify-center gap-5 flex-wrap bg-transparent px-4 py-2 z-30">
         <CallControls onLeave={() => router.push("/")} />
         <div className="hidden md:block">
@@ -222,9 +221,6 @@ const MeetingRoom = () => {
         </button>
         {!isPersonalRoom && <EndCallButton />}
       </div>
-
-     
-      
     </section>
   );
 };

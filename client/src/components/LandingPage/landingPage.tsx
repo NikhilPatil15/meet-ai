@@ -16,25 +16,24 @@ import {
 import { hoverItems } from '../../constants/hoverItems';
 import Grid from './Featured/Grid';
 
-import MeetCandidatesPage from '@/components/Solution/temp'
+import MeetCandidatesPage from '@/components/Solution/temp';
 import MeetaiHeroSection from '../Solution/MeetingHero';
 import MeetingSummary from '../Solution/MeetSummary';
 import Team from '../Solution/team';
 import ProfileEdit from '../Solution/Profile';
 import Contact from '../Solution/contact';
+
 export default function LandingPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadContent = async () => {
- 
       await new Promise(resolve => setTimeout(resolve, 4000)); 
       setLoading(false);
     };
 
     loadContent();
 
-  
     setTimeout(() => {
       const loader = document.querySelector('.loader-container');
       if (loader && loader instanceof HTMLElement) {
@@ -47,7 +46,6 @@ export default function LandingPage() {
     <>
       {loading ? (
         <div className="loader-container">
-         
           <h1 className="head fy">MeetAi</h1>
           <h1 className="head sy">AI-Powered</h1>
           <h1 className="head ty">Meeting</h1>
@@ -59,37 +57,30 @@ export default function LandingPage() {
           <Navbar />
 
           {/* Hero Section */}
-          <HeroSection />
+          <section id="home">
+            <HeroSection />
+          </section>
 
           {/* Featured Title */}
-          <FeaturedTitle />
+          <section id="about">
+            <FeaturedTitle />
+            <Grid />
+            <Heading />
+            <FeaturedSection />
+            <Review />
+            <HoverEffect items={hoverItems} />
+          </section>
+          {/* Additional Components */}
+          <section id="team">
+            <Team />
+          </section>
 
-          {/* Grid Section */}
-          <Grid />
-
-          {/* Heading Section */}
-          <Heading />
-
-          {/* Featured Section */}
-          <FeaturedSection />
-
-          {/* Review Section */}
-          <Review />
-
-          {/* Hover Effect Section */}
-          <HoverEffect items={hoverItems} />
-
-          {/* Footer */}
+          <section id="contact">
+            <Contact />
+          </section>
+          
           <Footer />
-
-          {/* Copyright Section */}
           <Copyright />
-          {/* <MeetCandidatesPage></MeetCandidatesPage>
-          <MeetaiHeroSection></MeetaiHeroSection> */}
-       <Team></Team>
-      <Contact></Contact>
-       <ProfileEdit></ProfileEdit>
-   
         </div>
       )}
     </>

@@ -1,13 +1,5 @@
 import { NextFunction, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
-<<<<<<< HEAD
-
-export const generateSummary = asyncHandler(async(req:any, res:Response, next:NextFunction)=>{
-    console.log("requested generateSummary");
-    
-    req.summary = "this is summary"
-    next()
-=======
 // import { pipeline } from "@xenova/transformers";
 import path from "path";
 import { ApiError } from "../utils/apiError";
@@ -95,5 +87,4 @@ export const generateSummary = asyncHandler(async(req:any, res:Response, next:Ne
         throw new ApiError(500,"Something went wrong while generating summary!")
     }
 
->>>>>>> f4ce336776e9278cb28642f97307e0881e8bddf5
 })
