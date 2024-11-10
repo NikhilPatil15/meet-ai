@@ -39,27 +39,24 @@
   export const navigation = [
     {
       id: "0",
-      
-      
-      title: "MeetAi",
-      url: "#whyMeetai",
+      title: "Home",
+      url: "#home",
     },
     {
       id: "1",
-      title: "Product",
-      url: "#product",
+      title: "About",
+      url: "#about",
     },
     {
       id: "2",
-      title: "Solution",
-      url: "#solution",
+      title: "Contact",
+      url: "#contact",
     },
     {
       id: "3",
-      title: "Resources",
-      url: "#resources",
+      title: "Team",
+      url: "#team",
     },
-   
     {
       id: "4",
       title: "Sign up",

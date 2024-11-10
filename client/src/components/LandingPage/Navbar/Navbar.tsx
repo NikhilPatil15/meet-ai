@@ -46,13 +46,15 @@ function Navbar() {
     setDropdownOpen((prev) => !prev);
   };
 
-  const handleOptionClick = (option: string) => {
-    console.log(option);
-    if (option === "Logout") {
-      // Add your logout functionality here
-    }
-    setDropdownOpen(false);
-  };
+const handleOptionClick=(url:string)=>{
+  const sectionId=url.replace("#","")
+  const section=document.getElementById(sectionId);
+  if(section){
+    section.scrollIntoView({behavior:"smooth"})
+  }
+  setOpenNavigation(false);
+
+}
 
   return (
     <div className="relative">
@@ -71,13 +73,13 @@ function Navbar() {
             {navigation.map(
               (item) =>
                 !item.onlyMobile && (
-                  <Link
-                    key={item.id}
-                    href={item.url}
-                    className="relative text-[25px] uppercase text-n-1 transition-colors hover:text-color-1 px-6 py-6 md:py-8 lg:text-sm lg:font-semibold font-roboto font-normal"
+                  <button
+                   key={item.id}
+                   onClick={()=>handleOptionClick(item.url)}
+                   className="block text-[16px] uppercase text-n-1 transition-colors hover:text-color-1 px-6 py-6 md:py-8 font-roboto font-normal"
                   >
-                    {item.title}
-                  </Link>
+                         {item.title}
+                  </button>
                 )
             )}
           </div>
