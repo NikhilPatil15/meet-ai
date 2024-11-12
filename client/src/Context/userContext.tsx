@@ -46,8 +46,8 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
     initAuth();
   }, [router]);
 
-  console.log("Token: ", token);
-  console.log("Refresh token: ", refreshToken);
+  // console.log("Token: ", token);
+  // console.log("Refresh token: ", refreshToken);
 
   return (
     <UserContext.Provider value={{ token, setToken, refreshToken, setRefreshToken }}>

@@ -3,14 +3,9 @@ import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
+import "stream-chat-react/dist/css/v2/index.css";
 import chatClient from "@/lib/streamChatConfig";
-import {
-  Chat,
-  Channel,
-  ChannelHeader,
-  MessageList,
-  MessageInput,
-} from "stream-chat-react";
+import { Chat, Channel, MessageList, MessageInput } from "stream-chat-react";
 import {
   CallControls,
   CallingState,
@@ -36,11 +31,9 @@ import {
   Loader2,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import EndCallButton from "@/components/ui/EndCallButton";
 import axiosInstance from "@/utils/axios";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 import useAuth from "@/hooks/useAuth";
+import EndCallButton from "@/components/ui/EndCallButton";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
@@ -53,29 +46,23 @@ const MeetingRoom = () => {
   const { isMute } = useMicrophoneState();
 
   const call = useCall();
-  console.log(call?.cid);
-
-  const [transcript, setTranscript] = useState("");
   const [layout, setLayout] = useState<CallLayoutType>("speaker-left");
   const [showParticipants, setShowParticipants] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
-  const [participantCount, setParticipantCount] = useState(0);
   const [chatId, setChatId] = useState<any>();
   const [token, setToken] = useState<string | null>(null);
   const [channel, setChannel] = useState<any>(null);
   const client = useStreamVideoClient();
   const { user: userInfo } = useAuth();
-  const userInfo2 = client?.streamClient?.user;
-  console.log(userInfo2);
+  const [transcript, setTranscript] = useState("");
 
   const sendSpeech = async (text: string) => {
     try {
-      const textToSend = `${userInfo2?.name}: ${text}`;
+      const textToSend = `${userInfo?.name}: ${text}`;
       const res = await axiosInstance.patch("/summary/add-dialogue", {
         dialogue: textToSend,
         meetingId: call?.cid,
       });
-      console.log("Speech sent:", res.data);
     } catch (error) {
       console.error("Error sending speech:", error);
     }
@@ -141,6 +128,22 @@ const MeetingRoom = () => {
     };
   }, [isMute, recognition]);
 
+  const addNewUserToChannel = async (newUserId: any) => {
+    try {
+      //TODO:
+      if (!chatId?.chatChannelId) return;
+      const chatChannel = chatClient.channel(
+        "messaging",
+        chatId?.chatChannelId
+      );
+      await chatChannel.addMembers([newUserId]);
+      console.log("User added to channel:", chatChannel);
+      setChannel(chatChannel);
+    } catch (error) {
+      console.error("Error adding user to chat channel:", error);
+    }
+  };
+
   const CallLayout = () => {
     switch (layout) {
       case "grid":
@@ -159,7 +162,7 @@ const MeetingRoom = () => {
   }
 
   // Generate the meeting URL for QR code and invite link
-  const meetingUrl = `https://yourapp.com/meeting/${call?.cid}`;
+  const meetingUrl = "https://yourapp.com/meeting/${call?.cid}";
 
   const copyInviteLink = () => {
     navigator.clipboard
@@ -175,11 +178,10 @@ const MeetingRoom = () => {
   const fetchMeeting = async () => {
     try {
       const res = await axiosInstance.get(`/meeting/get-meeting/${call?.cid}`);
-      console.log(res.data.data);
-      console.log(res.data.data.chatChannelId);
-      setChatId(res.data.data.chatChannelId);
+      // console.log(res.data.data);
+      setChatId(res.data.data);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching meeting:", error);
     }
   };
 
@@ -187,57 +189,95 @@ const MeetingRoom = () => {
     fetchMeeting();
   }, [call?.cid]);
 
-  useEffect(() => {
-    const userId = userInfo._Id;
-    const getToken = async () => {
+  const getToken = async () => {
+    try {
+      const userId = userInfo?._id;
       const res = await axiosInstance.post(`/token/get-token-chat`, { userId });
       setToken(res.data.token);
-    };
+    } catch (error) {
+      console.error("Error fetching token:", error);
+    }
+  };
 
-    getToken();
-  }, [userInfo]);
+  const handleAddJoinedParticipant = async (user: any) => {
+    try {
+      console.log(user);
+      const res = await axiosInstance.put(`/meeting/add-participant`, {
+        user,
+        roomId: call?.cid,
+      });
+      console.log(res.data);
+
+      if (res.data.success) {
+        await addNewUserToChannel(user.userId); //TODO:
+      }
+    } catch (error) {
+      console.error("Error adding participant:", error);
+    }
+  };
 
   useEffect(() => {
     const initChat = async () => {
+      await handleAddJoinedParticipant(userInfo);
+      await getToken();
       if (token && userInfo) {
-        console.log("Token and user info ready. Connecting user...");
-        console.log("UserInfo:", userInfo);
-        console.log("Token:", token);
-
         try {
           await chatClient.connectUser(
-            {
-              id: userInfo._id,
-              name: userInfo.userName || userInfo?.guestName,
-            },
+            { id: userInfo._id, name: userInfo.userName },
             token
           );
 
-          const chatChannel = chatClient.channel("messaging", chatId);
+          console.log(chatId?.chatMembers);
+
+          const uniqueMembers = [
+            userInfo._id,
+            ...(chatId?.chatMembers || []),
+          ].filter((member, index, self) => self.indexOf(member) === index);
+
+          console.log(uniqueMembers);
+
+          const chatChannel = chatClient.channel(
+            "messaging",
+            chatId?.chatChannelId,
+            {
+              members: uniqueMembers,
+            }
+          );
+
           await chatChannel.watch();
           setChannel(chatChannel);
-          console.log("User connected and channel set.");
         } catch (error) {
-          console.error("Error connecting user or initializing chat:", error);
+          console.error("Error initializing chat:", error);
         }
       }
     };
     initChat();
-  }, [token, userInfo]);
+  }, [token, chatId]);
+
+  useEffect(() => {
+    if (channel) {
+      channel.on("member.added", (event: any) => {
+        console.log("New member added:", event.user.id);
+      });
+    }
+  }, [channel]);
 
   const handleLeaveMeeting = async () => {
     try {
       const response = await axiosInstance.put(
         `/meeting/end-meeting/${call?.cid}`
       );
-
-      alert(response.data)
-      
+      alert(response.data.message);
       router.push("/");
     } catch (error) {
-      console.error("Something went wrong while ending the meeting: ", error);
+      console.error("Error ending meeting:", error);
     }
   };
+
+  if (callingState !== CallingState.JOINED) {
+    return <Loader2 className="mx-auto animate-spin" />;
+  }
+
   return (
     <section className="relative h-screen w-full overflow-hidden text-white">
       <div className="rd__layout relative flex size-full items-center justify-center">

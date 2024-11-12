@@ -10,6 +10,8 @@ const getTokenUser = asyncHandler(async (req: any, res: Response) => {
   console.log(userId);
 
   const token = streamClient.createToken(userId);
+  console.log(token);
+  
   res.json({ userId, token });
 });
 
