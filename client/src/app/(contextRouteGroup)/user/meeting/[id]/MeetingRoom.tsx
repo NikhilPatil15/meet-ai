@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
-import 'stream-chat-react/dist/css/v2/index.css';
 import chatClient from "@/lib/streamChatConfig";
 import {
   Chat,
@@ -31,7 +30,6 @@ import { LayoutGrid, LayoutList, BetweenHorizonalEnd, BetweenVerticalEnd, User, 
 import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/utils/axios";
 import useAuth from "@/hooks/useAuth";
-import EndCallButton from "@/components/ui/EndCallButton";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
@@ -127,18 +125,6 @@ const MeetingRoom = () => {
     };
   }, [isMute, recognition]);
 
-  const addNewUserToChannel = async (newUserId: any) => {
-    try {
-      if (!chatId?.chatChannelId) return;
-      const chatChannel = chatClient.channel("messaging", chatId.chatChannelId);
-      await chatChannel.addMembers([newUserId]);
-      console.log("User added to channel:", chatChannel);
-      setChannel(chatChannel);
-    } catch (error) {
-      console.error("Error adding user to chat channel:", error);
-    }
-  };
-
   const CallLayout = () => {
     switch (layout) {
       case "grid":
@@ -207,8 +193,6 @@ const MeetingRoom = () => {
 
   useEffect(() => {
     const initChat = async () => {
-      await handleAddJoinedParticipant(userInfo);
-      await getToken();
       if (token && userInfo) {
         try {
           await chatClient.connectUser({ id: userInfo._id, name: userInfo.userName }, token);
@@ -255,11 +239,6 @@ const MeetingRoom = () => {
       console.error("Error ending meeting:", error);
     }
   };
-
-  if (callingState !== CallingState.JOINED) {
-    return <Loader2 className="mx-auto animate-spin" />;
-  }
-
   return (
     <section className="relative h-screen w-full overflow-hidden text-white">
     <div className="rd__layout relative flex size-full items-center justify-center">
