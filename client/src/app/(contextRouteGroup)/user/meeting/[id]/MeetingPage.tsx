@@ -33,7 +33,7 @@ export default function MeetingPage({ id }: MeetingPageProps) {
   const { user } = useSelector((state: RootState) => state?.auth);
   // console.log(user);
 
-  const fetchMeeting = async (id) => {
+  const fetchMeeting = async (id: any) => {
     try {
       const res = await axiosInstance.get(`/meeting/get-meeting/${id}`);
       console.log(res.data.data);
