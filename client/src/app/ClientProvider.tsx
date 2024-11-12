@@ -90,9 +90,7 @@ function useInitializeVideoClient() {
     }
 
     return () => {
-      if (videoClient) {
-        videoClient.disconnectUser();
-      }
+        videoClient?.disconnectUser();
     };
   }, [user]);
 

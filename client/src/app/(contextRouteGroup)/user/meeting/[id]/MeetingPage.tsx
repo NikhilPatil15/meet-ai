@@ -33,15 +33,15 @@ export default function MeetingPage({ id }: MeetingPageProps) {
   const { user } = useSelector((state: RootState) => state?.auth);
   // console.log(user);
 
-  const fetchMeeting = async (id) => {
-    try {
-      const res = await axiosInstance.get(`/meeting/get-meeting/${id}`);
-      console.log(res.data.data);
-      setMeeting(res.data.data.roomId);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const fetchMeeting = async (id) => {
+  //   try {
+  //     const res = await axiosInstance.get(`/meeting/get-meeting/${id}`);
+  //     console.log(res.data.data);
+  //     setMeeting(res.data.data.roomId);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   useEffect(() => {
     const initializeClient = async (
@@ -62,15 +62,14 @@ export default function MeetingPage({ id }: MeetingPageProps) {
 
         const response = await axiosInstance(tokenRequestConfig);
 
+        console.log(response.data);
+        
+
         const streamClient = new StreamVideoClient({
           apiKey,
           user: {
             id: guestUserId || user?._id,
             name: username || user?.userName || user?._id,
-            type: "guest",
-            custom: {
-              role: "guest",
-            },
           },
           tokenProvider: () => Promise.resolve(response.data.token),
         });

@@ -1,12 +1,10 @@
 import { asyncHandler } from "../utils/asyncHandler";
 import Meeting, { IMeeting } from "../models/meeting.model";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { ApiError } from "../utils/apiError";
-import mongoose, { isValidObjectId, ObjectId, Types } from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { IUser, User } from "../models/user.model";
 import { ApiResponse } from "../utils/apiResponse";
-import { streamClient } from "../config/getStream";
-import { useStreamVideoClient } from "@stream-io/video-react-sdk";
 import { serverClient } from "../config/chatConfig";
 import { scheduleMeetingNotification } from "../utils/sendMail";
 
@@ -121,7 +119,7 @@ const createMeeting = asyncHandler(async (req: any, res: Response) => {
 const addJoinedParticipant = asyncHandler(async (req: any, res: Response) => {
   try {
     const { _id, userName, avatar } = req.body?.user;
-    const user = { _id, userName, avatar, role: "user" };
+    const user = { userId: _id, userName, avatar, role: "user" };
     console.log("add join ",user);
     
 
@@ -135,7 +133,7 @@ const addJoinedParticipant = asyncHandler(async (req: any, res: Response) => {
       throw new ApiError(401, "You are the host!");
 
     const isParticipantExists = meeting.participants.some(
-      (p: any) => p._id && p._id.toString() === _id
+      (p: any) => p.userId && p.userId.toString() === user.userId
     );
     if (isParticipantExists) {
       return res
@@ -146,21 +144,23 @@ const addJoinedParticipant = asyncHandler(async (req: any, res: Response) => {
         });
     }
 
+    console.log("chat members ", meeting.chatMembers);
     meeting.participants.push(user);
-    if (!meeting.chatMembers.includes(user._id)) {
-      meeting.chatMembers.push(user._id);
+    if (!meeting.chatMembers.includes(user.userId)) {
+      meeting.chatMembers.push(user.userId);
     }
-
-    console.log(meeting.chatMembers);
+    console.log("chat members after ", meeting.chatMembers);
     
     await meeting.save();
     const channel = serverClient.channel("messaging", meeting.chatChannelId);
-    await channel.addMembers([_id]);
-    console.log("User added to channel:", channel);
+    await channel.addMembers([user.userId]);
+
+    console.log(channel);
+    
 
     return res
       .status(201)
-      .json(new ApiResponse(201, meeting, "Participant added successfully"));
+      .json(new ApiResponse(201, {meeting, channel}, "Participant added successfully"));
   } catch (error) {
     console.error("Error adding participant:", error);
     return res
