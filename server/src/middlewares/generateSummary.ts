@@ -4,6 +4,8 @@ import { asyncHandler } from "../utils/asyncHandler";
 import path from "path";
 import { ApiError } from "../utils/apiError";
 import axios from "axios";
+import Meeting, { IMeeting } from "../models/meeting.model";
+import { ApiResponse } from "../utils/apiResponse";
 
 // const modelPath = path.join(__dirname, '../../../ai/summaryModel');
 
@@ -28,15 +30,20 @@ import axios from "axios";
 export const generateSummary = asyncHandler(async(req:any, res:Response, next:NextFunction)=>{
 
     try {
-        const {conversation} = req.body
+        const {roomId} = req.params
 
-        if(!conversation){
-           throw new ApiError(402,"Missing conversation in the body!")
+        const meeting :IMeeting|null = await Meeting.findOne({roomId:roomId})
+
+        if(!meeting){
+           throw new ApiError(402,"Meeting not found!")
         }
 
-        if(!conversation.trim()){
+        if(!meeting?.dialogues?.trim()){
             throw new ApiError(402,"Conversation is empty!")
         }
+        if (meeting?.fileUrl && meeting?.fileName && meeting?.summary) {
+           next()
+          }
 
         // if(!summarizer){
         //    throw new ApiError(500,"Something went wrong while loading the summary model!")
@@ -73,7 +80,7 @@ export const generateSummary = asyncHandler(async(req:any, res:Response, next:Ne
                 'Content-Type':'application/json'
             },
             data:{
-                conversation:conversation
+                conversation:meeting?.dialogues
             }
         })
 

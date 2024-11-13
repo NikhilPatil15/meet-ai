@@ -31,6 +31,7 @@ interface MeetingCardProps {
 const MeetingCard = ({
   roomId,
   // icon,
+  handleClick,
   title,
   description,
   type,
@@ -45,6 +46,7 @@ const MeetingCard = ({
 
   const handleCopy = () => {
     navigator.clipboard.writeText(url).then(() => {});
+    alert("Link copied successfully!")
   };
 
   // Format the date
@@ -55,6 +57,8 @@ const MeetingCard = ({
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  const isPastMeeting = new Date(scheduledTime) < new Date();
 
   return (
     <section
@@ -82,7 +86,7 @@ const MeetingCard = ({
       {/* Avatar List */}
       <div className="flex items-center justify-center mt-4 md:mt-6">
         <div className="flex -space-x-3">
-          {participants?.slice(0, 4)?.map((participant, index) => (
+          {participants?.slice(0, 4)?.map((participant:any, index:number) => (
             <Image
               key={participant.userId}
               src={
@@ -99,18 +103,23 @@ const MeetingCard = ({
       </div>
 
       {/* Action Button */}
-      <button
-        // onClick={handleClick}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        className="mt-6 md:mt-8 rounded-lg px-6 py-3 text-lg font-semibold transition-all duration-300 bg-blue-500 text-white hover:bg-white hover:text-blue-500 shadow-md"
-      >
-        {isHovered ? "Start meet" : buttonText}
-      </button>
-
+      {isPastMeeting ? (
+        <p className="mt-6 md:mt-8 text-lg font-semibold text-gray-500">
+          Meeting ended
+        </p>
+      ) : (
+        <button
+          onClick={handleClick}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          className="mt-6 md:mt-8 rounded-lg px-6 py-3 text-lg font-semibold transition-all duration-300 bg-blue-500 text-white hover:bg-white hover:text-blue-500 shadow-md"
+        >
+          {isHovered ? "Start meet" : buttonText}
+        </button>
+      )}
       <div className="absolute right-0 bottom-1 flex gap-3">
         <IconSettingsFilled />
-        <CopyPlus onClick={handleCopy} />
+        <CopyPlus onClick={handleCopy} className="cursor-pointer"/>
       </div>
     </section>
   );

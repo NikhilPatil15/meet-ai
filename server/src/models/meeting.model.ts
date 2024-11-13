@@ -18,7 +18,7 @@ export interface IMeeting extends Document {
   dialogues: string;
   summary: string;
   fileUrl: string | any;
-  fileName: string;
+  fileName: string | any;
   chatChannelId?: string | any; 
   chatCreatedAt?: Date; 
   chatMembers: Schema.Types.ObjectId[] | any;

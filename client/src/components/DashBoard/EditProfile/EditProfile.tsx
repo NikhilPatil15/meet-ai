@@ -5,17 +5,27 @@ import { AppDispatch, RootState } from '@/redux/store';
 import { fetchUser } from '@/redux/slices/authSlice';
 import axiosInstance from '@/utils/axios';
 
+interface LocalUser{
+userName:string,
+fullName:string,
+avatar:string,
+newAvatar:File | null
+}
+
 const ProfileEdit = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch: AppDispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   
+
+
   // Initialize local state with user data from Redux store
-  const [localUser, setLocalUser] = useState({
+  const [localUser, setLocalUser] = useState<LocalUser>({
     userName: user?.userName || 'Test',
     fullName: user?.fullName || 'Test',
-    avatar: user?.avatar || "https://www.w3schools.com/howto/img_avatar.png",
+    avatar: user?.avatar ,
+    newAvatar:null
   });
 
 
@@ -44,8 +54,8 @@ const ProfileEdit = () => {
       const formData = new FormData();
   
    
-      if (localUser.avatar instanceof File) {
-        formData.append('avatar', localUser.avatar);
+      if (localUser.newAvatar instanceof File) {
+        formData.append('avatar', localUser.newAvatar);
       }
   
 
@@ -81,7 +91,10 @@ const ProfileEdit = () => {
             <label htmlFor="avatar-upload" className={`relative ${isEditing ? 'cursor-pointer' : ''}`}>
               <div
                 className="w-40 h-40 rounded-full bg-cover bg-center border-4 border-white shadow-lg"
-                style={{ backgroundImage: `url(${localUser.avatar})` }}
+                style={{
+                  backgroundImage: localUser?.avatar ? `url(${localUser?.avatar})` : 'https://www.w3schools.com/howto/img_avatar.png',
+                  backgroundColor: localUser?.avatar ? 'transparent' : 'gray', // For debugging
+                }}
               >
                 {isEditing && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-full">
@@ -100,7 +113,7 @@ const ProfileEdit = () => {
                       reader.onload = () => {
                         setLocalUser((prevUser) => ({
                           ...prevUser,
-                          avatar: file,
+                          newAvatar: file,
                         }));
                       };
                       reader.readAsDataURL(file);

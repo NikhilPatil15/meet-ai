@@ -211,11 +211,10 @@ export const scheduleMeetingNotification = (
   },
   null,
   true,
-  'Asia/Kolkata' 
+  'Asia/Kolkata'
 );
 };
 
-// Modified to show IST time in email
 const getMeetingNotificationHTML = (data: {
   name: string;
   meetingTitle: string;

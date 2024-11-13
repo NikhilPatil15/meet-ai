@@ -5,6 +5,7 @@ import { Box, Paper } from "@mui/material";
 import CardSkeleton from "../Homepage/CardSkeleton";
 import axiosInstance from "@/utils/axios";
 import { BarChart } from "@/components/specifics/Chart";
+import { useRouter } from "next/navigation";
 
 const Upcoming = () => {
   const [loading, setLoading] = useState(true);
@@ -12,6 +13,7 @@ const Upcoming = () => {
   const [todays, setTodays] = useState<any>(null);
   const [next7DaysDetails, setNext7DaysDetails] = useState<any>([]);
 
+  const router = useRouter()
   const fetchUpcomingMeetings = async () => {
     try {
       setLoading(true);
@@ -67,6 +69,7 @@ const Upcoming = () => {
     fetchNext7DaysMeetingDetails();
     fetchTodaysSchedule();
   }, []);
+  
   return (
     <div>
       <Box
@@ -130,7 +133,11 @@ const Upcoming = () => {
                 <MeetingCard
                   title={meeting.title}
                   buttonText="Join Meet"
-                  handleClick={() => {}}
+                  handleClick={() => {
+                    
+                    router.replace(`/user/meeting/${meeting?.roomId.split(":")[1]}`);
+                  }}
+                  
                   type={meeting.type}
                   roomId={meeting.roomId}
                   description={meeting.description}
@@ -157,28 +164,50 @@ const Upcoming = () => {
         className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"
       >
         {loading
-          ? Array.from({ length: 4 }).map((_, index) => (
-              <CardSkeleton key={index} />
-            ))
-          : upcoming?.map((meeting: any, index: any) => (
-              <Box
-                key={index}
-                mb="20px"
-                p="10px"
-                className="h-full bg-gray-800 rounded-xl shadow-lg flex flex-col justify-between"
-              >
-                <MeetingCard
-                  title={meeting.title}
-                  buttonText="Join Meet"
-                  handleClick={() => {}}
-                  type={meeting.type}
-                  roomId={meeting.roomId}
-                  description={meeting.description}
-                  participants={meeting.participants}
-                  scheduledTime={meeting.scheduledTime}
-                />
-              </Box>
-            ))}
+  ? Array.from({ length: 4 }).map((_, index) => (
+      <CardSkeleton key={index} />
+    ))
+  : (() => {
+      // Filter out past meetings
+      const upcomingMeetings = upcoming?.filter((meeting: any) => {
+        const isPastMeeting = new Date(meeting?.scheduledTime) < new Date();
+        return !isPastMeeting;
+      }) || [];
+
+      // Check if there are any upcoming meetings
+      if (upcomingMeetings.length === 0) {
+        return (
+          <Box
+          mb="20px"
+          p="10px"
+          className="h-full bg-gray-800 rounded-xl shadow-lg flex flex-col justify-between"
+        >
+          <p className="text-center text-white mt-6 text-xl" >No upcoming meetings</p>
+          </Box>
+        );
+      }
+
+      return upcomingMeetings.map((meeting: any, index: any) => (
+        <Box
+          key={index}
+          mb="20px"
+          p="10px"
+          className="h-full bg-gray-800 rounded-xl shadow-lg flex flex-col justify-between"
+        >
+          <MeetingCard
+            title={meeting.title}
+            buttonText="Join Meet"
+            handleClick={() => {}}
+            type={meeting.type}
+            roomId={meeting.roomId}
+            description={meeting.description}
+            participants={meeting.participants}
+            scheduledTime={meeting.scheduledTime}
+          />
+        </Box>
+      ));
+    })()}
+
       </Box>
     </div>
   );

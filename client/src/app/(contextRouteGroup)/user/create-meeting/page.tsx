@@ -21,7 +21,7 @@ export default function CreateMeetingPage() {
   const [selectedParticipants, setSelectedParticipants] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
-
+  const [enableSummary, setEnableSummary] = useState(false);
   const [join, setJoin] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [roomId, setRoomId] = useState<string>("");
@@ -66,7 +66,7 @@ export default function CreateMeetingPage() {
       if (call) {
         console.log(startTimeInput);
 
-        const res = await axiosInstance.post("meeting/create-meeting", {
+        const res = await axiosInstance.post("/meeting/create-meeting", {
           title: titleInput,
           description: descriptionInput,
           participants: selectedParticipants,
@@ -74,10 +74,11 @@ export default function CreateMeetingPage() {
           status: activeTime ? "scheduled" : "not scheduled",
           roomId: call?.cid,
           type: activeType ? "private" : "public",
+          enableSummary:enableSummary
         });
         console.log(res.data.data);
       }
-      // router.push(`meeting/${call?.id}`);
+      router.replace(`/user/meeting/${call?.id}`)
     } catch (error) {
       console.error("Error creating meeting:", error);
       alert("Something went wrong. Please try again later.");
@@ -114,7 +115,7 @@ export default function CreateMeetingPage() {
         const response = await call.getOrCreate({
           data: {
             custom: { description: descriptionInput && descriptionInput },
-            members: selectedParticipants,
+           
             starts_at: startTimeIST,
           },
         });
@@ -138,6 +139,7 @@ export default function CreateMeetingPage() {
           status: activeTime ? "scheduled" : "not scheduled",
           roomId: call?.cid,
           type: activeType ? "private" : "public",
+          enableSummary:enableSummary
         });
         console.log(res.data.data);
 
@@ -146,6 +148,7 @@ export default function CreateMeetingPage() {
 
         console.log("Response of the send Notification request: ", sendNotificationOFScheduledMeeting.data);
         
+        router.replace("/user/dashboard")
       }
     } catch (error) {
       console.error("Error creating meeting:", error);
@@ -193,6 +196,18 @@ export default function CreateMeetingPage() {
           setActiveType={setActiveType}
           setShowModal={setShowModal}
         />
+    <div className="flex items-center space-x-3">
+      <input
+        type="checkbox"
+        id="enableSummary"
+        checked={enableSummary}
+        onChange={(e) => setEnableSummary(e.target.checked)}
+        className="w-4 h-4 text-purpleAccent-200 focus:ring-purpleAccent-100 border-gray-300 rounded"
+      />
+      <label htmlFor="enableSummary" className="text-white font-semibold">
+        Enable Meeting Summary
+      </label>
+    </div>
 
         {activeTime ? (
           <button

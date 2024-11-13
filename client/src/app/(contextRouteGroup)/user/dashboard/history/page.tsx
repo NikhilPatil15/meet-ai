@@ -15,6 +15,7 @@ interface HostDetails {
   userName: string;
   fullName: string;
   email: string;
+  avatar:string
 }
 
 interface Meeting {
@@ -175,7 +176,7 @@ export default function MeetingHistory() {
       ) : meetings.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-screen-lg">
           {meetings.map((meeting) => (
-            <Link href={`/user/dashboard/meet/${meeting?._id}`}>
+            <Link href={`/user/dashboard/meet/${meeting?.roomId}`}>
               <Card
                 key={meeting._id}
                 className="bg-[#1c1c1c] text-white shadow-lg rounded-lg relative overflow-visible transition-transform hover:scale-105"
@@ -201,7 +202,7 @@ export default function MeetingHistory() {
                   </Typography>
 
                   <div className="flex items-center gap-2 mt-4">
-                    <Avatar alt={meeting.hostDetails.fullName} />
+                    <Avatar alt={meeting.hostDetails.fullName} src={meeting?.hostDetails?.avatar}/>
                     <div>
                       <Typography variant="body2" className="text-sm font-bold">
                         {meeting.hostDetails.fullName}

@@ -37,8 +37,7 @@ type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
 const MeetingRoom = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const isPersonalRoom = !!searchParams.get("personal");
+
   const { useCallCallingState, useMicrophoneState } = useCallStateHooks();
   const callingState = useCallCallingState();
   const { isMute } = useMicrophoneState();
@@ -50,9 +49,11 @@ const MeetingRoom = () => {
   const [chatId, setChatId] = useState<any>();
   const [token, setToken] = useState<string | null>(null);
   const [channel, setChannel] = useState<any>(null);
+  const [meeting,setMeeting] = useState<any>(null)
   const client = useStreamVideoClient();
   const { user: userInfo } = useAuth();
   const [transcript, setTranscript] = useState("");
+
 
   const sendSpeech = async (text: string) => {
     try {
@@ -152,9 +153,7 @@ const MeetingRoom = () => {
     }
   };
 
-  if (callingState !== CallingState.JOINED) {
-    return <Loader2 className="mx-auto animate-spin" />;
-  }
+
 
   // Generate the meeting URL for QR code and invite link
   const meetingUrl = "https://yourapp.com/meeting/${call?.cid}";
@@ -175,6 +174,7 @@ const MeetingRoom = () => {
       const res = await axiosInstance.get(`/meeting/get-meeting/${call?.cid}`);
       console.log(res.data.data);
       setChatId(res.data.data);
+      setMeeting(res.data.data)
     } catch (error) {
       console.error("Error fetching meeting:", error);
     }
@@ -240,21 +240,28 @@ const MeetingRoom = () => {
 
   useEffect(() => {
     if (channel) {
-      channel.on("member.added", (event) => {
+      channel.on("member.added", (event: { user: { id: any; }; }) => {
         console.log("New member added:", event.user.id);
       });
     }
   }, [channel]);
 
+
+
   const handleLeaveMeeting = async () => {
+    // if (leaveMeeting) return; // Prevent multiple leave triggers
+    // setLeaveMeeting(true);
     try {
       const response = await axiosInstance.put(`/meeting/end-meeting/${call?.cid}`);
-      alert(response.data.message);
-      router.push("/");
+      router.replace('/');
     } catch (error) {
       console.error("Error ending meeting:", error);
-    }
   };
+}
+  // useEffect(()=>{
+  //   handleLeaveMeeting()
+  // },[leaveMeeting])
+
 
   if (callingState !== CallingState.JOINED) {
     return <Loader2 className="mx-auto animate-spin" />;
@@ -301,6 +308,7 @@ const MeetingRoom = () => {
     {/* Call Controls and Buttons */}
     <div className="fixed bottom-0 flex w-full items-center justify-center gap-5 flex-wrap bg-transparent px-4 py-2 z-30">
       <CallControls onLeave={handleLeaveMeeting} />
+        
       <div className="hidden md:block">
         <DropdownMenu>
           <DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
@@ -341,7 +349,7 @@ const MeetingRoom = () => {
           <User size={20} className="text-white" />
         </div>
       </button>
-      {!isPersonalRoom && <EndCallButton />}
+       <EndCallButton meeting={meeting}/>
     </div>
   </section>
   );

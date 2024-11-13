@@ -1,18 +1,25 @@
+import axiosInstance from '@/utils/axios';
 import { Button } from '@mui/material';
 import { useCall, useCallStateHooks } from '@stream-io/video-react-sdk';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
-const EndCallButton = () => {
-  const call = useCall();
+const EndCallButton = (meeting:any) => {
+  const call:any = useCall();
   const router = useRouter();
   const { useLocalParticipant } = useCallStateHooks();
   const localParticipant = useLocalParticipant();
 
   // Check if the local participant is the owner of the call
-  const isMeetingOwner = localParticipant?.userId === call?.state?.createdBy?.id;
+  console.log("Meeting: ", meeting.meeting.hostDetails._id);
+  console.log("Local Participant: ", localParticipant?.userId)
+  const isMeetingOwner = localParticipant?.userId === meeting?.meeting?.hostDetails?._id
 
-  if (!isMeetingOwner) return null;
+ /*TODO: the localParticipant id of the host and the call.state.createdby.id of should be same  */
+ console.log("Meeting Owner: ",isMeetingOwner);
+//  console.log("Call: ", call.state.createdBy);
+
+  
 
   const handleEndCall = async () => {
     try {
@@ -20,11 +27,14 @@ const EndCallButton = () => {
       await call?.endCall();
       // Redirect to the homepage
       router.push('/');
+
+        
     } catch (error) {
       console.error('Error ending the call:', error);
     }
   };
 
+  if (!isMeetingOwner) return null;
   return (
     <Button
       onClick={handleEndCall}

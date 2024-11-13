@@ -39,17 +39,32 @@ const addDialogue = asyncHandler(async (req: any, res: Response) => {
 });
 
 const generateSummaryFile = asyncHandler(async (req: any, res: Response) => {
-  console.log(req?.summary);
+  // console.log(req?.summary);
 
   const { roomId } = req.params;
-  const meeting: IMeeting | any = await Meeting.findOne({ roomId: roomId });
+  const meeting: IMeeting | null = await Meeting.findOne({ roomId: roomId });
 
-  
   if (!meeting) {
     throw new ApiError(404, "Meeting not found");
   }
 
+
+
+  if (meeting?.fileUrl && meeting?.fileName && meeting?.summary) {
+    return res.json(
+      new ApiResponse(200, meeting, "Summary file already exists!")
+    );
+  }
+
+ 
+    meeting.summary = req?.summary
+
+    await meeting?.save();
+
+
   if (meeting?.enableSummary) {
+    console.log("Into the file creation block");
+    
     const dirPath = path.join(__dirname, "../../public/temp");
     const filePath = path.join(
       dirPath,
@@ -62,55 +77,115 @@ const generateSummaryFile = asyncHandler(async (req: any, res: Response) => {
         {
           properties: {},
           children: [
-            //Title
+            // Title Section
             new Paragraph({
               children: [
                 new TextRun({
                   text: "Title",
                   bold: true,
+                  size: 32,
+                  underline: {},
+                  color: "2F5597", // Dark blue color
+                }),
+              ],
+              spacing: { after: 300 }, // Space after the title
+            }),
+            new Paragraph({
+              text: meeting?.title || "Untitled Meeting",
+              spacing: { after: 200 },
+            }),
+    
+            // Description Section
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "Description:",
+                  bold: true,
                   size: 28,
+                  underline: {},
+                  color: "2F5597",
                 }),
               ],
+              spacing: { after: 200 },
             }),
-
-            new Paragraph({ text: meeting?.title }),
-
-            // description:
+            new Paragraph({
+              text: meeting?.description || "No description provided.",
+              indent: { left: 300 },
+              spacing: { after: 300 },
+            }),
+    
+            // Summary Section
             new Paragraph({
               children: [
                 new TextRun({
-                  text: "Description: ",
+                  text: "Summary:",
                   bold: true,
+                  size: 28,
+                  underline: {},
+                  color: "2F5597",
+                }),
+              ],
+              spacing: { after: 200 },
+            }),
+            new Paragraph({
+              text: req?.summary || "No summary available.",
+              indent: { left: 300 },
+              spacing: { after: 300 },
+            }),
+    
+            // Participants Section
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "Participants:",
+                  bold: true,
+                  size: 28,
+                  underline: {},
+                  color: "2F5597",
+                }),
+              ],
+              spacing: { after: 200 },
+            }),
+            ...(meeting?.participants?.length
+              ? meeting.participants.map((participant) =>
+                  new Paragraph({
+                    text: typeof participant === "string" ? `• ${participant}` : `• ${participant.userName}`,
+                    indent: { left: 300 },
+                    spacing: { after: 100 },
+                  })
+                )
+              : [new Paragraph({ text: "No participants listed." })]),
+    
+            // Ending Text Section
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "Thank you for reviewing this document.",
+                  bold: true,
+                  size: 26,
+                  color: "2F5597",
+                }),
+              ],
+              alignment: "center", // Center align the ending text
+              spacing: { before: 400, after: 200 },
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "End of Document",
+                  italics: true,
+                  color: "999999", // Light grey color for "End of Document" text
                   size: 24,
                 }),
               ],
-            }),
-            new Paragraph({ text: meeting?.description }),
-
-            //summary:
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Summary: ",
-                  bold: true,
-                  size: 24,
-                }),
-              ],
-            }),
-            new Paragraph({ text: req?.summary}),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Something",
-                  size: 22,
-                }),
-              ],
-              indent: { left: 720 }, // 720 twips = 0.5 inch indentation
+              alignment:"center",
             }),
           ],
         },
       ],
     });
+    
+    
 
     // await fs.mkdir(dirPath, { recursive: true });
 
@@ -123,9 +198,11 @@ const generateSummaryFile = asyncHandler(async (req: any, res: Response) => {
       const cloudinaryResult = await uploadOnCloudinary(filePath);
       meeting.fileUrl = cloudinaryResult?.url;
       meeting.fileName = cloudinaryResult?.public_id;
-      meeting.summary = req?.summary
+      meeting.summary = req?.summary;
       await meeting?.save();
 
+      console.log("File is created and saved succesfully!");
+      
       return res
         .status(200)
         .json(
