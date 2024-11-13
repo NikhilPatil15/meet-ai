@@ -1,12 +1,10 @@
 import { asyncHandler } from "../utils/asyncHandler";
 import Meeting, { IMeeting } from "../models/meeting.model";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { ApiError } from "../utils/apiError";
 import mongoose, { ObjectId, Types } from "mongoose";
 import { IUser, User } from "../models/user.model";
 import { ApiResponse } from "../utils/apiResponse";
-import { streamClient } from "../config/getStream";
-import { useStreamVideoClient } from "@stream-io/video-react-sdk";
 import { serverClient } from "../config/chatConfig";
 import { scheduleMeetingNotification } from "../utils/sendMail";
 
@@ -173,6 +171,8 @@ const addJoinedParticipant: any = asyncHandler(
       throw new ApiError(401, "You are the host!");
     }
 
+    const isParticipantExists = meeting.participants.some(
+      (p: any) => p.userId && p.userId.toString() === user.userId
     const isParticipantExists = meeting?.participants?.some(
       (p: any) => p.userId && p.userId.toString() === req?.user?.id
     );
@@ -184,8 +184,19 @@ const addJoinedParticipant: any = asyncHandler(
       });
     }
 
+    console.log("chat members ", meeting.chatMembers);
     meeting.participants.push(user);
+    if (!meeting.chatMembers.includes(user.userId)) {
+      meeting.chatMembers.push(user.userId);
+    }
+    console.log("chat members after ", meeting.chatMembers);
+    
     await meeting.save();
+    const channel = serverClient.channel("messaging", meeting.chatChannelId);
+    await channel.addMembers([user.userId]);
+
+    console.log(channel);
+    
     try {
       const channel = serverClient.channel("messaging", meeting.chatChannelId);
       console.log(channel);

@@ -62,15 +62,14 @@ export default function MeetingPage({ id }: MeetingPageProps) {
 
         const response = await axiosInstance(tokenRequestConfig);
 
+        console.log(response.data);
+        
+
         const streamClient = new StreamVideoClient({
           apiKey,
           user: {
             id: guestUserId || user?._id,
             name: username || user?.userName || user?._id,
-            type: "guest",
-            custom: {
-              role: "guest",
-            },
           },
           tokenProvider: () => Promise.resolve(response.data.token),
         });

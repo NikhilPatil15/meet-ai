@@ -3,7 +3,6 @@
 import useAuth from "@/hooks/useAuth";
 import axiosInstance from "@/utils/axios";
 import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
-import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -40,7 +39,6 @@ export default function CreateMeetingPage() {
       // ];
 
       const res = await axiosInstance.get("/user/get-all-users");
-      console.log(res.data.data);
       setAllUsers(res.data.data);
     };
     fetchUsers();
@@ -50,16 +48,12 @@ export default function CreateMeetingPage() {
     if (!client || !user) {
       return;
     }
-
     try {
       const id = crypto.randomUUID();
       const call = client.call("default", id);
-
-      console.log("Call id: ", call?.cid.length);
-
       const response = await call.getOrCreate({
         data: {
-          custom: { description: descriptionInput && descriptionInput },
+          custom: { description: descriptionInput ? descriptionInput : "" },
         },
       });
       setCall(call);
@@ -76,7 +70,6 @@ export default function CreateMeetingPage() {
           type: activeType ? "private" : "public",
           enableSummary:enableSummary
         });
-        console.log(res.data.data);
       }
       router.replace(`/user/meeting/${call?.id}`)
     } catch (error) {

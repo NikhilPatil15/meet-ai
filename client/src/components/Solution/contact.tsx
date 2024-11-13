@@ -2,22 +2,22 @@ import React, { useState } from 'react';
 
 
 function Contact() {
-  // State to manage form submission
+
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Handle form submission
+ 
   const handleSubmit = (e: { preventDefault: () => void; }) => {
-    e.preventDefault(); // Prevent page refresh
-    setIsSubmitted(true); // Set form submission status to true
+    e.preventDefault(); 
+    setIsSubmitted(true); 
     setTimeout(() => {
-      setIsSubmitted(false); // Reset the submission state after 3 seconds
+      setIsSubmitted(false); 
     }, 3000);
   };
 
   return (
     <div className="flex flex-col md:flex-row justify-center items-stretch bg-gradient-to-b from-black via-gray-900 to-purple-800 min-h-screen p-10 space-x-4">
       
-      {/* Right Contact Form */}
+   
       <div className="w-full md:w-1/2 p-8 rounded-lg shadow-lg text-white flex flex-col justify-between">
         <div>
           <h3 className="text-2xl font-bold mb-2 text-center">Message Us</h3>
@@ -71,7 +71,7 @@ function Contact() {
             </button>
           </form>
 
-          {/* Show alert after form submission */}
+         
           {isSubmitted && (
             <div className="mt-4 text-center text-green-500">
               <p>Your message has been sent successfully!</p>
@@ -79,7 +79,7 @@ function Contact() {
           )}
         </div>
 
-        {/* Add icons in the bottom right (optional) */}
+    
       </div>
     </div>
   );
