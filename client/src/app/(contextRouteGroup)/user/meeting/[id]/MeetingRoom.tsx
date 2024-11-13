@@ -29,6 +29,7 @@ import {
   BetweenVerticalEnd,
   User,
   Loader2,
+  MessageCircle,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/utils/axios";
@@ -36,6 +37,7 @@ import useAuth from "@/hooks/useAuth";
 import EndCallButton from "@/components/ui/EndCallButton";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import ChatBox from "./ChatBox";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
@@ -49,6 +51,7 @@ const MeetingRoom = () => {
   const call = useCall();
   const [layout, setLayout] = useState<CallLayoutType>("speaker-left");
   const [showParticipants, setShowParticipants] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
   const [chatId, setChatId] = useState<any>();
   const [token, setToken] = useState<string | null>(null);
@@ -58,6 +61,11 @@ const MeetingRoom = () => {
   // const { user: userInfo } = useAuth();
   const userInfo = useSelector((state: RootState) => state.auth.user);
   const [transcript, setTranscript] = useState("");
+
+  const handleChat = () => {
+    setShowChat((prev) => !prev);
+    setShowParticipants(false);
+  };
 
   const sendSpeech = async (text: string) => {
     try {
@@ -177,9 +185,7 @@ const MeetingRoom = () => {
   const fetchMeeting = async () => {
     try {
       const res = await axiosInstance.get(`/meeting/get-meeting/${call?.cid}`);
-      // console.log(res.data.data);
       setChatId(res.data.data);
-      setMeeting(res.data.data);
     } catch (error) {
       console.error("Error fetching meeting:", error);
     }
@@ -201,7 +207,6 @@ const MeetingRoom = () => {
 
   const handleAddJoinedParticipant = async (user: any) => {
     try {
-      console.log(user);
       const res = await axiosInstance.put(`/meeting/add-participant`, {
         user,
         roomId: call?.cid,
@@ -209,7 +214,7 @@ const MeetingRoom = () => {
       console.log(res.data);
 
       if (res.data.success) {
-        await addNewUserToChannel(user.userId); //TODO:
+        await addNewUserToChannel(user.userId);
       }
     } catch (error) {
       console.error("Error adding participant:", error);
@@ -226,15 +231,14 @@ const MeetingRoom = () => {
             { id: userInfo._id, name: userInfo.userName },
             token
           );
-
-          console.log(chatId?.chatMembers);
-
           const uniqueMembers = [
             userInfo._id,
             ...(chatId?.chatMembers || []),
           ].filter((member, index, self) => self.indexOf(member) === index);
 
           console.log(uniqueMembers);
+          console.log(chatId?.chatChannelId);
+          
 
           const chatChannel = chatClient.channel(
             "messaging",
@@ -256,15 +260,13 @@ const MeetingRoom = () => {
 
   useEffect(() => {
     if (channel) {
-      channel.on("member.added", (event: { user: { id: any } }) => {
+      channel.on("member.added", (event: any) => {
         console.log("New member added:", event.user.id);
       });
     }
   }, [channel]);
 
   const handleLeaveMeeting = async () => {
-    // if (leaveMeeting) return; // Prevent multiple leave triggers
-    // setLeaveMeeting(true);
     try {
       const response = await axiosInstance.put(
         `/meeting/end-meeting/${call?.cid}`
@@ -274,9 +276,6 @@ const MeetingRoom = () => {
       console.error("Error ending meeting:", error);
     }
   };
-  // useEffect(()=>{
-  //   handleLeaveMeeting()
-  // },[leaveMeeting])
 
   if (callingState !== CallingState.JOINED) {
     return <Loader2 className="mx-auto animate-spin" />;
@@ -293,29 +292,23 @@ const MeetingRoom = () => {
         <div
           className={cn(
             "rd__sidebar",
-            showParticipants ? "rd__sidebar--open" : ""
+            (showParticipants || showChat) ? "rd__sidebar--open" : ""
           )}
         >
           <div className="rd__sidebar__container">
-            <div className="rd__participants">
+            {showParticipants ? (
               <div className="str-video__participant-list">
                 {/* Participant List */}
-                <CallParticipantsList
-                  onClose={() => setShowParticipants(false)}
-                />
+                <CallParticipantsList onClose={() => setShowParticipants(false)} />
               </div>
-              <div className="str-video__participant-list">
-                {!channel && <p>Loading...</p>}
-                {channel && (
-                  <Chat client={chatClient} theme="messaging dark">
-                    <Channel channel={channel}>
-                      <MessageList />
-                      <MessageInput />
-                    </Channel>
-                  </Chat>
-                )}
+            ) : showChat && channel ? (
+              <div className="w-full">
+                {/* Chat Section */}
+                <ChatBox channel={channel} close={setShowChat}/>
               </div>
-            </div>
+            ) : (
+              <p>Loading...</p>
+            )}
           </div>
         </div>
       </div>
@@ -359,12 +352,23 @@ const MeetingRoom = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <button onClick={() => setShowParticipants((prev) => !prev)}>
+        <button
+          onClick={() => {
+            setShowParticipants((prev) => !prev);
+            setShowChat(false);
+          }}
+        >
           <div className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
             <User size={20} className="text-white" />
           </div>
         </button>
-        {meeting?.hostDetails?._id === userInfo._id && (
+
+        <button onClick={handleChat}>
+          <div className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
+            <MessageCircle size={20} className="text-white" />
+          </div>
+        </button>
+        {meeting?.hostDetails?._id === userInfo?._id && (
           <EndCallButton text={"End meeting"} />
         )}
       </div>
