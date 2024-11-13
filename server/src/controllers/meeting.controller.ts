@@ -173,8 +173,6 @@ const addJoinedParticipant: any = asyncHandler(
 
     const isParticipantExists = meeting.participants.some(
       (p: any) => p.userId && p.userId.toString() === user.userId
-    const isParticipantExists = meeting?.participants?.some(
-      (p: any) => p.userId && p.userId.toString() === req?.user?.id
     );
 
     if (isParticipantExists) {

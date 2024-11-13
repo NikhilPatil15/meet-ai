@@ -34,6 +34,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/utils/axios";
 import useAuth from "@/hooks/useAuth";
 import EndCallButton from "@/components/ui/EndCallButton";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
@@ -51,11 +53,11 @@ const MeetingRoom = () => {
   const [chatId, setChatId] = useState<any>();
   const [token, setToken] = useState<string | null>(null);
   const [channel, setChannel] = useState<any>(null);
-  const [meeting,setMeeting] = useState<any>(null)
+  const [meeting, setMeeting] = useState<any>(null);
   const client = useStreamVideoClient();
-  const { user: userInfo } = useAuth();
+  // const { user: userInfo } = useAuth();
+  const userInfo = useSelector((state: RootState) => state.auth.user);
   const [transcript, setTranscript] = useState("");
-
 
   const sendSpeech = async (text: string) => {
     try {
@@ -158,8 +160,6 @@ const MeetingRoom = () => {
     }
   };
 
-
-
   // Generate the meeting URL for QR code and invite link
   const meetingUrl = "https://yourapp.com/meeting/${call?.cid}";
 
@@ -179,7 +179,7 @@ const MeetingRoom = () => {
       const res = await axiosInstance.get(`/meeting/get-meeting/${call?.cid}`);
       // console.log(res.data.data);
       setChatId(res.data.data);
-      setMeeting(res.data.data)
+      setMeeting(res.data.data);
     } catch (error) {
       console.error("Error fetching meeting:", error);
     }
@@ -256,28 +256,27 @@ const MeetingRoom = () => {
 
   useEffect(() => {
     if (channel) {
-      channel.on("member.added", (event: { user: { id: any; }; }) => {
+      channel.on("member.added", (event: { user: { id: any } }) => {
         console.log("New member added:", event.user.id);
       });
     }
   }, [channel]);
 
-
-
   const handleLeaveMeeting = async () => {
     // if (leaveMeeting) return; // Prevent multiple leave triggers
     // setLeaveMeeting(true);
     try {
-      const response = await axiosInstance.put(`/meeting/end-meeting/${call?.cid}`);
-      router.replace('/');
+      const response = await axiosInstance.put(
+        `/meeting/end-meeting/${call?.cid}`
+      );
+      router.replace("/");
     } catch (error) {
       console.error("Error ending meeting:", error);
+    }
   };
-}
   // useEffect(()=>{
   //   handleLeaveMeeting()
   // },[leaveMeeting])
-
 
   if (callingState !== CallingState.JOINED) {
     return <Loader2 className="mx-auto animate-spin" />;
@@ -321,53 +320,55 @@ const MeetingRoom = () => {
         </div>
       </div>
 
-    {/* Call Controls and Buttons */}
-    <div className="fixed bottom-0 flex w-full items-center justify-center gap-5 flex-wrap bg-transparent px-4 py-2 z-30">
-      <CallControls onLeave={handleLeaveMeeting} />
-        
-      <div className="hidden md:block">
-        <DropdownMenu>
-          <DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
-            <LayoutList size={20} className="text-white" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="border-dark-1 bg-dark-1 text-white">
-            {[
-              { label: "Grid", icon: <LayoutGrid size={16} /> },
-              {
-                label: "Speaker-Left",
-                icon: <BetweenHorizonalEnd size={16} />,
-              },
-              {
-                label: "Speaker-Right",
-                icon: <BetweenVerticalEnd size={16} />,
-              },
-            ].map((item, index) => (
-              <DropdownMenuItem
-                key={index}
-                className="cursor-pointer flex items-center gap-2"
-                onClick={() =>
-                  setLayout(
-                    item.label
-                      .toLowerCase()
-                      .replace(" ", "-") as CallLayoutType
-                  )
-                }
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <button onClick={() => setShowParticipants((prev) => !prev)}>
-        <div className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
-          <User size={20} className="text-white" />
+      {/* Call Controls and Buttons */}
+      <div className="fixed bottom-0 flex w-full items-center justify-center gap-5 flex-wrap bg-transparent px-4 py-2 z-30">
+        <CallControls onLeave={handleLeaveMeeting} />
+
+        <div className="hidden md:block">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
+              <LayoutList size={20} className="text-white" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="border-dark-1 bg-dark-1 text-white">
+              {[
+                { label: "Grid", icon: <LayoutGrid size={16} /> },
+                {
+                  label: "Speaker-Left",
+                  icon: <BetweenHorizonalEnd size={16} />,
+                },
+                {
+                  label: "Speaker-Right",
+                  icon: <BetweenVerticalEnd size={16} />,
+                },
+              ].map((item, index) => (
+                <DropdownMenuItem
+                  key={index}
+                  className="cursor-pointer flex items-center gap-2"
+                  onClick={() =>
+                    setLayout(
+                      item.label
+                        .toLowerCase()
+                        .replace(" ", "-") as CallLayoutType
+                    )
+                  }
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </button>
-       <EndCallButton meeting={meeting}/>
-    </div>
-  </section>
+        <button onClick={() => setShowParticipants((prev) => !prev)}>
+          <div className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
+            <User size={20} className="text-white" />
+          </div>
+        </button>
+        {meeting?.hostDetails?._id === userInfo._id && (
+          <EndCallButton text={"End meeting"} />
+        )}
+      </div>
+    </section>
   );
 };
 

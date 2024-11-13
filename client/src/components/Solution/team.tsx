@@ -53,7 +53,6 @@ const Team = () => {
               className="rounded-lg w-full h-48 object-cover mb-4"
             />
             <h3 className="text-xl font-semibold mb-2">{member.name}</h3>
-            <p className="text-gray-300">{member.role}</p> 
           </div>
         ))}
       </div>

@@ -149,7 +149,6 @@ export default function MeetingPage({ id }: MeetingPageProps) {
         <StreamCall call={call}>
           <MeetingScreen />
         </StreamCall>
-
       </StreamTheme>
     </StreamVideo>
   );
