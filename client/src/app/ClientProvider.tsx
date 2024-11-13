@@ -88,10 +88,6 @@ function useInitializeVideoClient() {
     if (user) {
       initializeClient();
     }
-
-    return () => {
-        videoClient?.disconnectUser();
-    };
   }, [user]);
 
   return loading ? null : videoClient;

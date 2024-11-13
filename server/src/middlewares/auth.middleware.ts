@@ -10,32 +10,30 @@ interface customJWTPayload extends JwtPayload {
 }
 export const verifyJWT = asyncHandler(
   async (req: any, res: Response, next: NextFunction) => {
-    console.log("requested");
+    const token =
+      req.cookies?.accessToken ||
+      req.header("Authorization")?.replace("Bearer ", "");
+    if (!token) {
+      throw new ApiError(401, "user should be logged in first!");
+    }
 
-      const token =
-        req.cookies?.accessToken ||
-        req.header("Authorization")?.replace("Bearer ", "");
-      if (!token) {
-        throw new ApiError(401, "user should be logged in first!");
-      }
+    const decodedToken = jwt.verify(
+      token,
+      accessTokenSecret!
+    ) as customJWTPayload;
 
-      const decodedToken = jwt.verify(
-        token,
-        accessTokenSecret!
-      ) as customJWTPayload;
+    if (!decodedToken) {
+      throw new ApiError(400, "token does not match!");
+    }
 
-      if (!decodedToken) {
-        throw new ApiError(400, "token does not match!");
-      }
+    const user = await User.findById(decodedToken?._id).select(
+      "-password -refreshToken"
+    );
 
-      const user = await User.findById(decodedToken?._id).select(
-        "-password -refreshToken"
-      );
-
-      if (!user) {
-        throw new ApiError(401, "Invalid Access Token!");
-      }
-      req.user = user;
-      next();
+    if (!user) {
+      throw new ApiError(401, "Invalid Access Token!");
+    }
+    req.user = user;
+    next();
   }
 );

@@ -21,7 +21,7 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
     type,
     status,
     roomId,
-    enableSummary
+    enableSummary,
   } = req?.body;
   const createdBy = req?.user?.id;
 
@@ -33,15 +33,15 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
   //     uniqueRoomId = true;
   //   }
   // }
-  console.log("Participants: ", participants);
-  
+  // console.log("Participants: ", participants);
+
   let participantsList: any[] = [
     {
       userId: createdBy,
       role: "host",
       userName: req?.user?.userName,
       avatar: req?.user?.avatar,
-      email:req?.user?.email
+      email: req?.user?.email,
     },
   ];
 
@@ -49,13 +49,13 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
     const otherParticipants = await Promise.all(
       participants.map(async (participant: any) => {
         console.log("Particiapant: ", participant);
-        
+
         if (participant._id === createdBy) {
           return null;
         }
         if (participant) {
           const user: any = await User.findOne({
-            email:participant
+            email: participant,
           });
           if (user) {
             return {
@@ -63,7 +63,7 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
               role: "participant",
               userName: user.userName,
               email: user.email,
-              avatar:user.avatar
+              avatar: user.avatar,
             };
           } else {
             throw new ApiError(
@@ -83,13 +83,12 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
         }
       })
     );
-    
-  participantsList = [
-    ...participantsList,
-    ...otherParticipants.filter(participant => participant !== null)
-  ]
-  }
 
+    participantsList = [
+      ...participantsList,
+      ...otherParticipants.filter((participant) => participant !== null),
+    ];
+  }
 
   const newMeeting = await Meeting.create({
     title,
@@ -107,74 +106,57 @@ const createMeeting: any = asyncHandler(async (req: any, res: Response) => {
     chatMembers: participantsList
       .filter((p: any) => p && p.userId)
       .map((p: any) => p.userId),
-      enableSummary:enableSummary
+    enableSummary: enableSummary,
   });
 
   if (!newMeeting) {
     throw new ApiError(500, "Something went wrong");
   }
-  let createdChannel;
   try {
-    await serverClient.upsertUser({
-      id: "system_bot",
-      name: "System Bot",
-    });
-    const channel = serverClient.channel("messaging", {
-      name: `Chat for Meeting: ${newMeeting.title}`,
-      members: [...newMeeting?.chatMembers, "system_bot"],
-      created_by: { id: createdBy },
-    });
-    // console.log(channel);
-    createdChannel = await channel.create();
-    newMeeting.chatChannelId = createdChannel.channel.cid;
-    newMeeting.save();
+    await serverClient.upsertUser({ id: "system_bot", name: "System Bot" });
+    const channel = serverClient.channel(
+      "messaging",
+      `${newMeeting.roomId.split(":").pop()}`,
+      {
+        name: `Chat for Meeting: ${newMeeting.title}`,
+        members: [...newMeeting.chatMembers, "system_bot"],
+        created_by: { id: createdBy },
+      }
+    );
+    const createdChannel = await channel.create();
+
+    newMeeting.chatChannelId = createdChannel.channel?.id;
+    await newMeeting.save();
+
+    return res
+      .status(201)
+      .json(
+        new ApiResponse(201, { newMeeting, createdChannel }, "Meeting created")
+      );
   } catch (error) {
     console.error("Error creating chat channel:", error);
   }
-
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(201, { newMeeting, createdChannel }, "Meeting created")
-    );
 });
 
-const addJoinedParticipant: any = asyncHandler(
-  async (req: any, res: Response) => {
-    console.log(req?.user);
-    const user = {
-      userId: req?.body.user?._id,
-      userName: req?.body.user?.userName,
-      avatar: req?.body.user?.avatar,
-      role: "user",
-    };
+const addJoinedParticipant = asyncHandler(async (req: any, res: Response) => {
+  try {
+    const { id, userName, avatar } = req.user;
+    const user = { userId: id, userName, avatar, role: "user" };
+    console.log("add join ", user);
 
-    console.log(user);
-
-    const meeting: IMeeting | any = await Meeting.findOne({
-      roomId: req?.body?.roomId,
-    });
-
-    if (!meeting) {
-      throw new ApiError(404, "Meeting not found");
-    }
-
-    if (meeting?.status === "completed") {
+    const meeting: any = await Meeting.findOne({ roomId: req.body.roomId });
+    if (!meeting) throw new ApiError(404, "Meeting not found");
+    if (meeting.status === "completed")
       throw new ApiError(410, "Meeting was ended");
-    }
-
-    if (meeting?.status === "canceled") {
+    if (meeting.status === "canceled")
       throw new ApiError(410, "Meeting was canceled");
-    }
-
-    if (meeting?.host?.toString() === req?.user?.id) {
+    if (meeting.host.toString() === req.user.id)
       throw new ApiError(401, "You are the host!");
-    }
 
-    const isParticipantExists = meeting.participants.some(
-      (p: any) => p.userId && p.userId.toString() === user.userId
-    );
-
+    const isParticipantExists = meeting.participants.some((p: any) => {
+      console.log("p: ", p);
+      return p.userId && p.userId.toString() === user.userId;
+    });
     if (isParticipantExists) {
       return res.status(400).json({
         success: false,
@@ -188,27 +170,32 @@ const addJoinedParticipant: any = asyncHandler(
       meeting.chatMembers.push(user.userId);
     }
     console.log("chat members after ", meeting.chatMembers);
-    
+
     await meeting.save();
     const channel = serverClient.channel("messaging", meeting.chatChannelId);
     await channel.addMembers([user.userId]);
 
-    console.log(channel);
-    
-    try {
-      const channel = serverClient.channel("messaging", meeting.chatChannelId);
-      console.log(channel);
-      const createdChannel = await channel.addMembers([user.userId]);
-      console.log("createdChannel", createdChannel);
-    } catch (error) {
-      console.error("Error adding participant to chat channel:", error);
-    }
+    const channelInfo = {
+      id: channel.id,
+      members: await channel.queryMembers({}),
+    };
 
     return res
-      .status(200)
-      .json(new ApiResponse(201, meeting, "Participant added successfully"));
+      .status(201)
+      .json(
+        new ApiResponse(
+          201,
+          { meeting, channel: channelInfo },
+          "Participant added successfully"
+        )
+      );
+  } catch (error) {
+    console.error("Error adding participant:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error adding participant to meeting" });
   }
-);
+});
 
 const endMeeting: any = asyncHandler(async (req: any, res: Response) => {
   const { meetingId } = req.params;
@@ -278,9 +265,9 @@ const getMeeting: any = asyncHandler(async (req: any, res: Response) => {
       },
     },
   ]);
-  
+
   console.log("meetng Details: ", meeting);
-  
+
   if (!meeting) {
     throw new ApiError(404, "Meeting not found");
   }
