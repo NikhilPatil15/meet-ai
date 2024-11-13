@@ -4,7 +4,7 @@ import { useCall, useCallStateHooks } from "@stream-io/video-react-sdk";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-const EndCallButton = ({text}: string | any) => {
+const EndCallButton = ({ text }: string | any) => {
   const call: any = useCall();
   const router = useRouter();
 
@@ -17,9 +17,13 @@ const EndCallButton = ({text}: string | any) => {
   const handleEndCall = async () => {
     try {
       // End the call for everyone
+
       await call?.endCall();
-      // Redirect to the homepage
-      router.push("/");
+
+      const response = await axiosInstance.put(
+        `/meeting/end-meeting/${call?.cid}`
+      );
+      router.replace("/");
     } catch (error) {
       console.error("Error ending the call:", error);
     }

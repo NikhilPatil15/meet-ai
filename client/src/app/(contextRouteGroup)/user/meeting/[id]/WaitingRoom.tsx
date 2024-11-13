@@ -11,10 +11,11 @@ interface WaitingRoomProps {
 }
 
 const WaitingRoom: React.FC<WaitingRoomProps> = ({meeting}) => {
+  const router = useRouter();
   const [timeRemaining, setTimeRemaining] = useState('');
   const [meetingReady, setMeetingReady] = useState(false);
   const [meetingDetails, setMeetingDetails] = useState<any>(meeting);
-  const router = useRouter();
+
 
 
 

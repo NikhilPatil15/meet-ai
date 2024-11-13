@@ -21,7 +21,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ channel, close }) => {
   return (
     <div className="z-30 h-full w-full p-4 m:">
       <Card className="w-full h-full max-w-lg bg-[#1a1a1a] text-white shadow-lg rounded-lg overflow-hidden">
-        <IconButton onClick={() => close(false)}>
+        <IconButton onClick={() => close(false)} className="bg-[#1a1a1a]">
           <CrossCircledIcon
             className="relative"
             width="2rem"
@@ -30,14 +30,18 @@ const ChatBox: React.FC<ChatBoxProps> = ({ channel, close }) => {
             cursor="pointer"
           />
         </IconButton>
-        <Chat client={chatClient} theme="dark">
+        <Chat client={chatClient} theme="str-chat__theme-dark">
           <Channel channel={channel}>
             <Window>
-              <ChannelHeader />
-              <div className="">
+              <div className="str-chat__header-livestream">
+                <ChannelHeader />
+              </div>
+              <div className="flex-1">
                 <MessageList />
               </div>
-              <MessageInput />
+             
+                <MessageInput />
+           
             </Window>
           </Channel>
         </Chat>

@@ -159,19 +159,21 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     );
   }
 
-  if(!isUserParticipant){
-    return <NotParticipantPage/>
-  }
+  // if(!isUserParticipant){
+  //   return <NotParticipantPage/>
+  // }
 
   return (
     <StreamVideo client={client}>
       <StreamTheme className="space-y-3">
         <StreamCall call={call}>
-        {isMeetingReady ? (
+        {/* {isMeetingReady ? (
             <MeetingScreen /> 
           ) : (
             <WaitingRoom meeting={meetingDetails} /> 
-          )}
+          )} */}
+          
+          <MeetingScreen /> 
         </StreamCall>
       </StreamTheme>
     </StreamVideo>

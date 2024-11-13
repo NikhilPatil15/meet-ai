@@ -91,7 +91,7 @@ const MeetingRoom = () => {
           .map((result) => result[0].transcript)
           .join("");
         setTranscript(updatedTranscript);
-        console.log("Updated Transcript:", updatedTranscript);
+        console.log(`updated Transcript: ${userInfo?.name}: `, updatedTranscript);
         sendSpeech(updatedTranscript);
       };
 
@@ -267,14 +267,9 @@ const MeetingRoom = () => {
   }, [channel]);
 
   const handleLeaveMeeting = async () => {
-    try {
-      const response = await axiosInstance.put(
-        `/meeting/end-meeting/${call?.cid}`
-      );
+
       router.replace("/");
-    } catch (error) {
-      console.error("Error ending meeting:", error);
-    }
+
   };
 
   if (callingState !== CallingState.JOINED) {
