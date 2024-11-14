@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@mui/material";
 import {
   DeviceSettings,
+  StreamVideoClient,
   useCall,
   useCallStateHooks,
+  User,
   VideoPreview,
 } from "@stream-io/video-react-sdk";
 import AudioVolumeIndicator from "@/components/Meeting/AudioVolumeIndicator"; // Ensure path is correct
@@ -11,6 +13,7 @@ import PermissionPrompt from "@/components/Meeting/PermissionPrompt";
 import useAuth from "@/hooks/useAuth";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import axiosInstance from "@/utils/axios";
 
 interface SetupUIProps {
   onSetUpComplete: () => void;
@@ -21,9 +24,50 @@ const MeetingSetUp = ({ onSetUpComplete }: SetupUIProps) => {
   const { useMicrophoneState, useCameraState } = useCallStateHooks();
   const [micDisabled, setMicDisabled] = useState(false);
   const [camDisabled, setCamDisabled] = useState(false);
-  console.log(useSelector((state: RootState)=>state));
-  
-  
+  const [username, setUsername] = useState<string | null>(null);
+  const [client, setClient] = useState<StreamVideoClient | null>(null);
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  useEffect(() => {
+    const initializeClient = async (
+      guestUserId?: string,
+      username?: string
+    ) => {
+      try {
+        const apiKey = process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY!;
+        if (!apiKey) throw new Error("Stream API key not set");
+
+        const tokenRequestConfig = {
+          method: "post",
+          url: "/token/get-token-guest",
+          data: { guestId: guestUserId, guestName: username },
+        };
+
+        const response = await axiosInstance(tokenRequestConfig);
+
+        console.log(response.data);
+
+        const streamClient = new StreamVideoClient({
+          apiKey,
+          user: {
+            id: guestUserId!,
+            name: username!,
+            type: "guest",
+          },
+          tokenProvider: () => Promise.resolve(response.data.token),
+        });
+
+        setClient(streamClient);
+      } catch (error) {
+        console.error("Error initializing client:", error);
+      }
+    };
+
+    if (username && !user) {
+      const guestUserId = `guest_${Date.now()}`;
+      initializeClient(guestUserId, username);
+    }
+  }, [username]);
 
   useEffect(() => {
     const manageDevices = async () => {
@@ -68,6 +112,16 @@ const MeetingSetUp = ({ onSetUpComplete }: SetupUIProps) => {
         <DeviceSettings />
       </div>
 
+      {
+        !user && (
+          <input
+            className="bg-transparent text-white"
+            placeholder="Enter your name"
+            required={true}
+          ></input>
+        )
+      }
+
       {/* Checkbox to disable/enable microphone */}
       <label className="flex items-center gap-2 font-medium">
         <input
@@ -87,7 +141,6 @@ const MeetingSetUp = ({ onSetUpComplete }: SetupUIProps) => {
         />
         Join with camera off
       </label>
-
       <Button onClick={onSetUpComplete}>Join Meeting</Button>
     </div>
   );

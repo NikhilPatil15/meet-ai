@@ -59,7 +59,7 @@ const MeetingRoom = () => {
   const [meeting, setMeeting] = useState<any>(null);
   const client = useStreamVideoClient();
   // const { user: userInfo } = useAuth();
-  const userInfo = useSelector((state: RootState) => state.auth.user);
+  const userInfo = useSelector((state: RootState) => state?.auth?.user);
   const [transcript, setTranscript] = useState("");
 
   const handleChat = () => {
@@ -69,7 +69,7 @@ const MeetingRoom = () => {
 
   const sendSpeech = async (text: string) => {
     try {
-      const textToSend = `${userInfo?.name}: ${text}`;
+      const textToSend = `${userInfo?.userName}: ${text}`;
       const res = await axiosInstance.patch("/summary/add-dialogue", {
         dialogue: textToSend,
         meetingId: call?.cid,
@@ -92,7 +92,6 @@ const MeetingRoom = () => {
           .join("");
         setTranscript(updatedTranscript);
         console.log("Updated Transcript:", updatedTranscript);
-        sendSpeech(updatedTranscript);
       };
 
       speechRecognition.onerror = (event) => {
@@ -130,6 +129,9 @@ const MeetingRoom = () => {
       } else {
         recognition.stop();
         console.log("Stopped listening...");
+        if (transcript) {
+          sendSpeech(transcript);
+        }
       }
     }
     return () => {
@@ -238,7 +240,6 @@ const MeetingRoom = () => {
 
           console.log(uniqueMembers);
           console.log(chatId?.chatChannelId);
-          
 
           const chatChannel = chatClient.channel(
             "messaging",
@@ -292,19 +293,21 @@ const MeetingRoom = () => {
         <div
           className={cn(
             "rd__sidebar",
-            (showParticipants || showChat) ? "rd__sidebar--open" : ""
+            showParticipants || showChat ? "rd__sidebar--open" : ""
           )}
         >
           <div className="rd__sidebar__container">
             {showParticipants ? (
               <div className="str-video__participant-list">
                 {/* Participant List */}
-                <CallParticipantsList onClose={() => setShowParticipants(false)} />
+                <CallParticipantsList
+                  onClose={() => setShowParticipants(false)}
+                />
               </div>
             ) : showChat && channel ? (
               <div className="w-full">
                 {/* Chat Section */}
-                <ChatBox channel={channel} close={setShowChat}/>
+                <ChatBox channel={channel} close={setShowChat} />
               </div>
             ) : (
               <p>Loading...</p>
