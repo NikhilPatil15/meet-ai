@@ -35,7 +35,7 @@ const MeetingScreen = ({ id }: MeetingPageProps) => {
       {setUpComplete ? (
         <MeetingRoom></MeetingRoom>
       ) : (
-        <MeetingSetUp id={} onSetUpComplete={() => setSetUpComplete(true)} />
+        <MeetingSetUp id={id} onSetUpComplete={() => setSetUpComplete(true)} />
       )}
     </div>
   );
