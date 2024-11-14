@@ -16,10 +16,11 @@ import { RootState } from "@/redux/store";
 import axiosInstance from "@/utils/axios";
 
 interface SetupUIProps {
-  onSetUpComplete: () => void;
+  onSetUpComplete?: () => void;
+  id: string;
 }
 
-const MeetingSetUp = ({ onSetUpComplete }: SetupUIProps) => {
+const MeetingSetUp = ({ onSetUpComplete, id }: SetupUIProps) => {
   const call = useCall();
   const { useMicrophoneState, useCameraState } = useCallStateHooks();
   const [micDisabled, setMicDisabled] = useState(false);

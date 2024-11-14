@@ -173,7 +173,7 @@ export default function MeetingPage({ id }: MeetingPageProps) {
             <WaitingRoom meeting={meetingDetails} /> 
           )} */}
           
-          <MeetingScreen /> 
+          <MeetingScreen id={call?.id}/> 
         </StreamCall>
       </StreamTheme>
     </StreamVideo>
