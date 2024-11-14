@@ -37,6 +37,7 @@ import EndCallButton from "@/components/ui/EndCallButton";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import ChatBox from "./ChatBox";
+import { Drawer } from "@mui/material";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
@@ -146,9 +147,7 @@ const MeetingRoom = () => {
       // console.log("USer", userInfo);
       // console.log("Id", newUserId);
       // console.log(chatId?.chatChannelId);
-      
-      
-      
+
       if (!chatId?.chatChannelId) return;
       const chatChannel = chatClient.channel(
         "messaging",
@@ -193,7 +192,7 @@ const MeetingRoom = () => {
     try {
       const res = await axiosInstance.get(`/meeting/get-meeting/${call?.cid}`);
       setChatId(res.data.data);
-      setMeeting(res.data.data)
+      setMeeting(res.data.data);
     } catch (error) {
       console.error("Error fetching meeting:", error);
     }
@@ -204,7 +203,7 @@ const MeetingRoom = () => {
   }, [call?.cid]);
   console.log("User id: ", userInfo);
   console.log("Host id: ", meeting);
-  
+
   const getToken = async () => {
     try {
       const userId = userInfo?._id;
@@ -234,7 +233,7 @@ const MeetingRoom = () => {
   useEffect(() => {
     const initChat = async () => {
       // console.log(userInfo);
-      
+
       await handleAddJoinedParticipant(userInfo);
       await getToken();
       if (token && userInfo) {
@@ -278,14 +277,14 @@ const MeetingRoom = () => {
   }, [channel]);
 
   const handleLeaveMeeting = async () => {
-
-      router.replace("/");
-
+    router.replace("/");
   };
 
+  console.log(
+    "Check : ",
+    meeting?.hostDetails?._id === userInfo?._id && userInfo?._id !== null
+  );
 
-  console.log("Check : ", meeting?.hostDetails?._id === userInfo?._id && userInfo?._id !== null);
-  
   if (callingState !== CallingState.JOINED) {
     return <Loader2 className="mx-auto animate-spin" />;
   }
@@ -298,29 +297,33 @@ const MeetingRoom = () => {
         </div>
 
         {/* Participants Sidebar */}
-        <div
-          className={cn(
-            "rd__sidebar",
-            showParticipants || showChat ? "rd__sidebar--open" : ""
-          )}
-        >
-          <div className="rd__sidebar__container">
+
+        <div className="">
+          <Drawer
+            anchor="right"
+            open={showParticipants || showChat}
+            onClose={() => {
+              setShowParticipants(false);
+              setShowChat(false);
+            }}
+          >
             {showParticipants ? (
-              <div className="str-video__participant-list">
-                {/* Participant List */}
+              <div style={{
+                height: "100%",
+                width: "100%",
+              }} className="str-video__participant-list rd__sidebar__container">
                 <CallParticipantsList
                   onClose={() => setShowParticipants(false)}
                 />
               </div>
             ) : showChat && channel ? (
-              <div className="w-full">
-                {/* Chat Section */}
+              
                 <ChatBox channel={channel} close={setShowChat} />
-              </div>
+              
             ) : (
               <p>Loading...</p>
             )}
-          </div>
+          </Drawer>
         </div>
       </div>
 
@@ -363,25 +366,29 @@ const MeetingRoom = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <button
-          onClick={() => {
-            setShowParticipants((prev) => !prev);
-            setShowChat(false);
-          }}
-        >
-          <div className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
+        <div className="relative flex gap-4">
+          <button
+            onClick={() => {
+              setShowParticipants((prev) => !prev);
+              setShowChat(false);
+            }}
+            className="cursor-pointer rounded-full bg-gray-800 px-4 py-2 hover:bg-gray-700"
+          >
             <User size={20} className="text-white" />
-          </div>
-        </button>
+          </button>
 
-        <button onClick={handleChat}>
-          <div className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
+          <button
+            onClick={handleChat}
+            className="cursor-pointer rounded-full bg-gray-800 px-4 py-2 hover:bg-gray-700"
+          >
             <MessageCircle size={20} className="text-white" />
-          </div>
-        </button>
-        {meeting?.hostDetails?._id === userInfo?._id && userInfo?._id  ? (
-          <EndCallButton text={"End meeting"} />
-        ):(<div></div>)}
+          </button>
+
+          {/* End Meeting Button (only visible to the host) */}
+          {meeting?.hostDetails?._id === userInfo?._id && userInfo?._id ? (
+            <EndCallButton text={"End meeting"} />
+          ) : null}
+        </div>
       </div>
     </section>
   );

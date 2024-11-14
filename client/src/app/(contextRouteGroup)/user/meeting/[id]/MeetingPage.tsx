@@ -135,6 +135,10 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     (participant: any) => participant.userId === user?._id
   );
 
+  // const isParticipantExists = meeting.participants.some((p: any) => {
+  //   // console.log("p: ", p);
+  //   return p.userId && p.userId.toString() === user.userId;
+  // });
 
   if (!client || !call) {
     return (
@@ -162,18 +166,18 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     );
   }
 
-  // if(!isUserParticipant){
-  //   return <NotParticipantPage/>
-  // }
+  if(!isUserParticipant && (meetingDetails?.type === "private")){
+    return <NotParticipantPage/>
+  }
 
   return (
     <StreamVideo client={client}>
       <StreamTheme className="space-y-3">
         <StreamCall call={call}>
-        {isMeetingReady ? (
+        {!isMeetingReady ? (
+          <WaitingRoom meeting={meetingDetails} /> 
+        ) : (
             <MeetingScreen /> 
-          ) : (
-            <WaitingRoom meeting={meetingDetails} /> 
           )}
         </StreamCall>
       </StreamTheme>

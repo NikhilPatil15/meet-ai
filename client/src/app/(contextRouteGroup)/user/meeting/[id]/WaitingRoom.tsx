@@ -11,7 +11,7 @@ interface WaitingRoomProps {
 }
 
 const WaitingRoom: React.FC<WaitingRoomProps> = ({meeting}) => {
-  // const router = useRouter();
+  const router = useRouter();
   const [timeRemaining, setTimeRemaining] = useState('');
   const [meetingReady, setMeetingReady] = useState(false);
   const [meetingDetails, setMeetingDetails] = useState<any>(meeting);
@@ -47,17 +47,17 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({meeting}) => {
     return () => clearInterval(timerInterval);
   }, [meetingDetails?.scheduledTime]);
 
-  // const handleJoinMeeting = () => {
-  //   router.replace(`user/meeting/${meeting?.roomId.split(":")[1]}`);
-  // };
+  const handleJoinMeeting = () => {
+    router.replace(`user/meeting/${meeting?.roomId.split(":")[1]}`);
+  };
 
     return (
+      <div className='w-full h-full bg-black text-white'>
       <Box
         sx={{
           textAlign: "center",
           marginTop: "50px",
           color: "white",
-          backgroundColor: "background.default",
           padding: "20px",
           borderRadius: "10px",
           boxShadow: 3,
@@ -69,7 +69,7 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({meeting}) => {
   
         {meetingReady ? (
           <Button
-            // onClick={handleJoinMeeting}
+            onClick={handleJoinMeeting}
             variant="contained"
             sx={{
               px: 6,
@@ -96,26 +96,26 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({meeting}) => {
                 width: "150px",
                 height: "150px",
                 borderRadius: "50%",
-                bgcolor: "background.paper",
                 boxShadow: 3,
                 mb: 3,
               }}
             >
-              <Typography variant="h3" sx={{ fontWeight: "bold", color: "text.primary" }}>
+              <Typography variant="h3" sx={{ fontWeight: "bold" }}>
                 {timeRemaining.split(":")[0]}
               </Typography>
-              <Typography variant="h3" sx={{ fontWeight: "bold", color: "text.primary" }}>: </Typography>
-              <Typography variant="h3" sx={{ fontWeight: "bold", color: "text.primary" }}>
+              <Typography variant="h3" sx={{ fontWeight: "bold" }}>: </Typography>
+              <Typography variant="h3" sx={{ fontWeight: "bold" }}>
                 {timeRemaining.split(":")[1]}
               </Typography>
-              <Typography variant="h3" sx={{ fontWeight: "bold", color: "text.primary" }}>: </Typography>
-              <Typography variant="h3" sx={{ fontWeight: "bold", color: "text.primary" }}>
+              <Typography variant="h3" sx={{ fontWeight: "bold" }}>: </Typography>
+              <Typography variant="h3" sx={{ fontWeight: "bold" }}>
                 {timeRemaining.split(":")[2]}
               </Typography>
             </Box>
           </Box>
         )}
       </Box>
+      </div>
     );
   };
 

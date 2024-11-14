@@ -18,7 +18,6 @@ const NotParticipantPage: React.FC = () => {
         textAlign: "center",
         marginTop: "50px",
         color: "white",
-        backgroundColor: "background.default",
         padding: "20px",
         borderRadius: "10px",
         boxShadow: 3,
@@ -28,7 +27,7 @@ const NotParticipantPage: React.FC = () => {
       You cannot enter this meeting
       </Typography>
 
-      <Typography variant="h6" sx={{ mb: 3, color: "text.secondary" }}>
+      <Typography variant="h6" sx={{ mb: 3 }}>
       This is a private meeting, and you are not a participant. You cannot attend or enter this meeting.
       </Typography>
 
