@@ -39,9 +39,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ channel, close }) => {
               <div className="flex-1">
                 <MessageList />
               </div>
-             
-                <MessageInput />
-           
+              <MessageInput />
             </Window>
           </Channel>
         </Chat>

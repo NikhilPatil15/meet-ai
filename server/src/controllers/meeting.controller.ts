@@ -142,7 +142,7 @@ const addJoinedParticipant = asyncHandler(async (req: any, res: Response) => {
   try {
     const { id, userName, avatar } = req.user;
     const user = { userId: id, userName, avatar, role: "user" };
-    console.log("add join ", user);
+    // console.log("add join ", user);
 
     const meeting: any = await Meeting.findOne({ roomId: req.body.roomId });
     if (!meeting) throw new ApiError(404, "Meeting not found");
@@ -154,12 +154,12 @@ const addJoinedParticipant = asyncHandler(async (req: any, res: Response) => {
       throw new ApiError(401, "You are the host!");
 
     const isParticipantExists = meeting.participants.some((p: any) => {
-      console.log("p: ", p);
+      // console.log("p: ", p);
       return p.userId && p.userId.toString() === user.userId;
     });
     if (isParticipantExists) {
-      return res.status(400).json({
-        success: false,
+      return res.status(200).json({
+        success: true,
         message: "Participant already exists in the meeting",
       });
     }

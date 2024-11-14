@@ -33,7 +33,6 @@ import {
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/utils/axios";
-import useAuth from "@/hooks/useAuth";
 import EndCallButton from "@/components/ui/EndCallButton";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -144,6 +143,12 @@ const MeetingRoom = () => {
   const addNewUserToChannel = async (newUserId: any) => {
     try {
       //TODO:
+      // console.log("USer", userInfo);
+      // console.log("Id", newUserId);
+      // console.log(chatId?.chatChannelId);
+      
+      
+      
       if (!chatId?.chatChannelId) return;
       const chatChannel = chatClient.channel(
         "messaging",
@@ -213,10 +218,10 @@ const MeetingRoom = () => {
         user,
         roomId: call?.cid,
       });
-      console.log(res.data);
+      // console.log(res.data);
 
       if (res.data.success) {
-        await addNewUserToChannel(user.userId);
+        await addNewUserToChannel(user?._id);
       }
     } catch (error) {
       console.error("Error adding participant:", error);
@@ -225,6 +230,8 @@ const MeetingRoom = () => {
 
   useEffect(() => {
     const initChat = async () => {
+      // console.log(userInfo);
+      
       await handleAddJoinedParticipant(userInfo);
       await getToken();
       if (token && userInfo) {
