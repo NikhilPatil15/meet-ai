@@ -32,11 +32,7 @@ const MeetingScreen = () => {
       {setUpComplete ? (
         <MeetingRoom></MeetingRoom>
       ) : (
-<<<<<<< HEAD
-        <MeetingSetUp onSetUpComplete={() => setSetUpComplete(true)} />
-=======
-        <MeetingSetUp id={id} onSetUpComplete={() => setSetUpComplete(true)} />
->>>>>>> 54a9bc1c650174c88eaa2983a121cd4c010bdac0
+        <MeetingSetUp  onSetUpComplete={() => setSetUpComplete(true)} />
       )}
     </div>
   );
