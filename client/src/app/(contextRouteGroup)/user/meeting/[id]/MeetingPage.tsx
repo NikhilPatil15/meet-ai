@@ -42,8 +42,11 @@ export default function MeetingPage({ id }: MeetingPageProps) {
         setMeeting(res.data.data.roomId)
         setMeetingDetails(res.data.data)
 
-        const scheduledTime = dayjs(meetingDetails.scheduledTime);
+        const scheduledTime = dayjs(meetingDetails?.scheduledTime)!;
+        console.log("scheduled : - ",scheduledTime);
+        
         const now = dayjs();
+        console.log(now.isBefore(scheduledTime))
         if (now.isBefore(scheduledTime)) {
           setIsMeetingReady(false); // Show waiting room until the meeting is ready
         } else {
@@ -167,13 +170,11 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     <StreamVideo client={client}>
       <StreamTheme className="space-y-3">
         <StreamCall call={call}>
-        {/* {isMeetingReady ? (
+        {isMeetingReady ? (
             <MeetingScreen /> 
           ) : (
             <WaitingRoom meeting={meetingDetails} /> 
-          )} */}
-          
-          <MeetingScreen id={call?.id}/> 
+          )}
         </StreamCall>
       </StreamTheme>
     </StreamVideo>

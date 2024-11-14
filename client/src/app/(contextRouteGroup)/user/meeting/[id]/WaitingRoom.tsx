@@ -11,7 +11,7 @@ interface WaitingRoomProps {
 }
 
 const WaitingRoom: React.FC<WaitingRoomProps> = ({meeting}) => {
-  const router = useRouter();
+  // const router = useRouter();
   const [timeRemaining, setTimeRemaining] = useState('');
   const [meetingReady, setMeetingReady] = useState(false);
   const [meetingDetails, setMeetingDetails] = useState<any>(meeting);
@@ -47,9 +47,9 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({meeting}) => {
     return () => clearInterval(timerInterval);
   }, [meetingDetails?.scheduledTime]);
 
-  const handleJoinMeeting = () => {
-    router.replace(`user/meeting/${meeting?.roomId.split(":")[1]}`);
-  };
+  // const handleJoinMeeting = () => {
+  //   router.replace(`user/meeting/${meeting?.roomId.split(":")[1]}`);
+  // };
 
     return (
       <Box
@@ -69,7 +69,7 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({meeting}) => {
   
         {meetingReady ? (
           <Button
-            onClick={handleJoinMeeting}
+            // onClick={handleJoinMeeting}
             variant="contained"
             sx={{
               px: 6,

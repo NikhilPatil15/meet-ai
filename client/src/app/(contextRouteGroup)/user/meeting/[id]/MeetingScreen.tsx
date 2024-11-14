@@ -10,11 +10,8 @@ import React, { useState } from "react";
 import MeetingSetUp from "./MeetingSetUp";
 import MeetingRoom from "./MeetingRoom";
 
-interface MeetingPageProps {
-  id: string;
-}
 
-const MeetingScreen = ({ id }: MeetingPageProps) => {
+const MeetingScreen = () => {
   const { useCallEndedAt, useCallStartsAt } = useCallStateHooks();
   const [setUpComplete, setSetUpComplete] = useState(false);
   const callEndAt = useCallEndedAt();
@@ -35,7 +32,7 @@ const MeetingScreen = ({ id }: MeetingPageProps) => {
       {setUpComplete ? (
         <MeetingRoom></MeetingRoom>
       ) : (
-        <MeetingSetUp id={} onSetUpComplete={() => setSetUpComplete(true)} />
+        <MeetingSetUp onSetUpComplete={() => setSetUpComplete(true)} />
       )}
     </div>
   );
