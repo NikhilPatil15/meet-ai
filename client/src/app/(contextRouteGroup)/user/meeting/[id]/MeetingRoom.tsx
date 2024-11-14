@@ -55,7 +55,7 @@ const MeetingRoom = () => {
   const [chatId, setChatId] = useState<any>();
   const [token, setToken] = useState<string | null>(null);
   const [channel, setChannel] = useState<any>(null);
-  const [meeting, setMeeting] = useState<any>(null);
+  const [meeting, setMeeting] = useState<any>({});
   const client = useStreamVideoClient();
   // const { user: userInfo } = useAuth();
   const userInfo = useSelector((state: RootState) => state?.auth?.user);
@@ -193,6 +193,7 @@ const MeetingRoom = () => {
     try {
       const res = await axiosInstance.get(`/meeting/get-meeting/${call?.cid}`);
       setChatId(res.data.data);
+      setMeeting(res.data.data)
     } catch (error) {
       console.error("Error fetching meeting:", error);
     }
@@ -201,7 +202,9 @@ const MeetingRoom = () => {
   useEffect(() => {
     fetchMeeting();
   }, [call?.cid]);
-
+  console.log("User id: ", userInfo);
+  console.log("Host id: ", meeting);
+  
   const getToken = async () => {
     try {
       const userId = userInfo?._id;
@@ -280,6 +283,9 @@ const MeetingRoom = () => {
 
   };
 
+
+  console.log("Check : ", meeting?.hostDetails?._id === userInfo?._id && userInfo?._id !== null);
+  
   if (callingState !== CallingState.JOINED) {
     return <Loader2 className="mx-auto animate-spin" />;
   }
@@ -373,9 +379,9 @@ const MeetingRoom = () => {
             <MessageCircle size={20} className="text-white" />
           </div>
         </button>
-        {meeting?.hostDetails?._id === userInfo?._id && (
+        {meeting?.hostDetails?._id === userInfo?._id && userInfo?._id  ? (
           <EndCallButton text={"End meeting"} />
-        )}
+        ):(<div></div>)}
       </div>
     </section>
   );
