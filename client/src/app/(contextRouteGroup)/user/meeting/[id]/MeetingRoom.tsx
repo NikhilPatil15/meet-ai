@@ -268,14 +268,9 @@ const MeetingRoom = () => {
   }, [channel]);
 
   const handleLeaveMeeting = async () => {
-    try {
-      const response = await axiosInstance.put(
-        `/meeting/end-meeting/${call?.cid}`
-      );
+
       router.replace("/");
-    } catch (error) {
-      console.error("Error ending meeting:", error);
-    }
+
   };
 
   if (callingState !== CallingState.JOINED) {

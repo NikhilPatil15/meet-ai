@@ -15,6 +15,9 @@ import { RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
 import MeetingScreen from "./MeetingScreen";
 import axiosInstance from "@/utils/axios";
+import dayjs from "dayjs";
+import WaitingRoom from "./WaitingRoom";
+import NotParticipantPage from "./NotParticipantPage";
 
 interface MeetingPageProps {
   id: string;
@@ -27,15 +30,25 @@ export default function MeetingPage({ id }: MeetingPageProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [client, setClient] = useState<StreamVideoClient | null>(null);
   const [meeting, setMeeting] = useState<any>();
-
+  const [isMeetingReady, setIsMeetingReady] = useState<boolean>(false);
+  const [meetingDetails,setMeetingDetails] = useState<any>()
   const { user } = useSelector((state: RootState) => state?.auth);
 
   useEffect(() => {
     const fetchMeeting = async () => {
       try {
         const res = await axiosInstance.get(`/meeting/get-meeting/default:${id}`);
-        console.log(res.data.data);
+        console.log("Meeting Details:",res.data.data);
         setMeeting(res.data.data.roomId)
+        setMeetingDetails(res.data.data)
+
+        const scheduledTime = dayjs(meetingDetails.scheduledTime);
+        const now = dayjs();
+        if (now.isBefore(scheduledTime)) {
+          setIsMeetingReady(false); // Show waiting room until the meeting is ready
+        } else {
+          setIsMeetingReady(true); // Meeting is ready to join
+        }
       } catch (error) {
         console.log(error);
       }
@@ -115,6 +128,9 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     } 
   };
 
+  const isUserParticipant = meetingDetails?.participants.some(
+    (participant: any) => participant.userId === user?._id
+  );
 
 
   if (!client || !call) {
@@ -143,11 +159,21 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     );
   }
 
+  // if(!isUserParticipant){
+  //   return <NotParticipantPage/>
+  // }
+
   return (
     <StreamVideo client={client}>
       <StreamTheme className="space-y-3">
         <StreamCall call={call}>
-          <MeetingScreen />
+        {/* {isMeetingReady ? (
+            <MeetingScreen /> 
+          ) : (
+            <WaitingRoom meeting={meetingDetails} /> 
+          )} */}
+          
+          <MeetingScreen /> 
         </StreamCall>
       </StreamTheme>
     </StreamVideo>

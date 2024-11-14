@@ -6,7 +6,7 @@ import CardSkeleton from "../Homepage/CardSkeleton";
 import axiosInstance from "@/utils/axios";
 import { BarChart } from "@/components/specifics/Chart";
 import { useRouter } from "next/navigation";
-
+   
 const Upcoming = () => {
   const [loading, setLoading] = useState(true);
   const [upcoming, setUpcoming] = useState<any>(null);
