@@ -1,24 +1,20 @@
-'use client'
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import dayjs from 'dayjs';
-import axiosInstance from '@/utils/axios';
+"use client";
+import { useEffect, useState } from "react";
+
+import dayjs from "dayjs";
+import axiosInstance from "@/utils/axios";
 import { Button, Box, Typography, CircularProgress } from "@mui/material";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 interface WaitingRoomProps {
- meeting:any
-
+  meeting: any;
+  router: AppRouterInstance | any;
 }
 
-const WaitingRoom: React.FC<WaitingRoomProps> = ({meeting}) => {
-  const router = useRouter();
-  const [timeRemaining, setTimeRemaining] = useState('');
+const WaitingRoom: React.FC<WaitingRoomProps> = ({ meeting, router }) => {
+  const [timeRemaining, setTimeRemaining] = useState("");
   const [meetingReady, setMeetingReady] = useState(false);
   const [meetingDetails, setMeetingDetails] = useState<any>(meeting);
-
-
-
-
 
   useEffect(() => {
     const scheduledDate = dayjs(meetingDetails?.scheduledTime);
@@ -29,7 +25,7 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({meeting}) => {
 
       if (diff <= 0) {
         setMeetingReady(true);
-        setTimeRemaining('00:00:00');
+        setTimeRemaining("00:00:00");
         return;
       }
 
@@ -38,7 +34,7 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({meeting}) => {
       const seconds = Math.floor((diff / 1000) % 60);
 
       setTimeRemaining(
-        `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+        `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
       );
     };
 
@@ -48,44 +44,75 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({meeting}) => {
   }, [meetingDetails?.scheduledTime]);
 
   const handleJoinMeeting = () => {
-    router.replace(`user/meeting/${meeting?.roomId.split(":")[1]}`);
+    router.replace(`/user/meeting/${meeting?.roomId.split(":")[1]}`);
   };
 
-    return (
-      <div className='w-full h-full bg-black text-white'>
+  return (
+    <div className="w-full h-screen bg-gradient-to-b from-gray-900 to-black flex items-center justify-center ">
       <Box
         sx={{
+          width: "90%",
+          maxWidth: "400px",
           textAlign: "center",
-          marginTop: "50px",
-          color: "white",
-          padding: "20px",
-          borderRadius: "10px",
-          boxShadow: 3,
+          background: "rgba(255, 255, 255, 0.1)",
+          padding: "30px",
+          borderRadius: "15px",
+          boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.4)",
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(255, 255, 255, 0.2)",
+        
         }}
       >
-        <Typography variant="h4" sx={{ fontWeight: "bold", mb: 4 }}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: "bold",
+            mb: 4,
+            color: "white",
+            textShadow: "0 2px 4px rgba(0, 0, 0, 0.8)",
+          }}
+        >
           Scheduled Meeting Waiting Room
         </Typography>
-  
+
         {meetingReady ? (
           <Button
             onClick={handleJoinMeeting}
             variant="contained"
             sx={{
               px: 6,
-              py: 3,
+              py: 2,
               fontSize: "18px",
-              bgcolor: "success.main",
+              fontWeight: "bold",
+              background: "linear-gradient(90deg, #4caf50, #2e7d32)",
+              color: "white",
+              borderRadius: "50px",
               "&:hover": {
-                bgcolor: "success.dark",
+                background: "linear-gradient(90deg, #2e7d32, #4caf50)",
               },
+              transition: "all 0.3s ease",
+              boxShadow: "0px 4px 10px rgba(0, 255, 0, 0.2)",
             }}
           >
             Join Meeting
           </Button>
         ) : (
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <Typography variant="h6" sx={{ mb: 3, color: "text.secondary" }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 3,
+              color: "white",
+            }}
+          >
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: "bold",
+                textShadow: "0 2px 4px rgba(0, 0, 0, 0.8)",
+              }}
+            >
               Meeting starts in:
             </Typography>
             <Box
@@ -93,34 +120,30 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({meeting}) => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: "150px",
-                height: "150px",
+                width: "200px",
+                height: "200px",
                 borderRadius: "50%",
-                boxShadow: 3,
-                mb: 3,
+                background: "linear-gradient(135deg, #ff6f61, #ff3d00)",
+                boxShadow: "0px 8px 15px rgba(255, 0, 0, 0.3)",
               }}
             >
-              <Typography variant="h3" sx={{ fontWeight: "bold" }}>
-                {timeRemaining.split(":")[0]}
-              </Typography>
-              <Typography variant="h3" sx={{ fontWeight: "bold" }}>: </Typography>
-              <Typography variant="h3" sx={{ fontWeight: "bold" }}>
-                {timeRemaining.split(":")[1]}
-              </Typography>
-              <Typography variant="h3" sx={{ fontWeight: "bold" }}>: </Typography>
-              <Typography variant="h3" sx={{ fontWeight: "bold" }}>
-                {timeRemaining.split(":")[2]}
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: "bold",
+                  color: "white",
+                  textShadow: "0 2px 4px rgba(0, 0, 0, 0.8)",
+                  textAlign: "center",
+                }}
+              >
+                {timeRemaining}
               </Typography>
             </Box>
           </Box>
         )}
       </Box>
-      </div>
-    );
-  };
-
-
-
-
+    </div>
+  );
+};
 
 export default WaitingRoom;

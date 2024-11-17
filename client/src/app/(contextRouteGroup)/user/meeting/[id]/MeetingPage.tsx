@@ -31,27 +31,30 @@ export default function MeetingPage({ id }: MeetingPageProps) {
   const [client, setClient] = useState<StreamVideoClient | null>(null);
   const [meeting, setMeeting] = useState<any>();
   const [isMeetingReady, setIsMeetingReady] = useState<boolean>(false);
-  const [meetingDetails,setMeetingDetails] = useState<any>()
+  const [meetingDetails, setMeetingDetails] = useState<any>();
   const { user } = useSelector((state: RootState) => state?.auth);
 
   useEffect(() => {
     const fetchMeeting = async () => {
       try {
-        const res = await axiosInstance.get(`/meeting/get-meeting/default:${id}`);
-        console.log("Meeting Details:",res.data.data);
-        setMeeting(res.data.data.roomId)
-        setMeetingDetails(res.data.data)
+        const res = await axiosInstance.get(
+          `/meeting/get-meeting/default:${id}`
+        );
+        console.log("Meeting Details:", res.data.data); 
 
-        const scheduledTime = dayjs(meetingDetails?.scheduledTime)!;
-        console.log("scheduled : - ",scheduledTime);
+        setMeeting(res.data.data.roomId);
+        setMeetingDetails(res.data.data);
+
+
         
-        const now = dayjs();
-        console.log(now.isBefore(scheduledTime))
-        if (now.isBefore(scheduledTime)) {
-          setIsMeetingReady(false); // Show waiting room until the meeting is ready
-        } else {
-          setIsMeetingReady(true); // Meeting is ready to join
-        }
+        const scheduledTime = new Date(res.data.data?.scheduledTime); // Scheduled time as Date object
+        const now = new Date(); // Current time as Date object
+  
+        console.log("Scheduled Time:", scheduledTime);
+        console.log("Current Time:", now);
+  
+        // Check if the meeting is ready
+        setIsMeetingReady(now >= scheduledTime);
       } catch (error) {
         console.log(error);
       }
@@ -79,7 +82,6 @@ export default function MeetingPage({ id }: MeetingPageProps) {
         const response = await axiosInstance(tokenRequestConfig);
 
         console.log(response.data);
-        
 
         const streamClient = new StreamVideoClient({
           apiKey,
@@ -121,14 +123,14 @@ export default function MeetingPage({ id }: MeetingPageProps) {
 
       const res = await axiosInstance.put("/meeting/add-participant", {
         user: participantData,
-        roomId: meeting
+        roomId: meeting,
       });
       console.log("Participant added:", res.data.data);
     } catch (error) {
       console.error("Error joining meeting:", error);
     } finally {
       setLoading(false);
-    } 
+    }
   };
 
   const isUserParticipant = meetingDetails?.participants.some(
@@ -139,6 +141,9 @@ export default function MeetingPage({ id }: MeetingPageProps) {
   //   // console.log("p: ", p);
   //   return p.userId && p.userId.toString() === user.userId;
   // });
+  if (meetingDetails && !isMeetingReady) {
+    return <WaitingRoom meeting={meetingDetails} router={router} />;
+  } 
 
   if (!client || !call) {
     return (
@@ -166,19 +171,16 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     );
   }
 
-  if(!isUserParticipant && (meetingDetails?.type === "private")){
-    return <NotParticipantPage/>
+  if (!isUserParticipant && meetingDetails?.type === "private") {
+    return <NotParticipantPage />;
   }
+
 
   return (
     <StreamVideo client={client}>
       <StreamTheme className="space-y-3">
         <StreamCall call={call}>
-        {!isMeetingReady ? (
-          <WaitingRoom meeting={meetingDetails} /> 
-        ) : (
-            <MeetingScreen /> 
-          )}
+          <MeetingScreen />
         </StreamCall>
       </StreamTheme>
     </StreamVideo>
