@@ -11,7 +11,7 @@ import chatClient from "@/lib/streamChatConfig";
 import { Card, IconButton } from "@mui/material";
 import "stream-chat-react/dist/css/v2/index.css";
 import { CrossCircledIcon } from "@radix-ui/react-icons";
-import "@/styles/chatBox.css";
+import "@/styles/chatbox.css";
 
 interface ChatBoxProps {
   channel: any;
