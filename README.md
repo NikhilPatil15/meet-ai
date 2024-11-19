@@ -91,4 +91,5 @@ We welcome contributions to enhance MeetAI. Here’s how you can contribute:
 4. Commit your changes (`git commit -m "Add feature name"`).
 5. Push the branch (`git push origin feature-name`).
 6. Open a Pull Request with a detailed description.
+7. 
 
