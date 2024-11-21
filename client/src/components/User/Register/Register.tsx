@@ -8,7 +8,7 @@ import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/utils/axios";
-import Link from 'next/link'
+import Link from "next/link";
 
 export default function Register() {
   const USER_REGEX = useMemo(() => /^[A-z][A-z0-9-_]{3,23}$/, []);
@@ -29,6 +29,7 @@ export default function Register() {
   const [validEmail, setValidEmail] = useState<boolean>(false);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
+  const [error, setError] = useState("");
 
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalContent, setModalContent] = useState<string>("");
@@ -60,16 +61,30 @@ export default function Register() {
     };
 
     try {
-      const response = await axiosInstance.post(`/user/register`, data);
-      console.log("Registration successful:", response.data);
-      setToken(response.data.data);
-      setModalContent("Enter the verification code sent to your email.");
-      setShowModal(true);
+      const response: any = await axiosInstance.post(`/user/register`, data);
+      console.log(response);
+      if (response.status === 200) {
+        setToken(response?.data?.data);
+        setModalContent("Enter the verification code sent to your email.");
+        setShowModal(true);
+      }
     } catch (err:any) {
       console.log(
         "Error during registration:",
         err.response?.data || err.message
       );
+      const regex = /Error: (.*?)(<|\\n|$)/;
+      const match = err.response.data.toString()?.match(regex);
+
+      if (match) {
+        const message = match[1].trim();
+        console.log(message);
+        setError(message);
+        console.log(error);
+      }
+      setTimeout(() => {
+        setError("");
+      }, 3000);
     }
   };
 
@@ -81,7 +96,7 @@ export default function Register() {
         otp: verificationCode,
       });
       console.log("Verification successful:", response.data);
-      router.push("/auth/login"); 
+      router.push("/auth/login");
     } catch (err:any) {
       setCodeError("Invalid verification code. Please try again.");
       console.log(
@@ -96,6 +111,9 @@ export default function Register() {
   return (
     <div className="max-w-md w-full mx-auto p-4 md:p-8 bg-white dark:bg-black">
       <form className="my-8" onSubmit={handleSubmit}>
+        {error && (
+          <p className="text-red-600 w-full text-center font-sans">{error}</p>
+        )}
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
           <LabelInputContainer>
             <Label htmlFor="firstname">First name</Label>
@@ -231,29 +249,29 @@ export default function Register() {
       </div>
 
       <div className="mt-6 flex flex-col space-y-2">
-      <Link href="http://localhost:5000/api/v1/user/oauth/github">
-        <button
-          className="relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900"
-          type="button"
-        >
-          <IconBrandGithub className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-          <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-            GitHub
-          </span>
-          <BottomGradient />
-        </button>
+        <Link href="http://localhost:5000/api/v1/user/oauth/github">
+          <button
+            className="relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900"
+            type="button"
+          >
+            <IconBrandGithub className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
+            <span className="text-neutral-700 dark:text-neutral-300 text-sm">
+              GitHub
+            </span>
+            <BottomGradient />
+          </button>
         </Link>
         <Link href="http://localhost:5000/api/v1/user/oauth/google">
-        <button
-          className="relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900"
-          type="button"
-        >
-          <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-          <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-            Google
-          </span>
-          <BottomGradient />
-        </button>
+          <button
+            className="relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900"
+            type="button"
+          >
+            <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
+            <span className="text-neutral-700 dark:text-neutral-300 text-sm">
+              Google
+            </span>
+            <BottomGradient />
+          </button>
         </Link>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { AppThunk } from "../store"; // Import AppThunk type
 import axiosInstance from "../../utils/axios";
+import { useRouter } from "next/navigation";
 
 interface AuthState {
   user: any;
@@ -57,11 +58,10 @@ export const loginUser = (credentials: {
   dispatch(setLoading());
   try {
     const response = await axiosInstance.post("/user/login", credentials);
-    console.log(response);
-    
-    dispatch(fetchUser());
+    return response;
   } catch (error:any) {
     dispatch(setError(error.response?.data?.message || "Login failed"));
+    return error
   }
 };
 

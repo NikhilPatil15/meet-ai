@@ -42,6 +42,8 @@ export default function Login() {
   const [validPassword, setValidPassword] = useState<boolean>(false);
   const [passwordFocus, setPasswordFocus] = useState(false);
 
+  const [error, setError] = useState("");
+
   const [sendEmail, setSendEmail] = useState<boolean>(false);
 
   useEffect(() => {
@@ -59,8 +61,24 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    dispatch(loginUser({ userName, password }));
-    router.push("/user/dashboard");
+    const res: any = await dispatch(loginUser({ userName, password }));
+    console.log(res);
+    if (res?.status === 200) {
+      router.push("/user/dashboard");
+    } else {
+      const regex = /Error: (.*?)(<|\\n|$)/;
+      const match = res?.response?.data?.toString()?.match(regex);
+
+      if (match) {
+        const message = match[1].trim();
+        console.log(message);
+        setError(message);
+        console.log(error);
+      }
+      setTimeout(()=>{
+        setError("")
+      },3000)
+    }
     if (validUserName && validPassword) {
     }
   };
@@ -78,6 +96,7 @@ export default function Login() {
       <form className="my-8" onSubmit={handleSubmit}>
         {!sendEmail ? (
           <>
+            {error && <p className="text-red-600 w-full text-center">{error}</p>}
             <LabelInputContainer className="mb-4">
               <Label htmlFor="username">
                 Username {"    "}
@@ -193,11 +212,11 @@ export default function Login() {
           <BottomGradient />
         </button>
         <div className="mt-6 flex justify-between text-sm">
-        <span>Don't have an account?</span>
-        <a href="/auth/register" className="text-sky-500">
-         Sign up
-        </a>
-      </div>
+          <span>Don't have an account?</span>
+          <a href="/auth/register" className="text-sky-500">
+            Sign up
+          </a>
+        </div>
       </form>
       {!sendEmail && (
         <>
