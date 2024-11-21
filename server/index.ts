@@ -50,7 +50,7 @@ app.listen(port, () => {
 });
 
 /* HealthCheck route */
-app.get("/",async (req, res) => {  
+app.get("/",(req, res) => {  
   res.send("Meet AI backend!");
 });
 
