@@ -2,11 +2,11 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { connectDatabase } from "./Database/db";
-import { corsOrigin, githubId, googleId, googleSecret, PORT } from "./config/envConfig";
+import { connectDatabase } from "./src/Database/db";
+import { corsOrigin, PORT } from "./src/config/envConfig";
 import passport from 'passport'
-import { githubStratergy, googleStratergy } from "./config/oauthStratergies";
-import { User } from "./models/user.model";
+import { githubStratergy, googleStratergy } from "./src/config/oauthStratergies";
+
 /* Backend server initialised */
 const app = express();
 
@@ -50,17 +50,14 @@ app.listen(port, () => {
 });
 
 /* HealthCheck route */
-app.get("/",async (req, res) => {
-  // const p:any = await User.deleteOne({email: "project9960@gmail.com"})
-  // console.log(p);
-  
+app.get("/",async (req, res) => {  
   res.send("Meet AI backend!");
 });
 
-import userRouter from "./routes/user.routes";
-import tokenRouter from "./routes/token.routes";
-import meetingRouter from "./routes/meeting.routes"
-import summaryRouter from "./routes/summary.routes"
+import userRouter from "./src/routes/user.routes";
+import tokenRouter from "./src/routes/token.routes";
+import meetingRouter from "./src/routes/meeting.routes"
+import summaryRouter from "./src/routes/summary.routes"
 
 /* user Routes */
 app.use('/api/v1/user',userRouter)
