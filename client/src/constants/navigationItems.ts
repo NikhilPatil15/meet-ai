@@ -38,33 +38,33 @@
   
   export const navigation = [
     {
-      id: "0",
+      id: "0101",
       title: "Home",
       url: "#home",
     },
     {
-      id: "1",
+      id: "0202",
       title: "About",
       url: "#about",
     },
     {
-      id: "2",
+      id: "0303",
       title: "Contact",
       url: "#contact",
     },
     {
-      id: "3",
+      id: "0404",
       title: "Team",
       url: "#team",
     },
     {
-      id: "4",
+      id: "0505",
       title: "Sign up",
       url: "#register",
       onlyMobile: true,
     },
     {
-      id: "5",
+      id: "0606",
       title: "Sign in",
       url: "#login",
       onlyMobile: true,

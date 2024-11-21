@@ -45,6 +45,8 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({ meeting, router }) => {
 
   const handleJoinMeeting = () => {
     router.replace(`/user/meeting/${meeting?.roomId.split(":")[1]}`);
+    console.log("Button pressed");
+    
   };
 
   return (

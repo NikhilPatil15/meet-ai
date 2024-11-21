@@ -47,7 +47,7 @@ export default function MeetingHistory() {
   const fetchMeetingsHistory = async () => {
     try {
       const response = await axiosInstance.get(
-        "http://localhost:5000/api/v1/user/get-meeting-history"
+        "/user/get-meeting-history"
       );
       console.log("API Response: ", response.data); // Log the API response
 

@@ -44,7 +44,7 @@ export const handleOAuth = async ( req: any, profile: any, callback: (err:any, u
           userName = profile?.username;
           
         } else {
-          if (!(userWithSameEmail.userName === profile?.name?.givenName)) {
+          if ((userWithSameEmail.userName !== profile?.name?.givenName)) {
             userName = profile?.name?.givenName;
           }
         }
@@ -56,7 +56,9 @@ export const handleOAuth = async ( req: any, profile: any, callback: (err:any, u
         userWithSameEmail.userName = userName;
         userWithSameEmail.fullName = fullName
         userWithSameEmail.avatar = avatar
-
+        
+        console.log("Saving changes");
+        
         await userWithSameEmail.save({ validateBeforeSave: false });
 
         console.log("User after changing username: ", userWithSameEmail);

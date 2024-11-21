@@ -4,12 +4,12 @@ import { useRouter } from "next/navigation";
 
 
 
-const NotParticipantPage: React.FC = () => {
+const NotParticipantPage = () => {
   const router = useRouter();
 
   const handleReturn = () => {
 
-    router.replace('/user/dashboard') 
+    router.replace('/') 
   };
 
   return (
@@ -28,7 +28,7 @@ const NotParticipantPage: React.FC = () => {
       </Typography>
 
       <Typography variant="h6" sx={{ mb: 3 }}>
-      This is a private meeting, and you are not a participant. You cannot attend or enter this meeting.
+      This is a private meeting, and you are not invited. You cannot attend or enter this meeting.
       </Typography>
 
       <Button

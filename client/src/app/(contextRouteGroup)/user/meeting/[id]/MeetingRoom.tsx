@@ -57,6 +57,7 @@ const MeetingRoom = () => {
   const [token, setToken] = useState<string | null>(null);
   const [channel, setChannel] = useState<any>(null);
   const [meeting, setMeeting] = useState<any>({});
+  const [isMeetingEnded, setIsMeetingEnded] = useState<boolean>(false);
   const client = useStreamVideoClient();
   // const { user: userInfo } = useAuth();
   const userInfo = useSelector((state: RootState) => state?.auth?.user);
@@ -175,7 +176,7 @@ const MeetingRoom = () => {
   };
 
   // Generate the meeting URL for QR code and invite link
-  const meetingUrl = "https://yourapp.com/meeting/${call?.cid}";
+  const meetingUrl = `${process.env.NEXT_PUBLIC_CLIENT_URL}/user/meeting/${call?.id}`;;
 
   const copyInviteLink = () => {
     navigator.clipboard
@@ -276,17 +277,31 @@ const MeetingRoom = () => {
     }
   }, [channel]);
 
+  useEffect(() => {
+    if (isMeetingEnded) {
+      router.replace("/");
+    }
+  }, [isMeetingEnded]);
+
   const handleLeaveMeeting = async () => {
     router.replace("/");
   };
 
-  console.log(
-    "Check : ",
-    meeting?.hostDetails?._id === userInfo?._id && userInfo?._id !== null
-  );
+  const onEndMeeting = () => {
+    setIsMeetingEnded(true);
+  };
+
+  // console.log(
+  //   "Check : ",
+  //   meeting?.hostDetails?._id === userInfo?._id && userInfo?._id !== null
+  // );
 
   if (callingState !== CallingState.JOINED) {
-    return <Loader2 className="mx-auto animate-spin" />;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="animate-spin text-indigo-500" size={50} />
+      </div>
+    );
   }
 
   return (
@@ -308,20 +323,23 @@ const MeetingRoom = () => {
             }}
           >
             {showParticipants ? (
-              <div style={{
-                height: "100%",
-                width: "100%",
-              }} className="str-video__participant-list rd__sidebar__container">
+              <div
+                style={{
+                  height: "100%",
+                  width: "100%",
+                }}
+                className="str-video__participant-list rd__sidebar__container"
+              >
                 <CallParticipantsList
                   onClose={() => setShowParticipants(false)}
                 />
               </div>
             ) : showChat && channel ? (
-              
-                <ChatBox channel={channel} close={setShowChat} />
-              
+              <ChatBox channel={channel} close={setShowChat} />
             ) : (
-              <p>Loading...</p>
+              <div className="flex items-center justify-center min-h-screen bg-gray-900">
+                <Loader2 className="animate-spin text-indigo-500" size={50} />
+              </div>
             )}
           </Drawer>
         </div>
@@ -386,7 +404,15 @@ const MeetingRoom = () => {
 
           {/* End Meeting Button (only visible to the host) */}
           {meeting?.hostDetails?._id === userInfo?._id && userInfo?._id ? (
-            <EndCallButton text={"End meeting"} />
+            <>
+              <EndCallButton onEndMeeting={onEndMeeting} text={"End meeting"} />
+              <button
+                onClick={copyInviteLink}
+                className="cursor-pointer rounded-full bg-blue-500 px-4 py-2 hover:bg-blue-400"
+              >
+                Copy Link
+              </button>
+            </>
           ) : null}
         </div>
       </div>

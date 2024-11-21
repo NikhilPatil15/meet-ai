@@ -15,19 +15,19 @@ function HeroSection() {
     { text: "Boundless" },
     { text: "Connections" },
     { text: "with" },
-    { text: "Meet Ai", className: "text-blue-500" }, // Blue color for 'Meet Ai'
+    { text: "Meet Ai" }, // Blue color for 'Meet Ai'
   ];
 
   return (
     <div className="pt-[6rem] lg:pt-[4rem] xl:pt-[11rem] px-4 lg:px-8 xl:px-12 shadow-top" id="hero">
       <div className="container relative mx-auto max-w-screen-lg"> {/* Adjusted container */}
         <div className="relative z-1 max-w-[62rem] mx-auto text-center mb-[4rem] md:mb-20 lg:mb-[6rem] px-4"> {/* Added px-4 */}
-          <TypewriterEffect words={words} className="h1 text-white text-2xl md:text-3xl lg:text-3xl" />
+          <TypewriterEffect words={words} className={`h1 text-white text-2xl md:text-3xl lg:text-3xl`} />
           <p className="max-w-3xl mx-auto mt-4 mb-6 text-white text-base md:text-lg lg:text-xl xl:text-2xl">
             MeetAi makes it easy to connect with people, no matter how far apart you are. Whether it's chatting with friends, working with colleagues, or sharing special moments with family.
           </p>
           <div className="mt-6">
-            <Link href={'/courses'}>
+            <Link href={'/auth/login'}>
               <Button className="bg-slateblue-200 text-white border border-darkslateblue-300 hover:bg-slateblue-300 hover:border-darkslateblue-400 py-2 px-4 rounded-md flex items-center justify-center">
                 Get Started for free
               </Button>

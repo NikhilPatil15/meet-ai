@@ -160,6 +160,7 @@ const sendMeetingNotification = async (
     meetingTitle: string;
     meetingTime: Date;
     roomId: string;
+    type: string;
   }
 ) => {
   const transport = createTransport({
@@ -187,32 +188,38 @@ export const scheduleMeetingNotification = (
     meetingTitle: string;
     meetingTime: Date;
     roomId: string;
+    type: string;
   },
   minutesBefore: number = 10
 ) => {
   /* Notification time, email should be sent before 10 minutes of the meeting! */
   const notificationTime = subMinutes(meetingData.meetingTime, minutesBefore);
 
-  const job = new CronJob(notificationTime, async function () {
-    try {
-      await sendMeetingNotification(meetingData.email, meetingData.subject, {
-        name: meetingData.name,
-        meetingTime: meetingData.meetingTime,
-        meetingTitle: meetingData.meetingTitle,
-        roomId: meetingData.roomId,
-      });
+  const job = new CronJob(
+    notificationTime,
+    async function () {
+      try {
+        await sendMeetingNotification(meetingData.email, meetingData.subject, {
+          name: meetingData.name,
+          meetingTime: meetingData.meetingTime,
+          meetingTitle: meetingData.meetingTitle,
+          roomId: meetingData.roomId,
+          type: meetingData.type,
+        });
 
-      const istTime = toZonedTime(new Date(), 'Asia/Kolkata');
-      console.log(`Meeting notification sent successfully to ${meetingData.email} at ${format(istTime, 'PPpp')} IST`);
-    } catch (error) {
-      console.error("Failed to send email notification: ", error);
-    }
-    job.stop()
-  },
-  null,
-  true,
-  'Asia/Kolkata'
-);
+        const istTime = toZonedTime(new Date(), "Asia/Kolkata");
+        console.log(
+          `Meeting notification sent successfully to ${meetingData.email} at ${format(istTime, "PPpp")} IST`
+        );
+      } catch (error) {
+        console.error("Failed to send email notification: ", error);
+      }
+      job.stop();
+    },
+    null,
+    true,
+    "Asia/Kolkata"
+  );
 };
 
 const getMeetingNotificationHTML = (data: {
@@ -220,6 +227,7 @@ const getMeetingNotificationHTML = (data: {
   meetingTitle: string;
   meetingTime: Date;
   roomId: string;
+  type: string;
 }) => {
   // Convert UTC to IST for display
   const istTime = toZonedTime(data.meetingTime, "Asia/Kolkata");
@@ -310,11 +318,15 @@ const getMeetingNotificationHTML = (data: {
       
       <p>Please ensure you're ready to join the meeting on time.</p>
       <p>Log in from your account and join the meeting with the given code.</p>
-      
-      <p>Alternatively, you can join as a guest by clicking the link below:</p>
-      <a href="http://localhost:3000/user/meeting/${data.roomId}" class="meeting-link">
-        Join Meeting
-      </a>
+
+      ${
+        data.type !== "private"
+          ? `<p>Alternatively, you can join as a guest by clicking the link below:</p>
+             <a href="http://localhost:3000/user/meeting/${data.roomId}" class="meeting-link">
+               Join Meeting
+             </a>`
+          : `<p>As this is a private meeting, please ensure you are logged in before joining.</p>`
+      }
       
       <div class="footer">
         <p>Best regards,<br/>MeetAI Team</p>

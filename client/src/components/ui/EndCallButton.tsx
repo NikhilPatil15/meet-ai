@@ -4,13 +4,18 @@ import { useCall, useCallStateHooks } from "@stream-io/video-react-sdk";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-const EndCallButton = ({ text }: string | any) => {
+type EndCallButtonProps = {
+  onEndMeeting: () => void; 
+  text: string;
+};
+
+const EndCallButton:React.FC<EndCallButtonProps> = ({ text, onEndMeeting }) => {
   const call: any = useCall();
   const router = useRouter();
 
   // Check if the local participant is the owner of the call
 
-  /*TODO: the localParticipant id of the host and the call.state.createdby.id of should be same  */
+  
   console.log("Meeting Owner: ");
   //  console.log("Call: ", call.state.createdBy);
 
@@ -23,7 +28,8 @@ const EndCallButton = ({ text }: string | any) => {
       const response = await axiosInstance.put(
         `/meeting/end-meeting/${call?.cid}`
       );
-      router.replace("/");
+
+      onEndMeeting()
     } catch (error) {
       console.error("Error ending the call:", error);
     }

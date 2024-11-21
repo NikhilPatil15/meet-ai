@@ -6,24 +6,16 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import { usePathname,useRouter } from "next/navigation";
 import { sidebarLinks } from "@/constants/index";
 import { cn } from "@/lib/utils";
-import axios from "axios";
-import { useUserContext } from "@/Context/userContext";
+import axiosInstance from "@/utils/axios";
 
 
 const Sidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { token, setToken } = useUserContext();
 
   const logout = async () => {
-    const response = await axios.get(
-      "http://localhost:5000/api/v1/user/logout",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
-      }
+    const response = await axiosInstance.get(
+      `/user/logout`
     );
     console.log("Response: ", response.data);
     router.push("/");

@@ -12,6 +12,7 @@ import { Card, IconButton } from "@mui/material";
 import "stream-chat-react/dist/css/v2/index.css";
 import { CrossCircledIcon } from "@radix-ui/react-icons";
 import "@/styles/chatbox.css";
+import { Loader2 } from "lucide-react";
 
 interface ChatBoxProps {
   channel: any;
@@ -19,7 +20,12 @@ interface ChatBoxProps {
 }
 
 const ChatBox: React.FC<ChatBoxProps> = ({ channel, close }) => {
-  if (!channel) return <div>Loading...</div>;
+  if (!channel)
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="animate-spin text-indigo-500" size={50} />
+      </div>
+    );
   return (
     <div className="relative z-40 h-full w-full p-4 bg-black">
       <IconButton

@@ -16,6 +16,9 @@ import { Avatar, Box, IconButton, Typography } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { fetchUser } from "@/redux/slices/authSlice";
+import axios from "axios";
+import axiosInstance from "@/utils/axios";
+import { useRouter } from "next/navigation";
 
 function Navbar() {
   const dispatch: AppDispatch = useDispatch();
@@ -31,7 +34,7 @@ function Navbar() {
 
   const [openNavigation, setOpenNavigation] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-
+  const router = useRouter()
   const toggleNavigation = () => {
     setOpenNavigation((prev) => !prev);
     if (!openNavigation) {
@@ -56,6 +59,13 @@ const handleOptionClick=(url:string)=>{
 
 }
 
+const handleLogout = async() => {
+  const response = await axiosInstance.get(
+    `/user/logout`
+  );
+  console.log("Response: ", response.data);
+  router.replace("/")
+}
   return (
     <div className="relative">
       <div
@@ -130,15 +140,16 @@ const handleOptionClick=(url:string)=>{
                     >
                       Profile
                     </Link>
-                    <Link
-                      href="/auth/logout"
+                    <button
                       className="block px-4 py-2 rounded-md hover:bg-[#434244]"
                       onClick={() => {
+                        handleLogout()
                         setDropdownOpen(false);
+                  
                       }}
                     >
                       Logout
-                    </Link>
+                    </button>
                     <Link
                       href="/user/dashboard"
                       className="block px-4 py-2 rounded-md hover:bg-[#434244]"
@@ -243,9 +254,7 @@ const handleOptionClick=(url:string)=>{
                 <button
                   onClick={() => {
                     // Add your logout functionality here
-                    console.log("Logout clicked");
-                    // For example, call an action to log out the user
-                    // dispatch(logoutUser());
+                    handleLogout()
                   }}
                   className="text-[16px] uppercase text-n-1 transition-colors hover:text-color-1 px-6 py-6 md:py-8 font-roboto font-normal flex items-center justify-between"
                 >

@@ -18,7 +18,7 @@ import axiosInstance from "@/utils/axios";
 import dayjs from "dayjs";
 import WaitingRoom from "./WaitingRoom";
 import NotParticipantPage from "./NotParticipantPage";
-
+import { IMeeting } from "../../../../../../../../meet-ai/server/src/models/meeting.model";
 interface MeetingPageProps {
   id: string;
 }
@@ -31,7 +31,8 @@ export default function MeetingPage({ id }: MeetingPageProps) {
   const [client, setClient] = useState<StreamVideoClient | null>(null);
   const [meeting, setMeeting] = useState<any>();
   const [isMeetingReady, setIsMeetingReady] = useState<boolean>(false);
-  const [meetingDetails, setMeetingDetails] = useState<any>();
+  const [meetingDetails, setMeetingDetails] = useState<IMeeting | null>();
+  const [isGuest, setIsGuest] = useState<boolean>(false);
   const { user } = useSelector((state: RootState) => state?.auth);
 
   useEffect(() => {
@@ -40,19 +41,17 @@ export default function MeetingPage({ id }: MeetingPageProps) {
         const res = await axiosInstance.get(
           `/meeting/get-meeting/default:${id}`
         );
-        console.log("Meeting Details:", res.data.data); 
+        console.log("Meeting Details:", res.data.data);
 
         setMeeting(res.data.data.roomId);
         setMeetingDetails(res.data.data);
 
-
-        
         const scheduledTime = new Date(res.data.data?.scheduledTime); // Scheduled time as Date object
         const now = new Date(); // Current time as Date object
-  
+
         console.log("Scheduled Time:", scheduledTime);
         console.log("Current Time:", now);
-  
+
         // Check if the meeting is ready
         setIsMeetingReady(now >= scheduledTime);
       } catch (error) {
@@ -101,17 +100,22 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     if (user) {
       initializeClient();
     } else if (username) {
-      const guestUserId = `guest_${Date.now()}`;
-      initializeClient(guestUserId, username);
+      setIsGuest(true);
+      if (meetingDetails?.type !== "private") {
+        const guestUserId = `guest_${Date.now()}`;
+        initializeClient(guestUserId, username);
+      }
     }
   }, [user, username]);
 
   const handleJoinMeeting = async () => {
-    if (!client) return;
+    if (!client && !user && meetingDetails?.type === "private") {
+      return;
+    }
 
     setLoading(true);
     try {
-      const call = client.call("default", id);
+      const call = client!.call("default", id);
       await call.join();
       setCall(call);
       const participantData = {
@@ -137,13 +141,19 @@ export default function MeetingPage({ id }: MeetingPageProps) {
     (participant: any) => participant.userId === user?._id
   );
 
+  // console.log("Check : ",  ( meetingDetails?.type === "private" && !user));
+  
+  if ((!isUserParticipant&& meetingDetails?.type === "private") || ( meetingDetails?.type === "private" && !user)) {
+    return <NotParticipantPage />;
+  }
+
   // const isParticipantExists = meeting.participants.some((p: any) => {
   //   // console.log("p: ", p);
   //   return p.userId && p.userId.toString() === user.userId;
   // });
   if (meetingDetails && !isMeetingReady) {
     return <WaitingRoom meeting={meetingDetails} router={router} />;
-  } 
+  }
 
   if (!client || !call) {
     return (
@@ -162,7 +172,9 @@ export default function MeetingPage({ id }: MeetingPageProps) {
           disabled={loading || (!user && !username)}
         >
           {loading ? (
-            <Loader2 className="mx-auto animate-spin" />
+            <div className="flex items-center justify-center min-h-screen">
+              <Loader2 className="animate-spin text-indigo-500" size={50} />
+            </div>
           ) : (
             "Join meeting"
           )}
@@ -170,11 +182,6 @@ export default function MeetingPage({ id }: MeetingPageProps) {
       </div>
     );
   }
-
-  if (!isUserParticipant && meetingDetails?.type === "private") {
-    return <NotParticipantPage />;
-  }
-
 
   return (
     <StreamVideo client={client}>

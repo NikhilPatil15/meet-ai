@@ -5,7 +5,7 @@ const PermissionPrompt = () => {
   return (
     <div className='flex flex-col items-center gap-3'>
         <div className='flex items-center gap-3'>
-            <Webcam size={40}></Webcam>
+            <Webcam size={50}></Webcam>
             <Mic size={40}/>
             
         </div>

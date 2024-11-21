@@ -259,6 +259,7 @@ const getMeeting: any = asyncHandler(async (req: any, res: Response) => {
         fileUrl: 1,
         fileName: 1,
         dialogues: 1,
+        type:1,
         "hostDetails._id": 1,
         "hostDetails.userName": 1,
         "hostDetails.email": 1,
@@ -309,6 +310,7 @@ const sendEmailAtScheduledTime = asyncHandler(
             meetingTime: meeting?.scheduledTime,
             roomId: meeting?.roomId.split(":")[1],
             subject: meeting?.title,
+            type:meeting?.type
           };
 
           scheduleMeetingNotification(pariticipantMeetingData);
@@ -322,6 +324,7 @@ const sendEmailAtScheduledTime = asyncHandler(
           meetingTime: meeting?.scheduledTime,
           roomId: meeting?.roomId.split(":")[1],
           subject: meeting?.title,
+          type:meeting?.type
         };
 
         scheduleMeetingNotification(hostMeetingData);

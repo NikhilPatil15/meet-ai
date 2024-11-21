@@ -5,7 +5,7 @@ import axios, {
 } from "axios";
 
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api/v1",
+  baseURL: `${process.env.NEXT_PUBLIC_BASE_URL}`,
   withCredentials: true,
 });
 
@@ -41,7 +41,7 @@ axiosInstance.interceptors.response.use(
 
       try {
         const refreshResponse = await axiosInstance.post(
-          "http://localhost:5000/api/v1/user/refresh-token",
+          `${process.env.NEXT_PUBLIC_BASE_URL}/user/refresh-token`,
           { refreshToken }
         );
         console.log(refreshResponse.data.data);

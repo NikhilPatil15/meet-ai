@@ -192,6 +192,12 @@ export default function Login() {
           {!sendEmail && <span>Sign in &rarr;</span>}
           <BottomGradient />
         </button>
+        <div className="mt-6 flex justify-between text-sm">
+        <span>Don't have an account?</span>
+        <a href="/auth/register" className="text-sky-500">
+         Sign up
+        </a>
+      </div>
       </form>
       {!sendEmail && (
         <>
