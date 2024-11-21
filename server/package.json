@@ -8,8 +8,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "nodemon  -r dotenv/config  index.ts"
+    "start": "node index.js",
+    "dev": "nodemon -r dotenv/config  index.ts"
   },
   "keywords": [],
   "author": "",
