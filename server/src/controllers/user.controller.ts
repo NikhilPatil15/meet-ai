@@ -525,7 +525,7 @@ const getMeetingHistory = asyncHandler(async (req: any, res: Response) => {
     },
     {
       $project: {
-        "userDetails._id": 1,
+        "userDetails.userId": 1,
         "userDetails.userName": 1,
         "userDetails.fullName": 1,
         "userDetails.email": 1,

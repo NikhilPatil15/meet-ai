@@ -15,7 +15,7 @@ interface HostDetails {
   userName: string;
   fullName: string;
   email: string;
-  avatar:string
+  avatar: string;
 }
 
 interface Meeting {
@@ -74,11 +74,22 @@ export default function MeetingHistory() {
     if (totalMeetings === 0) return "N/A";
 
     const totalDuration = meetings.reduce((acc, meeting) => {
-      // console.log(acc, meeting);
+      // Ensure `scheduledTime` and `endTime` are valid before proceeding
+      if (!meeting.scheduledTime || !meeting.endTime) {
+        console.error("Invalid meeting times:", meeting);
+        return acc;
+      }
 
       const startTime = new Date(meeting.scheduledTime).getTime();
       const endTime = new Date(meeting.endTime).getTime();
+
+      if (isNaN(startTime) || isNaN(endTime)) {
+        console.error("Invalid date conversion:", meeting);
+        return acc; 
+      }
+
       const duration = endTime - startTime;
+      // console.log(`Meeting Duration: ${duration}ms`);
       return acc + duration;
     }, 0);
 
@@ -96,27 +107,30 @@ export default function MeetingHistory() {
   // console.log(averageDuration);
 
   const topCollaborators = (() => {
-    const participantCount: { [id: string]: { count: number; name: string } } = {};
-  
+    const participantCount: {
+      [id: string]: { count: number; name: string };
+    } = {};
+
     meetings.forEach((meeting) => {
-      console.log(meeting);
-      
-      const participants: Participant[] = [
-        ...(meeting.guestDetails as Participant[]),
-        ...(meeting.userDetails as Participant[]),
-      ];
+      // console.log(meeting);
+
+      let participants: Participant[] | any = [];
+      if (meeting?.userDetails && meeting?.userDetails?.length > 0) {
+        participants = [...participants, ...meeting?.userDetails];
+      }
+      if (meeting?.guestDetails && meeting?.guestDetails?.length > 0) {
+        participants = [...participants, ...meeting?.guestDetails];
+      }
 
       // console.log(participants);
-      
-  
+
       participants.forEach((participant: any) => {
-        const id = participant._id || participant.guestId;
+        const id = participant.userId || participant.guestId;
         // console.log(id);
-        
+
         const name = participant.userName || participant.guestName;
         // console.log(name);
-        
-  
+
         if (id && name) {
           if (participantCount[id]) {
             participantCount[id].count += 1;
@@ -126,11 +140,11 @@ export default function MeetingHistory() {
         }
       });
     });
-  
+
     const sortedCollaborators = Object.values(participantCount)
       .sort((a, b) => b.count - a.count)
       .slice(0, 3);
-  
+
     return (
       sortedCollaborators.map((c) => c.name).join(", ") ||
       "No frequent collaborators"
@@ -202,7 +216,10 @@ export default function MeetingHistory() {
                   </Typography>
 
                   <div className="flex items-center gap-2 mt-4">
-                    <Avatar alt={meeting.hostDetails.fullName} src={meeting?.hostDetails?.avatar}/>
+                    <Avatar
+                      alt={meeting.hostDetails.fullName}
+                      src={meeting?.hostDetails?.avatar}
+                    />
                     <div>
                       <Typography variant="body2" className="text-sm font-bold">
                         {meeting.hostDetails.fullName}
