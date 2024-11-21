@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "nodemon  -r dotenv/config  src/index.ts"
+    "dev": "nodemon -r dotenv/config  index.ts"
   },
   "keywords": [],
   "author": "",
